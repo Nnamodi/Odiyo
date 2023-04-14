@@ -1,0 +1,22 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext {
+        activity_compose_version = '1.7.0'
+        compose_version = '1.4.1'
+        core_version = '1.10.0'
+        lifecycle_version = '2.6.1'
+        material3_version = '1.0.1'
+        nav_version = '2.5.3'
+        expresso_version = '3.5.1'
+        ext_junit_version = '1.1.5'
+        junit_version = '4.13.2'
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.4.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
+    }
+}
