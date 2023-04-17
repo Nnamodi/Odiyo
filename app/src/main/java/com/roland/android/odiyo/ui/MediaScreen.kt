@@ -1,30 +1,34 @@
 package com.roland.android.odiyo.ui
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.net.toUri
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.theme.OdiyoTheme
-import com.roland.android.odiyo.viewmodel.OdiyoViewModel
-import com.roland.android.odiyo.viewmodel.ViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun MediaScreen(viewModel: OdiyoViewModel = viewModel(factory = ViewModelFactory())) {
-	val songs = viewModel.songs
-
+fun MediaScreen(
+	songs: List<Music>,
+	currentSongUri: Uri,
+	playAudio: (Uri) -> Unit,
+) {
 	LazyColumn(
 		modifier = Modifier.fillMaxSize()
 	) {
@@ -32,15 +36,24 @@ fun MediaScreen(viewModel: OdiyoViewModel = viewModel(factory = ViewModelFactory
 			items = songs,
 			key = { _, song -> song.uri }
 		) { _, song ->
-			MediaItem(song)
+			MediaItem(song, currentSongUri, playAudio)
 		}
 	}
 }
 
 @Composable
-fun MediaItem(song: Music) {
+fun MediaItem(
+	song: Music,
+	currentSongUri: Uri,
+	playAudio: (Uri) -> Unit,
+) {
+	val isPlaying by remember { mutableStateOf(song.uri == currentSongUri) }
+	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
+
 	Row(
-		Modifier.fillMaxWidth()
+		Modifier
+			.fillMaxWidth()
+			.clickable { playAudio(song.uri) }
 	) {
 		song.thumbnail?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "song thumbnail") }
 		Column(
@@ -49,10 +62,10 @@ fun MediaItem(song: Music) {
 				.padding(20.dp),
 			verticalArrangement = Arrangement.SpaceBetween
 		) {
-			Text(song.name)
-			Text(song.title)
-			Text(song.artist)
-			Text(song.duration.toString())
+			Text(song.name, color = color)
+			Text(song.title, color = color)
+			Text(song.artist, color = color)
+			Text(song.duration.toString(), color = color)
 		}
 	}
 }
@@ -66,7 +79,7 @@ fun MediaPreview() {
 			modifier = Modifier.fillMaxSize(),
 			color = MaterialTheme.colorScheme.background
 		) {
-			MediaScreen()
+			MediaScreen(previewData, "3".toUri()) {}
 		}
 	}
 }

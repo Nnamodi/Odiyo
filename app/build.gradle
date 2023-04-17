@@ -55,6 +55,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.activity:activity-compose:$activity_compose_version"
 
+    // media_lib
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    implementation "androidx.media3:media3-session:$media3_version"
+    implementation "androidx.media3:media3-ui:$media3_version"
+
     // material design
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material3:material3:$material3_version"
