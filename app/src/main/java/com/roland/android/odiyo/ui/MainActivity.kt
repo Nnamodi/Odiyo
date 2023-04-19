@@ -22,6 +22,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.permissionRequest
 import com.roland.android.odiyo.viewmodel.OdiyoViewModel
@@ -32,7 +33,8 @@ import com.roland.android.odiyo.viewmodel.ViewModelFactory
 class MainActivity : ComponentActivity() {
 	private lateinit var player: ExoPlayer
 	private lateinit var mediaSession: MediaSession
-//	private lateinit var mediaController: MediaController
+	private lateinit var notificationManager: OdiyoNotificationManager
+//	private lateinit var mediaController: MediaController.Builder
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
 		}
 		player = ExoPlayer.Builder(this).build()
 		mediaSession = MediaSession.Builder(this, player).build()
+		notificationManager = OdiyoNotificationManager(this)
 //		mediaController = MediaController.Builder(this, mediaSession.token)
 
 		setContent {
@@ -75,11 +78,14 @@ class MainActivity : ComponentActivity() {
 										prepare(); play()
 									}
 									if (isPlaying) {
-										if (!sameSong) { prepare(); play() } else pause()
+										if (sameSong) pause()
+									} else {
+										if (sameSong) { prepare(); play() }
 									}
 									player.pauseAtEndOfMediaItems = true
 								}
 								currentSongUri = uri
+								notificationManager.showNotification(player)
 							},
 							currentSongUri = currentSongUri
 						)
@@ -91,6 +97,7 @@ class MainActivity : ComponentActivity() {
 
 	override fun onDestroy() {
 		super.onDestroy()
+		notificationManager.hideNotification()
 		player.release()
 		mediaSession.release()
 	}
