@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Odiyo</string>
     <string name="notification_channel">Music player</string>
-    <string name="channel_description">Currently playing music in Odiyo</string>
+    <string name="channel_description">Shows currently playing music in Odiyo</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.media3.common.MediaItem
 import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.theme.OdiyoTheme
@@ -26,7 +27,7 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 @Composable
 fun MediaScreen(
 	songs: List<Music>,
-	currentSongUri: Uri,
+	currentSongUri: MediaItem,
 	playAudio: (Uri) -> Unit,
 ) {
 	LazyColumn(
@@ -44,10 +45,11 @@ fun MediaScreen(
 @Composable
 fun MediaItem(
 	song: Music,
-	currentSongUri: Uri,
+	currentSongUri: MediaItem,
 	playAudio: (Uri) -> Unit,
 ) {
-	val isPlaying by remember { mutableStateOf(song.uri == currentSongUri) }
+	val mediaItem = MediaItem.Builder().setUri(song.uri).build()
+	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
 	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
 
 	Row(
@@ -79,7 +81,8 @@ fun MediaPreview() {
 			modifier = Modifier.fillMaxSize(),
 			color = MaterialTheme.colorScheme.background
 		) {
-			MediaScreen(previewData, "3".toUri()) {}
+			val mediaItem = MediaItem.Builder().setUri("3".toUri()).build()
+			MediaScreen(previewData, mediaItem) {}
 		}
 	}
 }

@@ -5,12 +5,18 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerNotificationManager
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.service.Constants.MUSIC_NOTIFICATION_CHANNEL_ID
+import com.roland.android.odiyo.service.Constants.MUSIC_NOTIFICATION_ID
 
 @UnstableApi class OdiyoNotificationManager(context: Context) {
 	private val notificationManager: PlayerNotificationManager
 
 	init {
-		val builder = PlayerNotificationManager.Builder(context, 9570, "odiyo_notification")
+		val builder = PlayerNotificationManager.Builder(
+			context,
+			MUSIC_NOTIFICATION_ID,
+			MUSIC_NOTIFICATION_CHANNEL_ID
+		)
 		with (builder) {
 			setChannelNameResourceId(R.string.notification_channel)
 			setChannelDescriptionResourceId(R.string.channel_description)
@@ -21,7 +27,6 @@ import com.roland.android.odiyo.R
 		}
 		notificationManager = builder.build()
 		notificationManager.apply {
-//			setMediaSessionToken(sessionToken)
 			setSmallIcon(android.R.drawable.ic_media_play)
 			setUseFastForwardAction(false)
 			setUseRewindAction(false)
