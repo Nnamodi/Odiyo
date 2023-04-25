@@ -23,7 +23,7 @@ val previewData = listOf(
 	Music(
 		uri = "2".toUri(),
 		name = "",
-		title = "Jack and the spear",
+		title = "Duke and the spear for old times' sake",
 		artist = "James Hadley-chase",
 		time = 542155,
 		thumbnail = null

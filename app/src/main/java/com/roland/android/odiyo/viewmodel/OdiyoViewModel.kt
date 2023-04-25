@@ -14,6 +14,9 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.MediaSource
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.mediaSession
+import com.roland.android.odiyo.service.Util.nowPlaying
+import com.roland.android.odiyo.service.Util.playingState
+import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -24,7 +27,8 @@ class OdiyoViewModel(
 	private val mediaSource = MediaSource(viewModelScope, resolver)
 	var songs by mutableStateOf<List<Music>>(emptyList())
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
-	var nowPlaying = mediaSession?.player?.currentMediaItem
+	var currentSong by mutableStateOf<Music?>(null)
+	var isPlaying by mutableStateOf(false)
 
 	init {
 		viewModelScope.launch {
@@ -35,15 +39,29 @@ class OdiyoViewModel(
 				}
 			}
 		}
+		viewModelScope.launch {
+			nowPlaying.collect {
+				currentSong = musicItem(it)
+			}
+		}
+		viewModelScope.launch {
+			playingState.collect {
+				isPlaying = it
+			}
+		}
+	}
+
+	private fun musicItem(mediaItem: MediaItem?): Music? {
+		val currentSong = mediaItem?.localConfiguration?.uri
+		return songs.find { it.uri == currentSong }
 	}
 
 	fun playAudio(uri: Uri) {
-		val clickedItem = MediaItem.Builder().setUri(uri).build()
 		mediaSession?.player?.apply {
 			if (!isLoading) {
-				val sameSong = currentMediaItem == clickedItem
+				val sameSong = currentMediaItem == uri.toMediaItem
 				if (!sameSong) {
-					while (!currentMediaItem?.equals(clickedItem)!!) {
+					while (!currentMediaItem?.equals(uri.toMediaItem)!!) {
 						seekToNext()
 						if (!hasNextMediaItem()) return
 					}
@@ -56,8 +74,16 @@ class OdiyoViewModel(
 						prepare(); play()
 					}
 				}
-				nowPlaying = clickedItem
 			} else { return }
+		}
+	}
+
+	fun seek(previous: Boolean = false, next: Boolean = false) {
+		mediaSession?.player?.apply {
+			when {
+				previous -> seekToPrevious()
+				next -> seekToNext()
+			}
 		}
 	}
 }

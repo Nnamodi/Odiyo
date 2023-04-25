@@ -22,8 +22,9 @@ import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
+import androidx.navigation.compose.rememberNavController
 import com.roland.android.odiyo.service.OdiyoNotificationManager
-import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
+import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.theme.OdiyoTheme
@@ -42,6 +43,7 @@ class MainActivity : ComponentActivity() {
 			.setAudioAttributes(audioAttribute, true)
 			.build()
 		mediaSession = MediaSession.Builder(this, player).build()
+		mediaSession?.player?.addListener(PlayerListener())
 		notificationManager = OdiyoNotificationManager(context = this)
 		notificationManager.showNotification(player)
 
@@ -65,12 +67,12 @@ class MainActivity : ComponentActivity() {
 				) {
 					if (permissionGranted) {
 						val viewModel: OdiyoViewModel = viewModel(factory = ViewModelFactory())
+						val navController = rememberNavController()
 						player.apply { setMediaItems(viewModel.mediaItems); prepare() }
 
-						MediaScreen(
-							songs = viewModel.songs,
-							playAudio = viewModel::playAudio,
-							currentSongUri = viewModel.nowPlaying ?: NOTHING_PLAYING
+						AppRoute(
+							navController = navController,
+							viewModel = viewModel
 						)
 					}
 				}

@@ -2,6 +2,7 @@ package com.roland.android.odiyo.service
 
 import android.app.PendingIntent
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
@@ -11,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.ui.MainActivity
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -22,6 +24,14 @@ object Util {
 
 	var mediaSession: MediaSession? = null
 
+	val nowPlaying = MutableStateFlow<MediaItem?>(null)
+
+	val playingState = MutableStateFlow(false)
+
+	val Uri.toMediaItem: MediaItem
+		get() = MediaItem.Builder().setUri(this).build()
+
+	// an intent to launch UI from player notification [dysfunctional]
 	val Context.pendingIntent: PendingIntent
 		get() = PendingIntent.getActivity(
 				this,
