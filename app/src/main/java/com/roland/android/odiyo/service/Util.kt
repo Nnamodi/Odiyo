@@ -13,6 +13,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -27,6 +32,17 @@ object Util {
 	val nowPlaying = MutableStateFlow<MediaItem?>(null)
 
 	val playingState = MutableStateFlow(false)
+
+	val Long.time: String
+		get() = LocalDateTime.ofInstant(
+			Instant.ofEpochMilli(this),
+			ZoneId.systemDefault()
+		).format(
+			DateTimeFormatter.ofPattern(
+				"mm:ss",
+				Locale.getDefault()
+			)
+		)
 
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()

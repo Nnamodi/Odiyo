@@ -2,15 +2,18 @@ package com.roland.android.odiyo.model
 
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlin.time.Duration.Companion.milliseconds
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.roland.android.odiyo.service.Util.time
 
 data class Music(
 	val uri: Uri,
 	val name: String,
 	val title: String,
 	val artist: String,
-	val time: Int,
+	private val time: Int,
 	val thumbnail: Bitmap?
 ) {
-	val duration = time.milliseconds
+	@RequiresApi(Build.VERSION_CODES.Q)
+	val duration = time.toLong().time
 }

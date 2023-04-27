@@ -18,17 +18,15 @@ import com.roland.android.odiyo.service.Constants.MUSIC_NOTIFICATION_ID
 			MUSIC_NOTIFICATION_CHANNEL_ID
 		)
 		with (builder) {
-			setChannelNameResourceId(R.string.notification_channel)
 			setChannelDescriptionResourceId(R.string.channel_description)
-			setPlayActionIconResourceId(android.R.drawable.ic_media_play)
-			setPauseActionIconResourceId(android.R.drawable.ic_media_pause)
-			setPreviousActionIconResourceId(android.R.drawable.ic_media_previous)
-			setNextActionIconResourceId(android.R.drawable.ic_media_next)
+			setChannelNameResourceId(R.string.notification_channel)
 		}
 		notificationManager = builder.build()
 		notificationManager.apply {
 			setSmallIcon(android.R.drawable.ic_media_play)
 			setUseFastForwardAction(false)
+			setUseNextActionInCompactView(true)
+			setUsePreviousActionInCompactView(true)
 			setUseRewindAction(false)
 		}
 	}

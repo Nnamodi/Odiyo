@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
 	override fun onDestroy() {
 		notificationManager.hideNotification()
 		mediaSession?.apply {
-			player.release()
+			player.apply { removeListener(PlayerListener()); release() }
 			release()
 			mediaSession = null
 		}

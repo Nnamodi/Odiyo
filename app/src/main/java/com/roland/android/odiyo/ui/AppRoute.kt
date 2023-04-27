@@ -7,8 +7,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.viewmodel.OdiyoViewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -25,11 +23,13 @@ fun AppRoute(
 		composable(AppRoute.MediaScreen.route) {
 			MediaScreen(
 				songs = viewModel.songs,
-				playAudio = {
-					viewModel.playAudio(it)
-					navController.navigate(AppRoute.NowPlayingScreen.route)
+				currentSong = viewModel.currentSong,
+				isPlaying = viewModel.isPlaying,
+				playAudio = { uri, moveToNowPlaying ->
+					viewModel.playAudio(uri)
+					if (moveToNowPlaying) { navController.navigate(AppRoute.NowPlayingScreen.route) }
 				},
-				currentSongUri = viewModel.currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING
+				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
 			)
 		}
 		composable(AppRoute.NowPlayingScreen.route) {

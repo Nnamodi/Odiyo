@@ -28,5 +28,5 @@ object MediaDetails {
 //		".mp3"
 //	)
 
-	const val sortOrder = "${MediaStore.Audio.Media.DATE_ADDED} DESC"
+	const val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
 }

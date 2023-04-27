@@ -61,7 +61,6 @@ dependencies {
     implementation "androidx.media3:media3-ui:$media3_version"
 
     // material design
-    implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material3:material3:$material3_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 

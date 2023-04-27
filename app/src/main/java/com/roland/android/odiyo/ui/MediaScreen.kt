@@ -3,76 +3,152 @@ package com.roland.android.odiyo.ui
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PauseCircleOutline
+import androidx.compose.material.icons.rounded.PlayCircleOutline
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import coil.compose.AsyncImage
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun MediaScreen(
 	songs: List<Music>,
-	currentSongUri: MediaItem,
-	playAudio: (Uri) -> Unit,
+	currentSong: Music?,
+	isPlaying: Boolean,
+	playAudio: (Uri, Boolean) -> Unit,
+	moveToNowPlayingScreen: () -> Unit
 ) {
-	LazyColumn(
-		modifier = Modifier.fillMaxSize()
+	Box(
+		contentAlignment = Alignment.BottomStart
 	) {
-		itemsIndexed(
-			items = songs,
-			key = { _, song -> song.uri }
-		) { _, song ->
-			MediaItem(song, currentSongUri, playAudio)
+		LazyColumn(
+			modifier = Modifier.padding(bottom = 75.dp)
+		) {
+			itemsIndexed(
+				items = songs,
+				key = { _, song -> song.uri }
+			) { _, song ->
+				MediaItem(
+					song = song,
+					currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
+					playAudio = playAudio
+				)
+			}
 		}
+		NowPlayingMinimizedView(
+			song = currentSong,
+			isPlaying = isPlaying,
+			playPause = playAudio,
+			moveToNowPlayingScreen = moveToNowPlayingScreen
+		)
 	}
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun MediaItem(
 	song: Music,
 	currentSongUri: MediaItem,
-	playAudio: (Uri) -> Unit,
+	playAudio: (Uri, Boolean) -> Unit,
 ) {
 	val mediaItem = MediaItem.Builder().setUri(song.uri).build()
 	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
 	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
 
 	Row(
-		Modifier
+		modifier = Modifier
+			.clickable { playAudio(song.uri, true) }
 			.fillMaxWidth()
-			.clickable { playAudio(song.uri) }
+			.padding(10.dp),
+		verticalAlignment = Alignment.CenterVertically
 	) {
 		song.thumbnail?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "song thumbnail") }
 		Column(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(20.dp),
+			modifier = Modifier.fillMaxWidth(),
 			verticalArrangement = Arrangement.SpaceBetween
 		) {
-			Text(song.name, color = color)
-			Text(song.title, color = color)
-			Text(song.artist, color = color)
-			Text(song.duration.toString(), color = color)
+			Text(
+				text = song.title,
+				overflow = TextOverflow.Ellipsis,
+				fontWeight = FontWeight.Bold,
+				maxLines = 2,
+				color = color
+			)
+			Text(
+				text = song.artist,
+				overflow = TextOverflow.Ellipsis,
+				fontWeight = FontWeight.Light,
+				softWrap = false,
+				color = color
+			)
+			Text(song.duration, color = color)
 		}
 	}
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
+@Composable
+fun NowPlayingMinimizedView(
+	song: Music?,
+	isPlaying: Boolean,
+	playPause: (Uri, Boolean) -> Unit,
+	moveToNowPlayingScreen: () -> Unit
+) {
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(10.dp)
+			.background(Color.LightGray)
+			.clickable { moveToNowPlayingScreen() },
+		horizontalArrangement = Arrangement.Start,
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Text(
+			text = song?.title ?: "",
+			overflow = TextOverflow.Ellipsis,
+			modifier = Modifier.weight(1.0f),
+			softWrap = false
+		)
+		IconButton(
+			onClick = { song?.uri?.let { playPause(it, false) } },
+			modifier = Modifier
+				.padding(start = 24.dp, end = 12.dp)
+				.size(30.dp)
+		) {
+			Icon(
+				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
+				contentDescription = if (isPlaying) "pause" else "play",
+				modifier = Modifier.fillMaxSize()
+			)
+		}
+	}
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Preview
 @Composable
 fun MediaPreview() {
@@ -81,8 +157,14 @@ fun MediaPreview() {
 			modifier = Modifier.fillMaxSize(),
 			color = MaterialTheme.colorScheme.background
 		) {
-			val mediaItem = MediaItem.Builder().setUri("3".toUri()).build()
-			MediaScreen(previewData, mediaItem) {}
+			val currentSong = previewData[2]
+			MediaScreen(
+				songs = previewData,
+				currentSong = currentSong,
+				isPlaying = false,
+				playAudio = { _, _ -> },
+				moveToNowPlayingScreen = {}
+			)
 		}
 	}
 }
