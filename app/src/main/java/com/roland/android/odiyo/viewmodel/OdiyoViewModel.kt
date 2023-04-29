@@ -3,6 +3,7 @@ package com.roland.android.odiyo.viewmodel
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ class OdiyoViewModel(
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
 	var currentSong by mutableStateOf<Music?>(null)
 	var isPlaying by mutableStateOf(false)
+	var progress by mutableStateOf(0f)
 
 	init {
 		viewModelScope.launch {
@@ -75,6 +77,7 @@ class OdiyoViewModel(
 					}
 				}
 			} else { return }
+			Log.d("ViewModelInfo", "playAudio: ${musicItem(uri.toMediaItem)}")
 		}
 	}
 

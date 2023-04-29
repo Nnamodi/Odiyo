@@ -27,6 +27,9 @@ import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -73,7 +76,7 @@ fun MediaItem(
 	currentSongUri: MediaItem,
 	playAudio: (Uri, Boolean) -> Unit,
 ) {
-	val mediaItem = MediaItem.Builder().setUri(song.uri).build()
+	val mediaItem = song.uri.toMediaItem
 	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
 	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
 
@@ -84,7 +87,14 @@ fun MediaItem(
 			.padding(10.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		song.thumbnail?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "song thumbnail") }
+		AsyncImage(
+			model = song.getArtwork(),
+			contentDescription = "media thumbnail",
+			placeholder = painterResource(R.drawable.default_art),
+			modifier = Modifier
+				.padding(end = 8.dp)
+				.size(70.dp)
+		)
 		Column(
 			modifier = Modifier.fillMaxWidth(),
 			verticalArrangement = Arrangement.SpaceBetween
@@ -126,6 +136,14 @@ fun NowPlayingMinimizedView(
 		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
 	) {
+		AsyncImage(
+			model = song?.getArtwork(),
+			contentDescription = "media thumbnail",
+			placeholder = painterResource(R.drawable.default_art),
+			modifier = Modifier
+				.padding(8.dp)
+				.size(44.dp)
+		)
 		Text(
 			text = song?.title ?: "",
 			overflow = TextOverflow.Ellipsis,

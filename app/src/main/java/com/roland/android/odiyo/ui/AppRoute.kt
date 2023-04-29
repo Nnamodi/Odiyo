@@ -36,6 +36,7 @@ fun AppRoute(
 			NowPlayingScreen(
 				song = viewModel.currentSong,
 				isPlaying = viewModel.isPlaying,
+				progress = viewModel.progress,
 				playPause = viewModel::playAudio,
 				seekTo = viewModel::seek,
 				navigateUp = { navController.navigateUp() }

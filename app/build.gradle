@@ -55,6 +55,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.activity:activity-compose:$activity_compose_version"
 
+    // coil
+    implementation "io.coil-kt:coil-compose:$coil_version"
+
     // media_lib
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     implementation "androidx.media3:media3-session:$media3_version"

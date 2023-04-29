@@ -6,12 +6,16 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Size
+import androidx.annotation.RequiresApi
+import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okio.use
 
+@UnstableApi
 class MediaSource(
 	private val scope: CoroutineScope,
 	private val resolver: ContentResolver
@@ -26,6 +30,7 @@ class MediaSource(
 
 	private val media = MutableStateFlow<List<Music>>(mutableListOf())
 
+	@RequiresApi(Build.VERSION_CODES.Q)
 	fun media(): MutableStateFlow<List<Music>> {
 		scope.launch {
 			query?.use { cursor ->
@@ -47,12 +52,7 @@ class MediaSource(
 						id
 					)
 
-					val thumbnail: Bitmap? =
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							resolver.loadThumbnail(
-								contentUri, Size(50, 50), null
-							)
-						} else { null }
+					val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
 					val music = Music(contentUri, name, title, artist, duration, thumbnail)
 					media.value += music

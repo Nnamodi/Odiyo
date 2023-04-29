@@ -1,7 +1,11 @@
 package com.roland.android.odiyo.service
 
 import android.app.PendingIntent
+import android.content.ContentResolver
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -11,6 +15,8 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
+import com.roland.android.odiyo.R
+import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
@@ -46,6 +52,32 @@ object Util {
 
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()
+
+	fun Music.getArtwork(): Any {
+		return this.thumbnail ?:
+		this.uri.getBitMap() ?:
+		R.drawable.default_art
+	}
+
+	private fun Uri.getBitMap(): Bitmap? {
+		val metaData = this.toMediaItem.mediaMetadata
+		val bitmapFromMetaData = mediaSession?.bitmapLoader?.loadBitmapFromMetadata(metaData)?.get()
+		val decodeBitmap = metaData.artworkData?.let {
+			mediaSession?.bitmapLoader?.decodeBitmap(it)?.get()
+		}
+		return bitmapFromMetaData ?: decodeBitmap
+	}
+
+	fun Uri.toBitmap(resolver: ContentResolver): Bitmap? {
+		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			val source = ImageDecoder.createSource(resolver, this)
+			ImageDecoder.decodeBitmap(source)
+		} else {
+			resolver.openInputStream(this)?.use { inputStream ->
+				BitmapFactory.decodeStream(inputStream)
+			}
+		}
+	}
 
 	// an intent to launch UI from player notification [dysfunctional]
 	val Context.pendingIntent: PendingIntent
