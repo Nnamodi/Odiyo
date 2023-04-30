@@ -11,12 +11,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.MediaSource
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
+import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
+import com.roland.android.odiyo.service.Util.shuffleModeState
 import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
 
@@ -30,6 +34,9 @@ class OdiyoViewModel(
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
 	var currentSong by mutableStateOf<Music?>(null)
 	var isPlaying by mutableStateOf(false)
+	var isDeviceMuted by mutableStateOf(false)
+	var shuffleState by mutableStateOf(false)
+	var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null)
 	var progress by mutableStateOf(0f)
 
 	init {
@@ -51,6 +58,21 @@ class OdiyoViewModel(
 				isPlaying = it
 			}
 		}
+		viewModelScope.launch {
+			nowPlayingMetadata.collect {
+				nowPlayingMetaData = it
+			}
+		}
+		viewModelScope.launch {
+			deviceMuteState.collect {
+				isDeviceMuted = it
+			}
+		}
+		viewModelScope.launch {
+			shuffleModeState.collect {
+				shuffleState = it
+			}
+		}
 	}
 
 	private fun musicItem(mediaItem: MediaItem?): Music? {
@@ -58,11 +80,13 @@ class OdiyoViewModel(
 		return songs.find { it.uri == currentSong }
 	}
 
-	fun playAudio(uri: Uri) {
+	fun playAudio(uri: Uri, fromMediaList: Boolean = false) {
 		mediaSession?.player?.apply {
 			if (!isLoading) {
 				val sameSong = currentMediaItem == uri.toMediaItem
 				if (!sameSong) {
+					// reset playlist when a mediaItem is selected from list
+					if (fromMediaList) { setMediaItems(mediaItems); prepare() }
 					while (!currentMediaItem?.equals(uri.toMediaItem)!!) {
 						seekToNext()
 						if (!hasNextMediaItem()) return
@@ -87,6 +111,18 @@ class OdiyoViewModel(
 				previous -> seekToPrevious()
 				next -> seekToNext()
 			}
+		}
+	}
+
+	fun shuffle() {
+		mediaSession?.player?.apply {
+			shuffleModeEnabled = !shuffleModeEnabled
+		}
+	}
+
+	fun onMuteDevice() {
+		mediaSession?.player?.apply {
+			isDeviceMuted = !isDeviceMuted
 		}
 	}
 }

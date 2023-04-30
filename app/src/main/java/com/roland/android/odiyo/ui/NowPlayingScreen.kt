@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,11 +38,16 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 @Composable
 fun NowPlayingScreen(
 	song: Music?,
+	artwork: Any?,
 	isPlaying: Boolean,
+	deviceMuted: Boolean,
+	onShuffle: Boolean,
 	progress: Float,
 	playPause: (Uri) -> Unit,
+	shuffle: () -> Unit,
 	seekTo: (Boolean, Boolean) -> Unit,
-	navigateUp: () -> Unit,
+	muteDevice: () -> Unit,
+	navigateUp: () -> Unit
 ) {
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
@@ -61,14 +67,18 @@ fun NowPlayingScreen(
 			modifier = Modifier.padding(horizontal = 20.dp, vertical = 40.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			MediaDescription(song)
+			MediaDescription(song, artwork)
 
 			MediaControls(
 				isPlaying = isPlaying,
+				deviceMuted = deviceMuted,
+				onShuffle = onShuffle,
 				progress = if (progress < 1f) progress else 0.2f,
 				totalDuration = song?.duration ?: "00:00",
 				playPause = { song?.uri?.let { playPause(it) } },
-				seekTo = seekTo
+				shuffle = shuffle,
+				seekTo = seekTo,
+				muteDevice = muteDevice
 			)
 		}
 	}
@@ -78,11 +88,12 @@ fun NowPlayingScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
-private fun MediaDescription(song: Music?) {
+private fun MediaDescription(song: Music?, artwork: Any?) {
 	AsyncImage(
-		model = song?.getArtwork(),
+		model = artwork,
 		contentDescription = "media thumbnail",
 		placeholder = painterResource(R.drawable.default_art),
+		contentScale = ContentScale.Crop,
 		modifier = Modifier
 			.fillMaxHeight(0.5f)
 			.fillMaxWidth()
@@ -90,7 +101,7 @@ private fun MediaDescription(song: Music?) {
 	)
 	Column(Modifier.fillMaxWidth()) {
 		Text(
-			text = song?.title ?: "",
+			text = song?.title ?: "Unknown",
 			modifier = Modifier.basicMarquee(),
 			style = MaterialTheme.typography.headlineMedium,
 			overflow = TextOverflow.Ellipsis,
@@ -98,7 +109,7 @@ private fun MediaDescription(song: Music?) {
 			fontWeight = FontWeight.Medium
 		)
 		Text(
-			text = song?.artist ?: "",
+			text = song?.artist ?: "Unknown",
 			fontSize = TextUnit(18f, TextUnitType.Sp),
 			overflow = TextOverflow.Ellipsis,
 			softWrap = false,
@@ -109,11 +120,15 @@ private fun MediaDescription(song: Music?) {
 @Composable
 private fun MediaControls(
 	isPlaying: Boolean,
+	deviceMuted: Boolean,
+	onShuffle: Boolean,
 	progress: Float,
 	timeElapsed: String = "1:41",
 	totalDuration: String,
 	playPause: () -> Unit,
+	shuffle: () -> Unit,
 	seekTo: (Boolean, Boolean) -> Unit,
+	muteDevice: () -> Unit
 ) {
 	var slideValue by remember { mutableStateOf(progress) }
 
@@ -131,11 +146,22 @@ private fun MediaControls(
 	}
 	Row(
 		modifier = Modifier
-			.fillMaxWidth(0.8f)
+			.fillMaxWidth()
 			.padding(top = 50.dp),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
 	) {
+		IconButton(
+			onClick = { shuffle() },
+			modifier = Modifier.size(50.dp)
+		) {
+			Icon(
+				imageVector = Icons.Rounded.Shuffle,
+				contentDescription = "shuffle",
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = if (onShuffle) Color.Blue.copy(0.65f) else Color.Black
+			)
+		}
 		IconButton(
 			onClick = { seekTo(true, false) },
 			modifier = Modifier.size(70.dp)
@@ -166,6 +192,17 @@ private fun MediaControls(
 				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
+		IconButton(
+			onClick = { muteDevice() },
+			modifier = Modifier.size(50.dp)
+		) {
+			Icon(
+				imageVector = Icons.Rounded.VolumeOff,
+				contentDescription = if(deviceMuted) "unmute" else "mute",
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = if (deviceMuted) Color.Blue.copy(0.65f) else Color.Black
+			)
+		}
 	}
 }
 
@@ -175,12 +212,21 @@ private fun MediaControls(
 @Composable
 fun NowPlayingPreview() {
 	OdiyoTheme {
+		var isPlaying by remember { mutableStateOf(false) }
+		var deviceMuted by remember { mutableStateOf(false) }
+		var onShuffle by remember { mutableStateOf(false) }
+
 		NowPlayingScreen(
 			song = previewData[2],
-			isPlaying = false,
+			artwork = previewData[2].getArtwork(),
+			isPlaying = isPlaying,
+			deviceMuted = deviceMuted,
+			onShuffle = onShuffle,
 			progress = 0.25f,
-			playPause = {},
+			playPause = { isPlaying = !isPlaying },
+			shuffle = { onShuffle = !onShuffle },
 			seekTo = { _, _ -> },
+			muteDevice = { deviceMuted = !deviceMuted },
 			navigateUp = {}
 		)
 	}

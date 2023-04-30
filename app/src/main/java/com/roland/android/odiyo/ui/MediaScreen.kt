@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,6 +38,7 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 @Composable
 fun MediaScreen(
 	songs: List<Music>,
+	currentMediaItemArtwork: Any?,
 	currentSong: Music?,
 	isPlaying: Boolean,
 	playAudio: (Uri, Boolean) -> Unit,
@@ -61,6 +63,7 @@ fun MediaScreen(
 		}
 		NowPlayingMinimizedView(
 			song = currentSong,
+			artwork = currentMediaItemArtwork,
 			isPlaying = isPlaying,
 			playPause = playAudio,
 			moveToNowPlayingScreen = moveToNowPlayingScreen
@@ -91,6 +94,7 @@ fun MediaItem(
 			model = song.getArtwork(),
 			contentDescription = "media thumbnail",
 			placeholder = painterResource(R.drawable.default_art),
+			contentScale = ContentScale.Crop,
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(70.dp)
@@ -123,6 +127,7 @@ fun MediaItem(
 @Composable
 fun NowPlayingMinimizedView(
 	song: Music?,
+	artwork: Any?,
 	isPlaying: Boolean,
 	playPause: (Uri, Boolean) -> Unit,
 	moveToNowPlayingScreen: () -> Unit
@@ -137,9 +142,10 @@ fun NowPlayingMinimizedView(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		AsyncImage(
-			model = song?.getArtwork(),
+			model = artwork,
 			contentDescription = "media thumbnail",
 			placeholder = painterResource(R.drawable.default_art),
+			contentScale = ContentScale.Crop,
 			modifier = Modifier
 				.padding(8.dp)
 				.size(44.dp)
@@ -178,6 +184,7 @@ fun MediaPreview() {
 			val currentSong = previewData[2]
 			MediaScreen(
 				songs = previewData,
+				currentMediaItemArtwork = currentSong.getArtwork(),
 				currentSong = currentSong,
 				isPlaying = false,
 				playAudio = { _, _ -> },

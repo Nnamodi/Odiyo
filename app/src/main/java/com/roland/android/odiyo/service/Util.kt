@@ -13,6 +13,7 @@ import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.R
@@ -37,7 +38,13 @@ object Util {
 
 	val nowPlaying = MutableStateFlow<MediaItem?>(null)
 
+	var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
+
 	val playingState = MutableStateFlow(false)
+
+	val deviceMuteState = MutableStateFlow(false)
+
+	val shuffleModeState = MutableStateFlow(false)
 
 	val Long.time: String
 		get() = LocalDateTime.ofInstant(
@@ -77,6 +84,11 @@ object Util {
 				BitmapFactory.decodeStream(inputStream)
 			}
 		}
+	}
+
+	fun MediaMetadata.convertToBitmap(): Bitmap? {
+		val bytes = this.artworkData
+		return bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
 	}
 
 	// an intent to launch UI from player notification [dysfunctional]

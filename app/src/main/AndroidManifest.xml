@@ -11,13 +11,16 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:resizeableActivity="false"
         android:supportsRtl="true"
         android:theme="@style/Theme.Odiyo"
         tools:targetApi="31">
         <activity
             android:name="com.roland.android.odiyo.ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Odiyo">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Odiyo"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -27,6 +27,7 @@ import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
 import com.roland.android.odiyo.service.Util.mediaSession
+import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.permissionRequest
 import com.roland.android.odiyo.viewmodel.OdiyoViewModel
@@ -39,12 +40,15 @@ class MainActivity : ComponentActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		// player, mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
 		val player = ExoPlayer.Builder(this)
 			.setAudioAttributes(audioAttribute, true)
 			.build()
-		mediaSession = MediaSession.Builder(this, player).build()
+		mediaSession = mediaSession ?: MediaSession.Builder(this, player)
+			.setSessionActivity(this.pendingIntent)
+			.build()
 		mediaSession?.player?.addListener(PlayerListener())
-		notificationManager = OdiyoNotificationManager(context = this)
+		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
 		notificationManager.showNotification(player)
 
 		val requestPermissionLauncher = registerForActivityResult(
