@@ -1,7 +1,9 @@
 package com.roland.android.odiyo.service
 
 import android.app.PendingIntent
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -10,6 +12,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerNotificationManager
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
@@ -55,6 +58,7 @@ class PlayerListener : Player.Listener {
 
 @UnstableApi
 class PlayerNotificationAdapter(
+	private val context: Context,
 	private val session: MediaSession?
 ) : PlayerNotificationManager.MediaDescriptionAdapter {
 	override fun getCurrentContentTitle(player: Player): CharSequence {
@@ -74,8 +78,14 @@ class PlayerNotificationAdapter(
 		player: Player,
 		callback: PlayerNotificationManager.BitmapCallback,
 	): Bitmap? {
-		return session?.player?.mediaMetadata?.let {
-			session.bitmapLoader.loadBitmapFromMetadata(it)?.get()
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+		return try {
+			session?.player?.mediaMetadata?.let {
+				session.bitmapLoader.loadBitmapFromMetadata(it)?.get()
+			} ?: defaultArt
+		} catch(e: Exception) {
+			e.message?.let { Log.e("PlayerNotificationLog", it) }
+			defaultArt
 		}
 	}
 }

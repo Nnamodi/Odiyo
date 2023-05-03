@@ -91,7 +91,7 @@ object Util {
 		return bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
 	}
 
-	// an intent to launch UI from player notification [dysfunctional]
+	// an intent to launch UI from player notification.
 	val Context.pendingIntent: PendingIntent
 		get() = PendingIntent.getActivity(
 				this,

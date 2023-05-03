@@ -24,14 +24,13 @@ fun AppRoute(
 	) {
 		composable(AppRoute.MediaScreen.route) {
 			MediaScreen(
-				songs = viewModel.songs,
-				currentMediaItemArtwork = viewModel.nowPlayingMetaData?.convertToBitmap() ?: viewModel.currentSong?.getArtwork(),
-				currentSong = viewModel.currentSong,
+				libraryTab = { LibraryTab(viewModel, navController) },
+				albumsTab = { AlbumsTab() },
+				artistsTab = { ArtistsTab() },
+				song = viewModel.currentSong,
+				artwork = viewModel.nowPlayingMetaData?.convertToBitmap() ?: viewModel.currentSong?.getArtwork(),
 				isPlaying = viewModel.isPlaying,
-				playAudio = { uri, moveToNowPlaying ->
-					viewModel.playAudio(uri, moveToNowPlaying)
-					if (moveToNowPlaying) { navController.navigate(AppRoute.NowPlayingScreen.route) }
-				},
+				playPause = viewModel::playAudio,
 				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
 			)
 		}

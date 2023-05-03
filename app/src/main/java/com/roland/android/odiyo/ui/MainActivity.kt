@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
 		val player = ExoPlayer.Builder(this)
 			.setAudioAttributes(audioAttribute, true)
 			.build()
-		mediaSession = mediaSession ?: MediaSession.Builder(this, player)
+		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(this.pendingIntent)
 			.build()
 		mediaSession?.player?.addListener(PlayerListener())

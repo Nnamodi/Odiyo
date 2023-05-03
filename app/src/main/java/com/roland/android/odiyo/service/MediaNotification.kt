@@ -24,7 +24,7 @@ import com.roland.android.odiyo.service.Constants.MUSIC_NOTIFICATION_ID
 		with (builder) {
 			setChannelDescriptionResourceId(R.string.channel_description)
 			setChannelNameResourceId(R.string.notification_channel)
-			setMediaDescriptionAdapter(PlayerNotificationAdapter(session))
+			setMediaDescriptionAdapter(PlayerNotificationAdapter(context, session))
 		}
 		notificationManager = builder.build()
 		notificationManager.apply {

@@ -80,18 +80,15 @@ class OdiyoViewModel(
 		return songs.find { it.uri == currentSong }
 	}
 
-	fun playAudio(uri: Uri, fromMediaList: Boolean = false) {
+	fun playAudio(uri: Uri, index: Int? = null) {
 		mediaSession?.player?.apply {
 			if (!isLoading) {
 				val sameSong = currentMediaItem == uri.toMediaItem
-				if (!sameSong) {
-					// reset playlist when a mediaItem is selected from list
-					if (fromMediaList) { setMediaItems(mediaItems); prepare() }
-					while (!currentMediaItem?.equals(uri.toMediaItem)!!) {
-						seekToNext()
-						if (!hasNextMediaItem()) return
-					}
-					play()
+				// reset playlist when a mediaItem is selected from list
+				index?.let {
+					setMediaItems(mediaItems)
+					seekTo(it, 0)
+					prepare(); play()
 				}
 				if (isPlaying) {
 					if (sameSong) pause()

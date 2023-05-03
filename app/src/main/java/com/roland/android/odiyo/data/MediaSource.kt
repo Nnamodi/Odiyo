@@ -2,14 +2,12 @@ package com.roland.android.odiyo.data
 
 import android.content.ContentResolver
 import android.content.ContentUris
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -18,7 +16,7 @@ import okio.use
 @UnstableApi
 class MediaSource(
 	private val scope: CoroutineScope,
-	private val resolver: ContentResolver
+	resolver: ContentResolver
 ) {
 	private val query = resolver.query(
 		MediaDetails.collection,
@@ -45,16 +43,16 @@ class MediaSource(
 					val name = cursor.getString(nameColumn)
 					val title = cursor.getString(titleColumn)
 					val artist = cursor.getString(artistColumn)
-					val duration = cursor.getInt(durationColumn)
+					val duration = cursor.getLong(durationColumn)
 
 					val contentUri: Uri = ContentUris.withAppendedId(
 						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
 						id
 					)
 
-					val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
+//					val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-					val music = Music(contentUri, name, title, artist, duration, thumbnail)
+					val music = Music(contentUri, name, title, artist, duration, null)
 					media.value += music
 				}
 			}

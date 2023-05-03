@@ -11,9 +11,9 @@ data class Music(
 	val name: String,
 	val title: String,
 	val artist: String,
-	private val time: Int,
+	private val time: Long,
 	val thumbnail: Bitmap?
 ) {
 	@RequiresApi(Build.VERSION_CODES.Q)
-	val duration = time.toLong().time
+	val duration = time.time
 }
