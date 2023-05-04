@@ -9,14 +9,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.roland.android.odiyo.service.Util.convertToBitmap
 import com.roland.android.odiyo.service.Util.getArtwork
-import com.roland.android.odiyo.viewmodel.OdiyoViewModel
+import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
 fun AppRoute(
 	navController: NavHostController,
-	viewModel: OdiyoViewModel
+	viewModel: MediaViewModel
 ) {
 	NavHost(
 		navController = navController,
@@ -25,9 +25,25 @@ fun AppRoute(
 		composable(AppRoute.MediaScreen.route) {
 			MediaScreen(
 				libraryTab = { LibraryTab(viewModel, navController) },
-				albumsTab = { AlbumsTab() },
+				albumsTab = { AlbumsTab(viewModel, navController) },
 				artistsTab = { ArtistsTab() },
 				song = viewModel.currentSong,
+				artwork = viewModel.nowPlayingMetaData?.convertToBitmap() ?: viewModel.currentSong?.getArtwork(),
+				isPlaying = viewModel.isPlaying,
+				playPause = viewModel::playAudio,
+				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
+			)
+		}
+		composable(AppRoute.MediaItemsScreen.route) {
+			MediaItemsScreen(
+				songs = viewModel.songsFromAlbum(),
+				albumName = viewModel.albumName,
+				currentSong = viewModel.currentSong,
+				playAudio = { uri, index ->
+					viewModel.playAudio(uri, index)
+					index?.let { navController.navigate(AppRoute.NowPlayingScreen.route) }
+				},
+				navigateUp = { navController.navigateUp() },
 				artwork = viewModel.nowPlayingMetaData?.convertToBitmap() ?: viewModel.currentSong?.getArtwork(),
 				isPlaying = viewModel.isPlaying,
 				playPause = viewModel::playAudio,
@@ -55,4 +71,5 @@ fun AppRoute(
 sealed class AppRoute(val route: String) {
 	object MediaScreen: AppRoute("media_screen")
 	object NowPlayingScreen: AppRoute("now_playing_screen")
+	object MediaItemsScreen: AppRoute("media_item_screen")
 }

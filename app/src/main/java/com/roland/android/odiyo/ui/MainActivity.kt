@@ -30,7 +30,7 @@ import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.permissionRequest
-import com.roland.android.odiyo.viewmodel.OdiyoViewModel
+import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.ViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 					color = MaterialTheme.colorScheme.background
 				) {
 					if (permissionGranted) {
-						val viewModel: OdiyoViewModel = viewModel(factory = ViewModelFactory())
+						val viewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
 						val navController = rememberNavController()
 						player.apply { setMediaItems(viewModel.mediaItems); prepare() }
 

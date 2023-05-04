@@ -5,7 +5,8 @@ import android.os.Build
 import android.provider.MediaStore
 
 object MediaDetails {
-	val collection: Uri =
+	// query parameters for all songs
+	val libraryCollection: Uri =
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			MediaStore.Audio.Media.getContentUri(
 				MediaStore.VOLUME_EXTERNAL
@@ -14,7 +15,7 @@ object MediaDetails {
 			MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 		}
 
-	val projection = arrayOf(
+	val libraryProjection = arrayOf(
 		MediaStore.Audio.Media._ID,
 		MediaStore.Audio.Media.DISPLAY_NAME,
 		MediaStore.Audio.Media.TITLE,
@@ -22,11 +23,25 @@ object MediaDetails {
 		MediaStore.Audio.Media.DURATION
 	)
 
-//	val selection = "${MediaStore.Audio.Media.DISPLAY_NAME.endsWith("?")}"
+	const val librarySortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
 
-//	val selectionArgs = arrayOf(
-//		".mp3"
-//	)
+	// query parameters for albums
+	val albumCollection: Uri =
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			MediaStore.Audio.Albums.getContentUri(
+				MediaStore.VOLUME_EXTERNAL
+			)
+		} else {
+			MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+		}
 
-	const val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
+	val albumProjection = arrayOf(
+		MediaStore.Audio.Albums._ID,
+		MediaStore.Audio.Albums.NUMBER_OF_SONGS,
+		MediaStore.Audio.Albums.ALBUM
+	)
+
+	const val albumSelection = "${MediaStore.Audio.Media.ALBUM} == ?"
+
+	const val albumSortOrder = "${MediaStore.Audio.Albums.ALBUM} ASC"
 }

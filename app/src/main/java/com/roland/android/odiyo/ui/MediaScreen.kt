@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.data.previewAlbum
 import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
@@ -66,7 +68,9 @@ fun MediaScreen(
 				contentAlignment = Alignment.BottomStart
 			) {
 				HorizontalPager(
-					modifier = Modifier.padding(bottom = 75.dp),
+					modifier = Modifier
+						.fillMaxHeight(1.0f)
+						.padding(bottom = 75.dp),
 					state = pagerState,
 					pageCount = tabTitles.size
 				) { page ->
@@ -105,7 +109,7 @@ fun MediaScreenPreview() {
 					playAudio = { _, _ -> }
 				)
 			},
-			albumsTab = { AlbumsScreen() },
+			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen() },
 			song = currentSong,
 			artwork = currentSong.getArtwork(),

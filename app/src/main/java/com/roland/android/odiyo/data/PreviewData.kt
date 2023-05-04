@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.data
 
 import androidx.core.net.toUri
+import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Music
 
 val previewData = listOf(
@@ -83,5 +84,58 @@ val previewData = listOf(
 		artist = "Elton John",
 		time = 858963,
 		thumbnail = null
+	)
+)
+
+val previewAlbum = listOf(
+	Album(
+		id = "0".toUri(),
+		numSongs = "4",
+		album = "Does it have to be me?"
+	),
+	Album(
+		id = "1".toUri(),
+		numSongs = "3",
+		album = "Fire for fun"
+	),
+	Album(
+		id = "2".toUri(),
+		numSongs = "1",
+		album = "Why should I care?"
+	),
+	Album(
+		id = "3".toUri(),
+		numSongs = "15",
+		album = "None of our business"
+	),
+	Album(
+		id = "4".toUri(),
+		numSongs = "9",
+		album = "@Sare_hen.com"
+	),
+	Album(
+		id = "5".toUri(),
+		numSongs = "2",
+		album = "The only one"
+	),
+	Album(
+		id = "6".toUri(),
+		numSongs = "15",
+		album = "Who said it"
+	),
+	Album(
+		id = "7".toUri(),
+		numSongs = "8",
+		album = "Undying remedies"
+	),
+	Album(
+		id = "8".toUri(),
+		numSongs = "3",
+		album = "Not yet born"
+	),
+	Album(
+		id = "9".toUri(),
+		numSongs = "1",
+		album = "Hero from the sun"
 	)
 )

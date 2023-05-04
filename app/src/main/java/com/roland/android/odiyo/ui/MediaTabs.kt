@@ -5,12 +5,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
-import com.roland.android.odiyo.viewmodel.OdiyoViewModel
+import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun LibraryTab(viewModel: OdiyoViewModel, navController: NavHostController) {
+fun LibraryTab(viewModel: MediaViewModel, navController: NavHostController) {
 	LibraryScreen(
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
@@ -21,9 +21,16 @@ fun LibraryTab(viewModel: OdiyoViewModel, navController: NavHostController) {
 	)
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun AlbumsTab() {
-	AlbumsScreen()
+fun AlbumsTab(viewModel: MediaViewModel, navController: NavHostController) {
+	AlbumsScreen(
+		albums = viewModel.albumList,
+		prepareSongs = {
+			viewModel.albumName = it
+			navController.navigate(AppRoute.MediaItemsScreen.route)
+		}
+	)
 }
 
 @Composable

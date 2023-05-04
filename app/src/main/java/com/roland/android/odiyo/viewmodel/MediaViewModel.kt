@@ -12,9 +12,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.UnstableApi
-import com.roland.android.odiyo.data.MediaSource
+import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
@@ -25,13 +25,17 @@ import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
-class OdiyoViewModel(
+class MediaViewModel(
 	resolver: ContentResolver
 ) : ViewModel() {
-	private val mediaSource = MediaSource(viewModelScope, resolver)
+	private val repository = MediaRepository(viewModelScope, resolver)
+
 	var songs by mutableStateOf<List<Music>>(emptyList())
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
+	var albumList by mutableStateOf<List<Album>>(emptyList())
+
+	var albumName by mutableStateOf("")
+
 	var currentSong by mutableStateOf<Music?>(null)
 	var isPlaying by mutableStateOf(false)
 	var isDeviceMuted by mutableStateOf(false)
@@ -41,7 +45,7 @@ class OdiyoViewModel(
 
 	init {
 		viewModelScope.launch {
-			mediaSource.media().collect {
+			repository.getAllSongs.collect {
 				songs = it
 				mediaItems = it.map { music ->
 					MediaItem.Builder().setUri(music.uri).build()
@@ -73,6 +77,11 @@ class OdiyoViewModel(
 				shuffleState = it
 			}
 		}
+		viewModelScope.launch {
+			repository.getAlbums.collect {
+				albumList = it
+			}
+		}
 	}
 
 	private fun musicItem(mediaItem: MediaItem?): Music? {
@@ -102,7 +111,7 @@ class OdiyoViewModel(
 		}
 	}
 
-	fun seek(previous: Boolean = false, next: Boolean = false) {
+	fun seek(previous: Boolean, next: Boolean) {
 		mediaSession?.player?.apply {
 			when {
 				previous -> seekToPrevious()
@@ -121,5 +130,17 @@ class OdiyoViewModel(
 		mediaSession?.player?.apply {
 			isDeviceMuted = !isDeviceMuted
 		}
+	}
+
+	fun songsFromAlbum(): List<Music> {
+		var songsFromAlbum by mutableStateOf<List<Music>>(emptyList())
+		viewModelScope.launch {
+			repository.getSongsFromAlbum(
+				arrayOf(albumName)
+			).collect { songs ->
+				songsFromAlbum = songs
+			}
+		}
+		return songsFromAlbum
 	}
 }
