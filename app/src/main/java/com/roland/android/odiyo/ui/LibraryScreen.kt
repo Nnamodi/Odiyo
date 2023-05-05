@@ -3,14 +3,10 @@ package com.roland.android.odiyo.ui
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PauseCircleOutline
-import androidx.compose.material.icons.rounded.PlayCircleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -104,55 +100,6 @@ fun MediaItem(
 				color = color
 			)
 			Text(song.duration, color = color)
-		}
-	}
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
-@Composable
-fun NowPlayingMinimizedView(
-	song: Music?,
-	artwork: Any?,
-	isPlaying: Boolean,
-	playPause: (Uri, Int?) -> Unit,
-	moveToNowPlayingScreen: () -> Unit
-) {
-	Row(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(10.dp)
-			.background(Color.LightGray)
-			.clickable { moveToNowPlayingScreen() },
-		horizontalArrangement = Arrangement.Start,
-		verticalAlignment = Alignment.CenterVertically
-	) {
-		AsyncImage(
-			model = artwork,
-			contentDescription = "media thumbnail",
-			placeholder = painterResource(R.drawable.default_art),
-			contentScale = ContentScale.Crop,
-			modifier = Modifier
-				.padding(8.dp)
-				.size(44.dp)
-		)
-		Text(
-			text = song?.title ?: "",
-			overflow = TextOverflow.Ellipsis,
-			modifier = Modifier.weight(1.0f),
-			softWrap = false
-		)
-		IconButton(
-			onClick = { song?.uri?.let { playPause(it, null) } },
-			modifier = Modifier
-				.padding(start = 24.dp, end = 12.dp)
-				.size(30.dp)
-		) {
-			Icon(
-				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
-				contentDescription = if (isPlaying) "pause" else "play",
-				modifier = Modifier.fillMaxSize()
-			)
 		}
 	}
 }

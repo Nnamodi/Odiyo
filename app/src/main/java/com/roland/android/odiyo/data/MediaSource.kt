@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import com.roland.android.odiyo.data.MediaDetails.albumSelection
+import com.roland.android.odiyo.data.MediaDetails.artistSelection
 import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,19 +25,19 @@ class MediaSource(
 		MediaDetails.librarySortOrder
 	)
 
-	private val albumMediaQuery: (Array<String>) -> Cursor? = {
+	private val collectionMediaQuery: (String, Array<String>) -> Cursor? = { selection, selectionArgs ->
 		resolver.query(
 			MediaDetails.libraryCollection,
 			MediaDetails.libraryProjection,
-			albumSelection,
-			it,
+			selection,
+			selectionArgs,
 			MediaDetails.librarySortOrder
 		)
 	}
 
 	private val media = MutableStateFlow<List<Music>>(mutableListOf())
 
-	private val mediaFromAlbum = MutableStateFlow<List<Music>>(mutableListOf())
+	private val mediaFromCollection = MutableStateFlow<List<Music>>(mutableListOf())
 
 	fun media(): MutableStateFlow<List<Music>> {
 		scope.launch {
@@ -69,13 +70,14 @@ class MediaSource(
 		return media
 	}
 
-	fun mediaFromAlbum(
+	private fun mediaFromCollection(
+		selection: String,
 		selectionArgs: Array<String>
 	): MutableStateFlow<List<Music>> {
 		// empty list of songs previously fetched and re-fetch
-		mediaFromAlbum.value = mutableListOf()
+		mediaFromCollection.value = mutableListOf()
 		scope.launch {
-			albumMediaQuery(selectionArgs)?.use { cursor ->
+			collectionMediaQuery(selection, selectionArgs)?.use { cursor ->
 				val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
 				val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
 				val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
@@ -97,10 +99,28 @@ class MediaSource(
 					// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
 					val music = Music(contentUri, name, title, artist, duration, null)
-					mediaFromAlbum.value += music
+					mediaFromCollection.value += music
 				}
 			}
 		}
-		return mediaFromAlbum
+		return mediaFromCollection
+	}
+
+	fun mediaFromAlbum(
+		selectionArgs: Array<String>
+	): MutableStateFlow<List<Music>> {
+		scope.launch {
+			mediaFromCollection(albumSelection, selectionArgs)
+		}
+		return mediaFromCollection
+	}
+
+	fun mediaFromArtist(
+		selectionArgs: Array<String>
+	): MutableStateFlow<List<Music>> {
+		scope.launch {
+			mediaFromCollection(artistSelection, selectionArgs)
+		}
+		return mediaFromCollection
 	}
 }

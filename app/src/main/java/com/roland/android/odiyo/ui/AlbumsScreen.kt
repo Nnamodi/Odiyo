@@ -25,14 +25,14 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 @Composable
 fun AlbumsScreen(
 	albums: List<Album>,
-	prepareSongs: (String) -> Unit,
+	prepareAndViewSongs: (String) -> Unit,
 ) {
 	LazyColumn {
 		itemsIndexed(
 			items = albums,
 			key = { _, album -> album.id }
 		) { _, album ->
-			AlbumItem(album, prepareSongs)
+			AlbumItem(album, prepareAndViewSongs)
 		}
 	}
 }
@@ -40,11 +40,11 @@ fun AlbumsScreen(
 @Composable
 fun AlbumItem(
 	album: Album,
-	prepareSongs: (String) -> Unit,
+	prepareAndViewSongs: (String) -> Unit,
 ) {
 	Row(
 		modifier = Modifier
-			.clickable { prepareSongs(album.album) }
+			.clickable { prepareAndViewSongs(album.album) }
 			.fillMaxWidth()
 			.padding(10.dp),
 		verticalAlignment = Alignment.CenterVertically

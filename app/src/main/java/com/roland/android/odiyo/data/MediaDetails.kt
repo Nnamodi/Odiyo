@@ -44,4 +44,24 @@ object MediaDetails {
 	const val albumSelection = "${MediaStore.Audio.Media.ALBUM} == ?"
 
 	const val albumSortOrder = "${MediaStore.Audio.Albums.ALBUM} ASC"
+
+	// query parameters for artists
+	val artistCollection: Uri =
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			MediaStore.Audio.Artists.getContentUri(
+				MediaStore.VOLUME_EXTERNAL
+			)
+		} else {
+			MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI
+		}
+
+	val artistProjection = arrayOf(
+		MediaStore.Audio.Artists._ID,
+		MediaStore.Audio.Artists.NUMBER_OF_TRACKS,
+		MediaStore.Audio.Artists.ARTIST
+	)
+
+	const val artistSelection = "${MediaStore.Audio.Media.ARTIST} == ?"
+
+	const val artistSortOrder = "${MediaStore.Audio.Artists.ARTIST} ASC"
 }

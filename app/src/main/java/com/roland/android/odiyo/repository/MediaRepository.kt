@@ -2,8 +2,10 @@ package com.roland.android.odiyo.repository
 
 import android.content.ContentResolver
 import com.roland.android.odiyo.data.AlbumsSource
+import com.roland.android.odiyo.data.ArtistsSource
 import com.roland.android.odiyo.data.MediaSource
 import com.roland.android.odiyo.model.Album
+import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +16,7 @@ class MediaRepository(
 ) {
 	private val mediaSource = MediaSource(scope, resolver)
 	private val albumsSource = AlbumsSource(scope, resolver)
+	private val artistsSource = ArtistsSource(scope, resolver)
 
 	val getAllSongs: MutableStateFlow<List<Music>> = mediaSource.media()
 
@@ -21,4 +24,9 @@ class MediaRepository(
 
 	val getSongsFromAlbum: (Array<String>) -> MutableStateFlow<List<Music>> =
 		{ mediaSource.mediaFromAlbum(selectionArgs = it) }
+
+	val getArtists: MutableStateFlow<List<Artist>> = artistsSource.artists()
+
+	val getSongsFromArtist: (Array<String>) -> MutableStateFlow<List<Music>> =
+		{ mediaSource.mediaFromArtist(selectionArgs = it) }
 }

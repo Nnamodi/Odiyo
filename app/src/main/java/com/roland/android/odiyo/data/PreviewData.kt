@@ -2,6 +2,7 @@ package com.roland.android.odiyo.data
 
 import androidx.core.net.toUri
 import com.roland.android.odiyo.model.Album
+import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 
 val previewData = listOf(
@@ -138,4 +139,57 @@ val previewAlbum = listOf(
 		numSongs = "1",
 		album = "Hero from the sun"
 	)
+)
+
+val previewArtist = listOf(
+	Artist(
+		id = "0".toUri(),
+		numTracks = "8",
+		artist = "Imagine Dragons"
+	),
+	Artist(
+		id = "1".toUri(),
+		numTracks = "5",
+		artist = "Elton John"
+	),
+	Artist(
+		id = "2".toUri(),
+		numTracks = "1",
+		artist = "Lonial Jr."
+	),
+	Artist(
+		id = "3".toUri(),
+		numTracks = "7",
+		artist = "One Republic"
+	),
+	Artist(
+		id = "4".toUri(),
+		numTracks = "10",
+		artist = "Coldplay"
+	),
+	Artist(
+		id = "5".toUri(),
+		numTracks = "12",
+		artist = "Halun-vid"
+	),
+	Artist(
+		id = "6".toUri(),
+		numTracks = "3",
+		artist = "Samune"
+	),
+	Artist(
+		id = "7".toUri(),
+		numTracks = "9",
+		artist = "Denveri"
+	),
+	Artist(
+		id = "8".toUri(),
+		numTracks = "17",
+		artist = "Faluo"
+	),
+	Artist(
+		id = "9".toUri(),
+		numTracks = "2",
+		artist = "David Mcklin"
+	),
 )

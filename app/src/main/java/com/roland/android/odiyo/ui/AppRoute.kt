@@ -5,10 +5,13 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.roland.android.odiyo.service.Util.convertToBitmap
 import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -26,7 +29,7 @@ fun AppRoute(
 			MediaScreen(
 				libraryTab = { LibraryTab(viewModel, navController) },
 				albumsTab = { AlbumsTab(viewModel, navController) },
-				artistsTab = { ArtistsTab() },
+				artistsTab = { ArtistsTab(viewModel, navController) },
 				song = viewModel.currentSong,
 				artwork = viewModel.nowPlayingMetaData?.convertToBitmap() ?: viewModel.currentSong?.getArtwork(),
 				isPlaying = viewModel.isPlaying,
@@ -34,12 +37,26 @@ fun AppRoute(
 				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
 			)
 		}
-		composable(AppRoute.MediaItemsScreen.route) {
+		composable(
+			route = AppRoute.MediaItemsScreen.route,
+			arguments = listOf(
+				navArgument("collectionName") { type = NavType.StringType },
+				navArgument("collectionType") { type = NavType.StringType }
+			)
+		) { backStackEntry ->
+			val collectionName = backStackEntry.arguments?.getString("collectionName")!!
+			val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
+				"albums" -> viewModel.songsFromAlbum(collectionName)
+				"artists" -> viewModel.songsFromArtist(collectionName)
+				else -> emptyList()
+			}
+
 			MediaItemsScreen(
-				songs = viewModel.songsFromAlbum(),
-				albumName = viewModel.albumName,
+				songs = songs,
+				collectionName = collectionName,
 				currentSong = viewModel.currentSong,
 				playAudio = { uri, index ->
+					viewModel.mediaItems = songs.map { it.uri.toMediaItem }
 					viewModel.playAudio(uri, index)
 					index?.let { navController.navigate(AppRoute.NowPlayingScreen.route) }
 				},
@@ -71,5 +88,8 @@ fun AppRoute(
 sealed class AppRoute(val route: String) {
 	object MediaScreen: AppRoute("media_screen")
 	object NowPlayingScreen: AppRoute("now_playing_screen")
-	object MediaItemsScreen: AppRoute("media_item_screen")
+	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
+		fun routeWithName(collectionName: String, collectionType: String) =
+			String.format("media_item_screen/%s/%s", collectionName, collectionType)
+	}
 }

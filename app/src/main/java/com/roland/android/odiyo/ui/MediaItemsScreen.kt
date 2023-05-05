@@ -31,7 +31,7 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 @Composable
 fun MediaItemsScreen(
 	songs: List<Music>,
-	albumName: String,
+	collectionName: String,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
 	navigateUp: () -> Unit,
@@ -43,7 +43,7 @@ fun MediaItemsScreen(
 	Scaffold(
 		topBar = {
 			TopAppBar(
-				title = { Text(text = albumName, overflow = TextOverflow.Ellipsis, softWrap = false) },
+				title = { Text(text = collectionName, overflow = TextOverflow.Ellipsis, softWrap = false) },
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
 						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back")
@@ -93,7 +93,7 @@ fun MediaItemsScreenPreview() {
 		val currentSong = previewData[5]
 		MediaItemsScreen(
 			songs = previewData.takeLast(5),
-			albumName = "Does it have to be me?",
+			collectionName = "Does it have to be me?",
 			currentSong = currentSong,
 			playAudio = { _, _ -> },
 			navigateUp = {},
