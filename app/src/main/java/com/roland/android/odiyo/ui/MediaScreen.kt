@@ -45,12 +45,7 @@ import kotlinx.coroutines.launch
 fun MediaScreen(
 	libraryTab: @Composable () -> Unit,
 	albumsTab: @Composable () -> Unit,
-	artistsTab: @Composable () -> Unit,
-	song: Music?,
-	artwork: Any?,
-	isPlaying: Boolean,
-	playPause: (Uri, Int?) -> Unit,
-	moveToNowPlayingScreen: () -> Unit
+	artistsTab: @Composable () -> Unit
 ) {
 	Scaffold(
 		topBar = {
@@ -83,30 +78,16 @@ fun MediaScreen(
 					)
 				}
 			}
-			Box(
-				contentAlignment = Alignment.BottomStart
-			) {
-				HorizontalPager(
-					modifier = Modifier
-						.fillMaxHeight(1.0f)
-						.padding(bottom = 75.dp),
-					state = pagerState,
-					pageCount = tabTitles.size
-				) { page ->
-					when (page) {
-						0 -> libraryTab()
-						1 -> albumsTab()
-						2 -> artistsTab()
-						else -> {}
-					}
+			HorizontalPager(
+				state = pagerState,
+				pageCount = tabTitles.size
+			) { page ->
+				when (page) {
+					0 -> libraryTab()
+					1 -> albumsTab()
+					2 -> artistsTab()
+					else -> {}
 				}
-				NowPlayingMinimizedView(
-					song = song,
-					artwork = artwork,
-					isPlaying = isPlaying,
-					playPause = playPause,
-					moveToNowPlayingScreen = moveToNowPlayingScreen
-				)
 			}
 		}
 	}
@@ -180,12 +161,7 @@ fun MediaScreenPreview() {
 				)
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
-			artistsTab = { ArtistsScreen(previewArtist) {} },
-			song = currentSong,
-			artwork = currentSong.getArtwork(),
-			isPlaying = false,
-			playPause = { _, _ -> },
-			moveToNowPlayingScreen = {}
+			artistsTab = { ArtistsScreen(previewArtist) {} }
 		)
 	}
 }

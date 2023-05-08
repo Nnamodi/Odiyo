@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -89,15 +90,16 @@ fun NowPlayingScreen(
 @UnstableApi
 @Composable
 private fun MediaDescription(song: Music?, artwork: Any?) {
+	val screenWidth = LocalConfiguration.current.screenWidthDp
+
 	AsyncImage(
 		model = artwork,
 		contentDescription = "media thumbnail",
 		placeholder = painterResource(R.drawable.default_art),
-		contentScale = ContentScale.Crop,
 		modifier = Modifier
-			.fillMaxHeight(0.5f)
-			.fillMaxWidth()
-			.padding(top = 40.dp, bottom = 20.dp)
+			.size((screenWidth / 1.12).dp)
+			.padding(vertical = 20.dp),
+		contentScale = ContentScale.Crop
 	)
 	Column(Modifier.fillMaxWidth()) {
 		Text(
