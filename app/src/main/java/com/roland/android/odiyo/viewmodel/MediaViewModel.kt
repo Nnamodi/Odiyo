@@ -5,9 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -29,19 +27,20 @@ import kotlinx.coroutines.launch
 class MediaViewModel(
 	private val repository: MediaRepository
 ) : ViewModel() {
-	var songs by mutableStateOf<List<Music>>(emptyList())
+	var songs by mutableStateOf<List<Music>>(emptyList()); private set
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
-	var albumList by mutableStateOf<List<Album>>(emptyList())
-	var artistList by mutableStateOf<List<Artist>>(emptyList())
+	var albumList by mutableStateOf<List<Album>>(emptyList()); private set
+	var artistList by mutableStateOf<List<Artist>>(emptyList()); private set
 
-	var currentSong by mutableStateOf<Music?>(null)
-	var isPlaying by mutableStateOf(false)
-	var isDeviceMuted by mutableStateOf(false)
-	var shuffleState by mutableStateOf(false)
-	var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null)
-	var progress by mutableStateOf(0f)
+	var currentSong by mutableStateOf<Music?>(null); private set
+	var isPlaying by mutableStateOf(false); private set
+	var isDeviceMuted by mutableStateOf(false); private set
+	var shuffleState by mutableStateOf(false); private set
+	var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null); private set
+	var progress by mutableStateOf(0f); private set
 
 	private var initialDeviceVolume by mutableStateOf(0)
+	var searchQuery by mutableStateOf("")
 
 	init {
 		viewModelScope.launch {
@@ -167,5 +166,19 @@ class MediaViewModel(
 			}
 		}
 		return songsFromArtist
+	}
+
+	fun songsFromSearch(): List<Music> {
+		val result = songs.filter { music ->
+			val matchingCombinations = listOf(
+				"${music.artist}${music.title}",
+				"${music.artist} ${music.title}",
+				"${music.title}${music.artist}",
+				"${music.title} ${music.artist}",
+				music.title, music.artist
+			)
+			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
+		}
+		return result
 	}
 }

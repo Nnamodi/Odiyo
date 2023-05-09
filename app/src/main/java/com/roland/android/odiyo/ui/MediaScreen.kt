@@ -12,9 +12,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PauseCircleOutline
 import androidx.compose.material.icons.rounded.PlayCircleOutline
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +45,8 @@ import kotlinx.coroutines.launch
 fun MediaScreen(
 	libraryTab: @Composable () -> Unit,
 	albumsTab: @Composable () -> Unit,
-	artistsTab: @Composable () -> Unit
+	artistsTab: @Composable () -> Unit,
+	navigateToSearch: () -> Unit
 ) {
 	Scaffold(
 		topBar = {
@@ -56,6 +57,11 @@ fun MediaScreen(
 						fontStyle = FontStyle.Italic,
 						fontWeight = FontWeight.Bold
 					)
+				},
+				actions = {
+					IconButton(onClick = navigateToSearch) {
+						Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search icon")
+					}
 				}
 			)
 		}
@@ -150,18 +156,17 @@ enum class MediaScreen { Library, Albums, Artists }
 @Composable
 fun MediaScreenPreview() {
 	OdiyoTheme {
-		val currentSong = previewData[2]
-
 		MediaScreen(
 			libraryTab = {
 				LibraryScreen(
 					songs = previewData,
-					currentSong = currentSong,
+					currentSong = previewData[5],
 					playAudio = { _, _ -> }
 				)
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
-			artistsTab = { ArtistsScreen(previewArtist) {} }
+			artistsTab = { ArtistsScreen(previewArtist) {} },
+			navigateToSearch = {}
 		)
 	}
 }

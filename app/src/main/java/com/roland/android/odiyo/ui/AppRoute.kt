@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui
 
+import android.media.AudioManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -25,7 +26,8 @@ import com.roland.android.odiyo.viewmodel.MediaViewModel
 @Composable
 fun AppRoute(
 	navController: NavHostController,
-	viewModel: MediaViewModel
+	viewModel: MediaViewModel,
+	audioManager: AudioManager
 ) {
 	Scaffold(
 		bottomBar = {
@@ -50,7 +52,23 @@ fun AppRoute(
 					dataFromIntent = data,
 					libraryTab = { LibraryTab(viewModel, navController) },
 					albumsTab = { AlbumsTab(viewModel, navController) },
-					artistsTab = { ArtistsTab(viewModel, navController) }
+					artistsTab = { ArtistsTab(viewModel, navController) },
+					navigateToSearch = { navController.navigate(AppRoute.SearchScreen.route) }
+				)
+			}
+			composable(AppRoute.SearchScreen.route) {
+				SearchScreen(
+					searchQuery = viewModel.searchQuery,
+					searchResult = viewModel.songsFromSearch(),
+					onTextChange = { viewModel.searchQuery = it },
+					currentSong = viewModel.currentSong,
+					playAudio = { uri, index ->
+						viewModel.mediaItems = viewModel.songsFromSearch().map { it.uri.toMediaItem }
+						viewModel.playAudio(uri, index)
+						navController.navigate(AppRoute.NowPlayingScreen.route)
+					},
+					clearSearchQuery = { viewModel.searchQuery = "" },
+					closeSearchScreen = { navController.navigateUp() }
 				)
 			}
 			composable(
@@ -91,7 +109,7 @@ fun AppRoute(
 					playPause = viewModel::playAudio,
 					shuffle = viewModel::shuffle,
 					seekTo = viewModel::seek,
-					muteDevice = viewModel::onMuteDevice,
+					muteDevice = { viewModel.onMuteDevice(audioManager) },
 					navigateUp = { navController.navigateUp() }
 				)
 			}
@@ -108,6 +126,7 @@ fun currentRoute(navController: NavHostController): String? {
 sealed class AppRoute(val route: String) {
 	object MediaScreen: AppRoute("media_screen")
 	object NowPlayingScreen: AppRoute("now_playing_screen")
+	object SearchScreen: AppRoute("search_screen")
 	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
 		fun routeWithName(collectionName: String, collectionType: String) =
 			String.format("media_item_screen/%s/%s", collectionName, collectionType)
