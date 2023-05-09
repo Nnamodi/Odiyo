@@ -2,6 +2,7 @@ package com.roland.android.odiyo.ui
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
 		mediaSession?.player?.addListener(PlayerListener())
 		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
 		notificationManager.showNotification(player)
+		volumeControlStream = AudioManager.STREAM_MUSIC
 
 		val requestPermissionLauncher = registerForActivityResult(
 			ActivityResultContracts.RequestPermission()
@@ -72,11 +74,11 @@ class MainActivity : ComponentActivity() {
 					if (permissionGranted) {
 						val viewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
 						val navController = rememberNavController()
-						player.apply { setMediaItems(viewModel.mediaItems); prepare() }
 
 						AppRoute(
 							navController = navController,
-							viewModel = viewModel
+							viewModel = viewModel,
+							audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 						)
 					}
 				}

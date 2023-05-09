@@ -5,13 +5,10 @@ import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
 import com.roland.android.odiyo.model.Artist
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import okio.use
 
 class ArtistsSource(
-	private val scope: CoroutineScope,
 	resolver: ContentResolver
 ) {
 	private val query = resolver.query(
@@ -25,8 +22,7 @@ class ArtistsSource(
 	private val artists = MutableStateFlow<List<Artist>>(mutableListOf())
 
 	fun artists(): MutableStateFlow<List<Artist>> {
-		scope.launch {
-			query?.use { cursor ->
+		query?.use { cursor ->
 				val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists._ID)
 				val numberOfTracksColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_TRACKS)
 				val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Artists.ARTIST)
@@ -45,7 +41,6 @@ class ArtistsSource(
 					artists.value += artist
 				}
 			}
-		}
 		return artists
 	}
 }

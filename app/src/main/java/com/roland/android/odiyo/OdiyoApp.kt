@@ -1,16 +1,16 @@
 package com.roland.android.odiyo
 
 import android.app.Application
-import android.content.ContentResolver
+import com.roland.android.odiyo.repository.MediaRepository
 
 class OdiyoApp : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
-		resolver = contentResolver
+		mediaRepository = MediaRepository(contentResolver)
 	}
 
 	companion object {
-		lateinit var resolver: ContentResolver
+		lateinit var mediaRepository: MediaRepository
 	}
 }

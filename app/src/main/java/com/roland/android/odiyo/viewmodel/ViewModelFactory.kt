@@ -12,7 +12,7 @@ class ViewModelFactory : ViewModelProvider.Factory {
 	@RequiresApi(Build.VERSION_CODES.Q)
 	override fun <T : ViewModel> create(modelClass: Class<T>): T {
 		if (modelClass.isAssignableFrom(MediaViewModel::class.java)) {
-			return MediaViewModel(OdiyoApp.resolver) as T
+			return MediaViewModel(OdiyoApp.mediaRepository) as T
 		}
 		throw IllegalArgumentException("Unknown ViewModel class")
 	}

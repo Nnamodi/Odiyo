@@ -1,6 +1,6 @@
 package com.roland.android.odiyo.viewmodel
 
-import android.content.ContentResolver
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -27,10 +27,8 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class MediaViewModel(
-	resolver: ContentResolver
+	private val repository: MediaRepository
 ) : ViewModel() {
-	private val repository = MediaRepository(viewModelScope, resolver)
-
 	var songs by mutableStateOf<List<Music>>(emptyList())
 	var mediaItems by mutableStateOf<List<MediaItem>>(emptyList())
 	var albumList by mutableStateOf<List<Album>>(emptyList())
@@ -42,6 +40,8 @@ class MediaViewModel(
 	var shuffleState by mutableStateOf(false)
 	var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null)
 	var progress by mutableStateOf(0f)
+
+	private var initialDeviceVolume by mutableStateOf(0)
 
 	init {
 		viewModelScope.launch {
@@ -132,9 +132,16 @@ class MediaViewModel(
 		}
 	}
 
-	fun onMuteDevice() {
-		mediaSession?.player?.apply {
-			isDeviceMuted = !isDeviceMuted
+	fun onMuteDevice(audioManager: AudioManager) {
+		val streamType = AudioManager.STREAM_MUSIC
+		val setVolume: (Int) -> Unit = { audioManager.setStreamVolume(streamType, it, 0) }
+
+		if (audioManager.isStreamMute(streamType)) {
+			if (initialDeviceVolume == 0) initialDeviceVolume++
+			setVolume(initialDeviceVolume)
+		} else {
+			initialDeviceVolume = audioManager.getStreamVolume(streamType)
+			setVolume(0)
 		}
 	}
 
