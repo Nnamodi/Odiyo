@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.model
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -11,8 +10,8 @@ data class Music(
 	val name: String,
 	val title: String,
 	val artist: String,
-	private val time: Long,
-	val thumbnail: Bitmap?
+	val time: Long,
+	val thumbnail: Any?
 ) {
 	@RequiresApi(Build.VERSION_CODES.Q)
 	val duration = time.time

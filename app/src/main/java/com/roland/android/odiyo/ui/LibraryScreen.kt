@@ -25,7 +25,6 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
-import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.theme.OdiyoTheme
 
@@ -73,7 +72,7 @@ fun MediaItem(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		AsyncImage(
-			model = song.getArtwork(),
+			model = song.thumbnail,
 			contentDescription = "media thumbnail",
 			placeholder = painterResource(R.drawable.default_art),
 			contentScale = ContentScale.Crop,

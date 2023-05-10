@@ -44,6 +44,8 @@ fun NowPlayingScreen(
 	deviceMuted: Boolean,
 	onShuffle: Boolean,
 	progress: Float,
+	timeElapsed: String,
+	onSeekToPosition: (Long) -> Unit,
 	playPause: (Uri) -> Unit,
 	shuffle: () -> Unit,
 	seekTo: (Boolean, Boolean) -> Unit,
@@ -65,17 +67,19 @@ fun NowPlayingScreen(
 		}
 	) {
 		Column(
-			modifier = Modifier.padding(horizontal = 20.dp, vertical = 40.dp),
+			modifier = Modifier.padding(horizontal = 30.dp, vertical = 40.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			MediaDescription(song, artwork)
 
 			MediaControls(
+				song = song,
 				isPlaying = isPlaying,
 				deviceMuted = deviceMuted,
 				onShuffle = onShuffle,
-				progress = if (progress < 1f) progress else 0.2f,
-				totalDuration = song?.duration ?: "00:00",
+				progress = progress,
+				timeElapsed = timeElapsed,
+				onSeekToPosition = onSeekToPosition,
 				playPause = { song?.uri?.let { playPause(it) } },
 				shuffle = shuffle,
 				seekTo = seekTo,
@@ -90,15 +94,15 @@ fun NowPlayingScreen(
 @UnstableApi
 @Composable
 private fun MediaDescription(song: Music?, artwork: Any?) {
-	val screenWidth = LocalConfiguration.current.screenWidthDp
+	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
 
 	AsyncImage(
 		model = artwork,
 		contentDescription = "media thumbnail",
 		placeholder = painterResource(R.drawable.default_art),
 		modifier = Modifier
-			.size((screenWidth / 1.12).dp)
-			.padding(vertical = 20.dp),
+			.size(screenWidth.dp, (screenWidth * 1.12).dp)
+			.padding(top = 20.dp, bottom = 10.dp),
 		contentScale = ContentScale.Crop
 	)
 	Column(Modifier.fillMaxWidth()) {
@@ -119,43 +123,48 @@ private fun MediaDescription(song: Music?, artwork: Any?) {
 	}
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 private fun MediaControls(
+	song: Music?,
 	isPlaying: Boolean,
 	deviceMuted: Boolean,
 	onShuffle: Boolean,
 	progress: Float,
-	timeElapsed: String = "1:41",
-	totalDuration: String,
+	timeElapsed: String,
+	onSeekToPosition: (Long) -> Unit,
 	playPause: () -> Unit,
 	shuffle: () -> Unit,
 	seekTo: (Boolean, Boolean) -> Unit,
 	muteDevice: () -> Unit
 ) {
-	var slideValue by remember { mutableStateOf(progress) }
+	val maxSeekValue = song?.time?.toFloat() ?: 1f
 
 	Slider(
-		value = slideValue,
-		onValueChange = { slideValue = it },
+		value = progress,
+		onValueChange = { onSeekToPosition(it.toLong()) },
+		valueRange = 0f..maxSeekValue,
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(top = 25.dp)
+			.padding(top = 20.dp)
 	)
 	Row {
 		Text(timeElapsed)
 		Spacer(Modifier.weight(1f))
-		Text(totalDuration)
+		Text(song?.duration ?: "00:00")
 	}
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(top = 50.dp),
-		horizontalArrangement = Arrangement.SpaceBetween,
+			.padding(top = 35.dp),
+		horizontalArrangement = Arrangement.SpaceEvenly,
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		IconButton(
 			onClick = { shuffle() },
-			modifier = Modifier.size(50.dp)
+			modifier = Modifier
+				.size(50.dp)
+				.weight(0.9f)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.Shuffle,
@@ -166,7 +175,9 @@ private fun MediaControls(
 		}
 		IconButton(
 			onClick = { seekTo(true, false) },
-			modifier = Modifier.size(70.dp)
+			modifier = Modifier
+				.size(70.dp)
+				.weight(1f)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.SkipPrevious,
@@ -176,7 +187,9 @@ private fun MediaControls(
 		}
 		IconButton(
 			onClick = { playPause() },
-			modifier = Modifier.size(70.dp)
+			modifier = Modifier
+				.size(70.dp)
+				.weight(1.2f)
 		) {
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleFilled else Icons.Rounded.PlayCircleFilled,
@@ -186,7 +199,9 @@ private fun MediaControls(
 		}
 		IconButton(
 			onClick = { seekTo(false, true) },
-			modifier = Modifier.size(70.dp)
+			modifier = Modifier
+				.size(70.dp)
+				.weight(1f)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.SkipNext,
@@ -196,7 +211,9 @@ private fun MediaControls(
 		}
 		IconButton(
 			onClick = { muteDevice() },
-			modifier = Modifier.size(50.dp)
+			modifier = Modifier
+				.size(50.dp)
+				.weight(0.9f)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
@@ -224,7 +241,9 @@ fun NowPlayingPreview() {
 			isPlaying = isPlaying,
 			deviceMuted = deviceMuted,
 			onShuffle = onShuffle,
-			progress = 0.25f,
+			progress = 0f,
+			timeElapsed = "00.00",
+			onSeekToPosition = {},
 			playPause = { isPlaying = !isPlaying },
 			shuffle = { onShuffle = !onShuffle },
 			seekTo = { _, _ -> },

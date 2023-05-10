@@ -46,6 +46,8 @@ object Util {
 
 	val shuffleModeState = MutableStateFlow(false)
 
+	val progress = MutableStateFlow(0L)
+
 	val Long.time: String
 		get() = LocalDateTime.ofInstant(
 			Instant.ofEpochMilli(this),
@@ -60,21 +62,6 @@ object Util {
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()
 
-	fun Music.getArtwork(): Any {
-		return this.thumbnail ?:
-		this.uri.getBitMap() ?:
-		R.drawable.default_art
-	}
-
-	private fun Uri.getBitMap(): Bitmap? {
-		val metaData = this.toMediaItem.mediaMetadata
-		val bitmapFromMetaData = mediaSession?.bitmapLoader?.loadBitmapFromMetadata(metaData)?.get()
-		val decodeBitmap = metaData.artworkData?.let {
-			mediaSession?.bitmapLoader?.decodeBitmap(it)?.get()
-		}
-		return bitmapFromMetaData ?: decodeBitmap
-	}
-
 	fun Uri.toBitmap(resolver: ContentResolver): Bitmap? {
 		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 			val source = ImageDecoder.createSource(resolver, this)
@@ -86,9 +73,15 @@ object Util {
 		}
 	}
 
-	fun MediaMetadata.convertToBitmap(): Bitmap? {
+	fun Music.getArtwork(): Any {
+		val mediaMetadata = this.uri.toMediaItem.mediaMetadata
+		return mediaMetadata.getArtwork()
+	}
+
+	fun MediaMetadata.getArtwork(): Any {
 		val bytes = this.artworkData
-		return bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
+		val bitmap = bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
+		return bitmap ?: R.drawable.default_art
 	}
 
 	// an intent to launch UI from player notification.

@@ -15,8 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.roland.android.odiyo.service.Util.convertToBitmap
-import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
@@ -34,8 +32,7 @@ fun AppRoute(
 			BottomAppBar(
 				concealBottomBar = currentRoute(navController = navController) != AppRoute.NowPlayingScreen.route,
 				song = viewModel.currentSong,
-				artwork = viewModel.nowPlayingMetaData?.convertToBitmap()
-					?: viewModel.currentSong?.getArtwork(),
+				artwork = viewModel.currentMediaItemImage,
 				isPlaying = viewModel.isPlaying,
 				playPause = viewModel::playAudio,
 				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
@@ -100,12 +97,13 @@ fun AppRoute(
 			composable(AppRoute.NowPlayingScreen.route) {
 				NowPlayingScreen(
 					song = viewModel.currentSong,
-					artwork = viewModel.nowPlayingMetaData?.convertToBitmap()
-						?: viewModel.currentSong?.getArtwork(),
+					artwork = viewModel.currentMediaItemImage,
 					isPlaying = viewModel.isPlaying,
 					deviceMuted = viewModel.isDeviceMuted,
 					onShuffle = viewModel.shuffleState,
-					progress = viewModel.progress,
+					progress = viewModel.seekProgress,
+					timeElapsed = viewModel.currentDuration,
+					onSeekToPosition = viewModel::onSeekToPosition,
 					playPause = viewModel::playAudio,
 					shuffle = viewModel::shuffle,
 					seekTo = viewModel::seek,
