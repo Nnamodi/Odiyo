@@ -48,6 +48,8 @@ object Util {
 
 	val progress = MutableStateFlow(0L)
 
+	var isForegroundService = false
+
 	val Long.time: String
 		get() = LocalDateTime.ofInstant(
 			Instant.ofEpochMilli(this),
