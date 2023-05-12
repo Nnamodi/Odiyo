@@ -1,12 +1,12 @@
-package com.roland.android.odiyo.data
+package com.roland.android.odiyo.mediaSource
 
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
-import com.roland.android.odiyo.data.MediaDetails.albumSelection
-import com.roland.android.odiyo.data.MediaDetails.artistSelection
+import com.roland.android.odiyo.mediaSource.MediaDetails.albumSelection
+import com.roland.android.odiyo.mediaSource.MediaDetails.artistSelection
 import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.flow.MutableStateFlow
 import okio.use

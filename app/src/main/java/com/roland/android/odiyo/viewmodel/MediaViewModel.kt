@@ -8,11 +8,13 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
@@ -27,11 +29,13 @@ import com.roland.android.odiyo.service.Util.progress
 import com.roland.android.odiyo.service.Util.shuffleModeState
 import com.roland.android.odiyo.service.Util.time
 import com.roland.android.odiyo.service.Util.toMediaItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 class MediaViewModel(
+	private val appDataStore: AppDataStore,
 	private val repository: MediaRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
@@ -55,12 +59,22 @@ class MediaViewModel(
 
 	init {
 		viewModelScope.launch {
+			appDataStore.getCurrentPlaylist().collect {
+				if (mediaItems.isEmpty()) {
+					mediaItems = it.playlist.map { item -> item.toUri().toMediaItem }
+					mediaSession?.player?.apply {
+						setMediaItems(mediaItems); prepare()
+						if (mediaItems.isNotEmpty()) seekTo(it.currentSongPosition, it.currentSongSeekPosition)
+					}
+					Log.i("ViewModelInfo", "CurrentPlaylist: ${it.playlist.take(15)}, ${it.currentSongPosition}")
+				}
+			}
+		}
+		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
 				songs = songList.map {
 					Music(it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
 				}
-				mediaItems = songList.map { it.uri.toMediaItem }
-				mediaSession?.player?.apply { setMediaItems(mediaItems); prepare() }
 			}
 		}
 		viewModelScope.launch {
@@ -78,6 +92,7 @@ class MediaViewModel(
 			nowPlayingMetadata.collect {
 				nowPlayingMetaData = it
 				currentMediaItemImage = it?.getArtwork()
+				if (mediaItems.isNotEmpty()) saveCurrentPlaylist()
 			}
 		}
 		viewModelScope.launch {
@@ -219,6 +234,19 @@ class MediaViewModel(
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}
 		return result
+	}
+
+	private fun saveCurrentPlaylist() {
+		val player = mediaSession?.player
+		val songPosition = player?.currentMediaItemIndex ?: 0
+		val seekPosition = player?.currentPosition ?: 0
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveCurrentPlaylist(
+				playlist = mediaItems.map { it.localConfiguration?.uri ?: "null".toUri() },
+				currentPosition = songPosition,
+				seekPosition = seekPosition
+			)
+		}
 	}
 
 	override fun onCleared() {

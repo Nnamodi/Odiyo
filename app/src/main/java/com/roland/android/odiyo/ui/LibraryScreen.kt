@@ -22,7 +22,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem

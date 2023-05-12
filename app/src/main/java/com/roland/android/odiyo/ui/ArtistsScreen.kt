@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.data.previewArtist
+import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.theme.OdiyoTheme
 

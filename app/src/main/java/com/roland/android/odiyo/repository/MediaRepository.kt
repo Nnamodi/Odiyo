@@ -1,9 +1,9 @@
 package com.roland.android.odiyo.repository
 
 import android.content.ContentResolver
-import com.roland.android.odiyo.data.AlbumsSource
-import com.roland.android.odiyo.data.ArtistsSource
-import com.roland.android.odiyo.data.MediaSource
+import com.roland.android.odiyo.mediaSource.AlbumsSource
+import com.roland.android.odiyo.mediaSource.ArtistsSource
+import com.roland.android.odiyo.mediaSource.MediaSource
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music

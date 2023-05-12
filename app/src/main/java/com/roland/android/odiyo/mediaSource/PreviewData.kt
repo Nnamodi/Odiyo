@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.data
+package com.roland.android.odiyo.mediaSource
 
 import androidx.core.net.toUri
 import com.roland.android.odiyo.model.Album

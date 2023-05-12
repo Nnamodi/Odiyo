@@ -5,6 +5,7 @@ buildscript {
         coil_version = '2.3.0'
         compose_version = '1.4.1'
         core_version = '1.10.0'
+        datastore_version = '1.0.0'
         media3_version = '1.0.1'
         lifecycle_version = '2.6.1'
         material3_version = '1.0.1'

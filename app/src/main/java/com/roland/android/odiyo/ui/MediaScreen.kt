@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.data.previewAlbum
-import com.roland.android.odiyo.data.previewArtist
-import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.mediaSource.previewAlbum
+import com.roland.android.odiyo.mediaSource.previewArtist
+import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.theme.OdiyoTheme

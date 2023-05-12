@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.data
+package com.roland.android.odiyo.mediaSource
 
 import android.content.ContentResolver
 import android.content.ContentUris
