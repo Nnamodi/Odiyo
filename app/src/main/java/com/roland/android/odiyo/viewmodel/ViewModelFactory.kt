@@ -19,6 +19,9 @@ class ViewModelFactory : ViewModelProvider.Factory {
 				repository = OdiyoApp.mediaRepository
 			) as T
 		}
+		if (modelClass.isAssignableFrom(NowPlayingViewModel::class.java)) {
+			return NowPlayingViewModel(OdiyoApp.mediaRepository) as T
+		}
 		throw IllegalArgumentException("Unknown ViewModel class")
 	}
 }

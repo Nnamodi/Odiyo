@@ -10,7 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +34,7 @@ fun SearchScreen(
 	onTextChange: (String) -> Unit,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
+	menuAction: (Int, Music) -> Unit,
 	clearSearchQuery: () -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
@@ -45,9 +47,13 @@ fun SearchScreen(
 				closeSearchScreen = closeSearchScreen
 			)
 		}
-	) {
+	) { paddingValues ->
+		val sheetState = rememberModalBottomSheetState()
+		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
+		var songClicked by remember { mutableStateOf<Music?>(null) }
+
 		Column(
-			modifier = Modifier.padding(it)
+			modifier = Modifier.padding(paddingValues)
 		) {
 			if (searchQuery.isEmpty()) {
 				Text(
@@ -73,9 +79,17 @@ fun SearchScreen(
 							itemIndex = index,
 							song = song,
 							currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
-							playAudio = playAudio
+							playAudio = playAudio,
+							openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 						)
 					}
+				}
+				if (openBottomSheet.value) {
+					MediaItemSheet(
+						scaffoldState = sheetState,
+						openBottomSheet = { openBottomSheet.value = it },
+						menuAction = { menuAction(it, songClicked!!); openBottomSheet.value = false }
+					)
 				}
 			}
 		}
@@ -129,6 +143,7 @@ fun SearchScreenPreview() {
 			onTextChange = {},
 			currentSong = previewData[3],
 			playAudio = { _, _ -> },
+			menuAction = { _, _ -> },
 			clearSearchQuery = {},
 			closeSearchScreen = {}
 		)

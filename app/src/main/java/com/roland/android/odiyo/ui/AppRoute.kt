@@ -13,29 +13,31 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.viewmodel.MediaViewModel
+import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
 fun AppRoute(
+	navActions: NavActions,
 	navController: NavHostController,
-	viewModel: MediaViewModel,
+	mediaViewModel: MediaViewModel,
+	nowPlayingViewModel: NowPlayingViewModel,
 	audioManager: AudioManager
 ) {
 	Scaffold(
 		bottomBar = {
 			BottomAppBar(
 				concealBottomBar = currentRoute(navController = navController) != AppRoute.NowPlayingScreen.route,
-				song = viewModel.currentSong,
-				artwork = viewModel.currentMediaItemImage,
-				isPlaying = viewModel.isPlaying,
-				playPause = viewModel::playAudio,
-				moveToNowPlayingScreen = { navController.navigate(AppRoute.NowPlayingScreen.route) }
+				song = mediaViewModel.currentSong,
+				artwork = mediaViewModel.currentMediaItemImage,
+				isPlaying = mediaViewModel.isPlaying,
+				playPause = mediaViewModel::playAudio,
+				moveToNowPlayingScreen = { navActions.navigateToNowPlayingScreen() }
 			)
 		}
 	) { innerPadding ->
@@ -46,25 +48,25 @@ fun AppRoute(
 		) {
 			composable(AppRoute.MediaScreen.route) {
 				MediaScreen(
-					dataFromIntent = data,
-					libraryTab = { LibraryTab(viewModel, navController) },
-					albumsTab = { AlbumsTab(viewModel, navController) },
-					artistsTab = { ArtistsTab(viewModel, navController) },
-					navigateToSearch = { navController.navigate(AppRoute.SearchScreen.route) }
+					libraryTab = { LibraryTab(mediaViewModel, navActions) },
+					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
+					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
+					navigateToSearch = { navActions.navigateToSearch() }
 				)
 			}
 			composable(AppRoute.SearchScreen.route) {
 				SearchScreen(
-					searchQuery = viewModel.searchQuery,
-					searchResult = viewModel.songsFromSearch(),
-					onTextChange = { viewModel.searchQuery = it },
-					currentSong = viewModel.currentSong,
+					searchQuery = mediaViewModel.searchQuery,
+					searchResult = mediaViewModel.songsFromSearch(),
+					onTextChange = { mediaViewModel.searchQuery = it },
+					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						viewModel.mediaItems = viewModel.songsFromSearch().map { it.uri.toMediaItem }
-						viewModel.playAudio(uri, index)
-						navController.navigate(AppRoute.NowPlayingScreen.route)
+						mediaViewModel.mediaItems = mediaViewModel.songsFromSearch().map { it.uri.toMediaItem }
+						mediaViewModel.playAudio(uri, index)
+						navActions.navigateToNowPlayingScreen()
 					},
-					clearSearchQuery = { viewModel.searchQuery = "" },
+					menuAction = mediaViewModel::menuAction,
+					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = { navController.navigateUp() }
 				)
 			}
@@ -77,56 +79,41 @@ fun AppRoute(
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName")!!
 				val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
-					"albums" -> viewModel.songsFromAlbum(collectionName)
-					"artists" -> viewModel.songsFromArtist(collectionName)
+					"albums" -> mediaViewModel.songsFromAlbum(collectionName)
+					"artists" -> mediaViewModel.songsFromArtist(collectionName)
 					else -> emptyList()
 				}
 
 				MediaItemsScreen(
 					songs = songs,
 					collectionName = collectionName,
-					currentSong = viewModel.currentSong,
+					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						viewModel.mediaItems = songs.map { it.uri.toMediaItem }
-						viewModel.playAudio(uri, index)
-						index?.let { navController.navigate(AppRoute.NowPlayingScreen.route) }
+						mediaViewModel.mediaItems = songs.map { it.uri.toMediaItem }
+						mediaViewModel.playAudio(uri, index)
+						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
+					menuAction = mediaViewModel::menuAction,
 					navigateUp = { navController.navigateUp() }
 				)
 			}
 			composable(AppRoute.NowPlayingScreen.route) {
 				NowPlayingScreen(
-					song = viewModel.currentSong,
-					artwork = viewModel.currentMediaItemImage,
-					isPlaying = viewModel.isPlaying,
-					deviceMuted = viewModel.isDeviceMuted,
-					onShuffle = viewModel.shuffleState,
-					progress = viewModel.seekProgress,
-					timeElapsed = viewModel.currentDuration,
-					onSeekToPosition = viewModel::onSeekToPosition,
-					playPause = viewModel::playAudio,
-					shuffle = viewModel::shuffle,
-					seekTo = viewModel::seek,
-					muteDevice = { viewModel.onMuteDevice(audioManager) },
+					song = nowPlayingViewModel.currentSong,
+					artwork = nowPlayingViewModel.currentMediaItemImage,
+					isPlaying = nowPlayingViewModel.isPlaying,
+					deviceMuted = nowPlayingViewModel.isDeviceMuted,
+					onShuffle = nowPlayingViewModel.shuffleState,
+					progress = nowPlayingViewModel.seekProgress,
+					timeElapsed = nowPlayingViewModel.currentDuration,
+					onSeekToPosition = nowPlayingViewModel::onSeekToPosition,
+					playPause = nowPlayingViewModel::playAudio,
+					shuffle = nowPlayingViewModel::shuffle,
+					seekTo = nowPlayingViewModel::seek,
+					muteDevice = { nowPlayingViewModel.onMuteDevice(audioManager) },
 					navigateUp = { navController.navigateUp() }
 				)
 			}
 		}
-	}
-}
-
-@Composable
-fun currentRoute(navController: NavHostController): String? {
-	val navBackStackEntry = navController.currentBackStackEntryAsState()
-	return navBackStackEntry.value?.destination?.route
-}
-
-sealed class AppRoute(val route: String) {
-	object MediaScreen: AppRoute("media_screen")
-	object NowPlayingScreen: AppRoute("now_playing_screen")
-	object SearchScreen: AppRoute("search_screen")
-	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
-		fun routeWithName(collectionName: String, collectionType: String) =
-			String.format("media_item_screen/%s/%s", collectionName, collectionType)
 	}
 }

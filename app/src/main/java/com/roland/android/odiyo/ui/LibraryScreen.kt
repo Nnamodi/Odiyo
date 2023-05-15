@@ -7,8 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,14 +31,20 @@ import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.theme.OdiyoTheme
 
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
 fun LibraryScreen(
 	songs: List<Music>,
 	currentSong: Music?,
-	playAudio: (Uri, Int?) -> Unit
+	playAudio: (Uri, Int?) -> Unit,
+	menuAction: (Int, Music) -> Unit
 ) {
+	val sheetState = rememberModalBottomSheetState()
+	val openBottomSheet = rememberSaveable { mutableStateOf(false) }
+	var songClicked by remember { mutableStateOf<Music?>(null) }
+
 	LazyColumn {
 		itemsIndexed(
 			items = songs,
@@ -45,12 +54,21 @@ fun LibraryScreen(
 				itemIndex = index,
 				song = song,
 				currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
-				playAudio = playAudio
+				playAudio = playAudio,
+				openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 			)
 		}
 	}
+	if (openBottomSheet.value) {
+		MediaItemSheet(
+			scaffoldState = sheetState,
+			openBottomSheet = { openBottomSheet.value = it },
+			menuAction = { menuAction(it, songClicked!!); openBottomSheet.value = false }
+		)
+	}
 }
 
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
@@ -59,6 +77,7 @@ fun MediaItem(
 	song: Music,
 	currentSongUri: MediaItem,
 	playAudio: (Uri, Int?) -> Unit,
+	openMenuSheet: (Music) -> Unit
 ) {
 	val mediaItem = song.uri.toMediaItem
 	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
@@ -68,7 +87,7 @@ fun MediaItem(
 		modifier = Modifier
 			.clickable { playAudio(song.uri, itemIndex) }
 			.fillMaxWidth()
-			.padding(10.dp),
+			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		AsyncImage(
@@ -81,7 +100,7 @@ fun MediaItem(
 				.size(70.dp)
 		)
 		Column(
-			modifier = Modifier.fillMaxWidth(),
+			modifier = Modifier.weight(1f),
 			verticalArrangement = Arrangement.SpaceBetween
 		) {
 			Text(
@@ -100,9 +119,13 @@ fun MediaItem(
 			)
 			Text(song.duration, color = color)
 		}
+		IconButton(onClick = { openMenuSheet(song) }) {
+			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = "More_options")
+		}
 	}
 }
 
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Preview
@@ -117,7 +140,8 @@ fun LibraryPreview() {
 			LibraryScreen(
 				songs = previewData,
 				currentSong = currentSong,
-				playAudio = { _, _ -> }
+				playAudio = { _, _ -> },
+				menuAction = { _, _ -> }
 			)
 		}
 	}

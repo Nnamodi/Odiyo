@@ -9,7 +9,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +30,7 @@ fun MediaItemsScreen(
 	collectionName: String,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
+	menuAction: (Int, Music) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	Scaffold(
@@ -43,6 +45,10 @@ fun MediaItemsScreen(
 			)
 		}
 	) { innerPadding ->
+		val sheetState = rememberModalBottomSheetState()
+		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
+		var songClicked by remember { mutableStateOf<Music?>(null) }
+
 		LazyColumn(
 			modifier = Modifier.padding(innerPadding)
 		) {
@@ -54,9 +60,17 @@ fun MediaItemsScreen(
 					itemIndex = index,
 					song = song,
 					currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
-					playAudio = playAudio
+					playAudio = playAudio,
+					openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 				)
 			}
+		}
+		if (openBottomSheet.value) {
+			MediaItemSheet(
+				scaffoldState = sheetState,
+				openBottomSheet = { openBottomSheet.value = it },
+				menuAction = { menuAction(it, songClicked!!); openBottomSheet.value = false }
+			)
 		}
 	}
 }
@@ -73,6 +87,7 @@ fun MediaItemsScreenPreview() {
 			collectionName = "Does it have to be me?",
 			currentSong = currentSong,
 			playAudio = { _, _ -> },
+			menuAction = { _, _ -> },
 			navigateUp = {}
 		)
 	}

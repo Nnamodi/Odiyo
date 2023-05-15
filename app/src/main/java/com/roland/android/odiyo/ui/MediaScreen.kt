@@ -150,6 +150,7 @@ fun NowPlayingMinimizedView(
 
 enum class MediaScreen { Library, Albums, Artists }
 
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Preview
@@ -162,7 +163,7 @@ fun MediaScreenPreview() {
 					songs = previewData,
 					currentSong = previewData[5],
 					playAudio = { _, _ -> }
-				)
+				) { _, _ -> }
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen(previewArtist) {} },

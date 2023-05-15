@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
@@ -32,8 +33,10 @@ import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.permissionRequest
 import com.roland.android.odiyo.viewmodel.MediaViewModel
+import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.ViewModelFactory
 
+@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 class MainActivity : ComponentActivity() {
@@ -72,12 +75,16 @@ class MainActivity : ComponentActivity() {
 					color = MaterialTheme.colorScheme.background
 				) {
 					if (permissionGranted) {
-						val viewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
+						val mediaViewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
+						val nowPlayingViewModel: NowPlayingViewModel = viewModel(factory = ViewModelFactory())
 						val navController = rememberNavController()
+						val navActions = NavActions(navController)
 
 						AppRoute(
+							navActions = navActions,
 							navController = navController,
-							viewModel = viewModel,
+							mediaViewModel = mediaViewModel,
+							nowPlayingViewModel = nowPlayingViewModel,
 							audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 						)
 					}
