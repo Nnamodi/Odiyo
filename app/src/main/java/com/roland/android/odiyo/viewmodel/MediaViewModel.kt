@@ -22,6 +22,8 @@ import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.SongDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -58,7 +60,7 @@ class MediaViewModel(
 		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
 				songs = songList.map {
-					Music(it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
 				}
 			}
 		}
@@ -127,7 +129,7 @@ class MediaViewModel(
 				arrayOf(albumName)
 			).collect { songs ->
 				songsFromAlbum = songs.map {
-					Music(it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
 				}
 			}
 		}
@@ -141,7 +143,7 @@ class MediaViewModel(
 				arrayOf(artistName)
 			).collect { songs ->
 				songsFromArtist = songs.map {
-					Music(it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
 				}
 			}
 		}
@@ -162,12 +164,13 @@ class MediaViewModel(
 		return result
 	}
 
-	fun menuAction(itemIndex: Int, song: Music) {
-		when (itemIndex) {
-			0 -> addToQueue(song)
-			else -> {}
+	fun menuAction(action: MediaMenuActions) {
+		when (action) {
+			is MediaMenuActions.PlayNext -> addToQueue(action.song)
+			is MediaMenuActions.RenameSong -> updateSong(action.details)
+			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
 		}
-		Log.d("ViewModelInfo", "menuAction: $itemIndex")
+		Log.d("ViewModelInfo", "menuAction: $action")
 	}
 
 	private fun addToQueue(song: Music) {
@@ -176,6 +179,14 @@ class MediaViewModel(
 			val index = nextMediaItemIndex
 			addMediaItem(index, mediaItem)
 		}
+	}
+
+	private fun updateSong(songDetails: SongDetails) {
+		repository.updateSong(songDetails)
+	}
+
+	private fun deleteSong(songDetails: SongDetails) {
+		repository.deleteSong(songDetails)
 	}
 
 	private fun saveCurrentPlaylist() {

@@ -8,32 +8,44 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 object Permissions {
-	fun Activity.permissionRequest(
+	private fun Activity.permissionRequest(
 		requestPermissionLauncher: ActivityResultLauncher<String>,
+		permission: String,
 		permissionGranted: (Boolean) -> Unit,
 	) {
 		when {
 			ContextCompat.checkSelfPermission(
 				this,
-				Manifest.permission.READ_EXTERNAL_STORAGE
+				permission
 			) == PackageManager.PERMISSION_GRANTED -> {
 				permissionGranted(true)
 			}
 
 			ActivityCompat.shouldShowRequestPermissionRationale(
 				this,
-				Manifest.permission.READ_EXTERNAL_STORAGE
+				permission
 			) -> {
 				requestPermissionLauncher.launch(
-					Manifest.permission.READ_EXTERNAL_STORAGE
+					permission
 				)
 			}
 
 			else -> {
 				requestPermissionLauncher.launch(
-					Manifest.permission.READ_EXTERNAL_STORAGE
+					permission
 				)
 			}
 		}
+	}
+
+	fun Activity.storagePermission(
+		requestPermissionLauncher: ActivityResultLauncher<String>,
+		permissionGranted: (Boolean) -> Unit,
+	) {
+		permissionRequest(
+			requestPermissionLauncher,
+			Manifest.permission.READ_EXTERNAL_STORAGE,
+			permissionGranted
+		)
 	}
 }

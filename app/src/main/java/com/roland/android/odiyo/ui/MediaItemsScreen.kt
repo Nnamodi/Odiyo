@@ -20,6 +20,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.util.MediaMenuActions
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,7 @@ fun MediaItemsScreen(
 	collectionName: String,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
-	menuAction: (Int, Music) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	Scaffold(
@@ -45,7 +46,7 @@ fun MediaItemsScreen(
 			)
 		}
 	) { innerPadding ->
-		val sheetState = rememberModalBottomSheetState()
+		val sheetState = rememberModalBottomSheetState(true)
 		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
 		var songClicked by remember { mutableStateOf<Music?>(null) }
 
@@ -67,9 +68,10 @@ fun MediaItemsScreen(
 		}
 		if (openBottomSheet.value) {
 			MediaItemSheet(
+				song = songClicked!!,
 				scaffoldState = sheetState,
 				openBottomSheet = { openBottomSheet.value = it },
-				menuAction = { menuAction(it, songClicked!!); openBottomSheet.value = false }
+				menuAction = menuAction
 			)
 		}
 	}
@@ -87,7 +89,7 @@ fun MediaItemsScreenPreview() {
 			collectionName = "Does it have to be me?",
 			currentSong = currentSong,
 			playAudio = { _, _ -> },
-			menuAction = { _, _ -> },
+			menuAction = {},
 			navigateUp = {}
 		)
 	}

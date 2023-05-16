@@ -162,8 +162,9 @@ fun MediaScreenPreview() {
 				LibraryScreen(
 					songs = previewData,
 					currentSong = previewData[5],
-					playAudio = { _, _ -> }
-				) { _, _ -> }
+					playAudio = { _, _ -> },
+					menuAction = {}
+				)
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen(previewArtist) {} },

@@ -58,7 +58,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(contentUri, name, title, artist, duration, null)
+				val music = Music(id, contentUri, name, title, artist, duration, null)
 				media.value += music
 			}
 		}
@@ -92,7 +92,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(contentUri, name, title, artist, duration, null)
+				val music = Music(id, contentUri, name, title, artist, duration, null)
 				mediaFromCollection.value += music
 			}
 		}

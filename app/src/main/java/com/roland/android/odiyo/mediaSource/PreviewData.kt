@@ -7,6 +7,7 @@ import com.roland.android.odiyo.model.Music
 
 val previewData = listOf(
 	Music(
+		id = 0,
 		uri = "0".toUri(),
 		name = "",
 		title = "He is the same",
@@ -15,6 +16,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 1,
 		uri = "1".toUri(),
 		name = "",
 		title = "Jantamanta",
@@ -23,6 +25,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 2,
 		uri = "2".toUri(),
 		name = "",
 		title = "Duke and the spear for old times' sake",
@@ -31,6 +34,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 3,
 		uri = "3".toUri(),
 		name = "",
 		title = "I'm real",
@@ -39,6 +43,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 4,
 		uri = "4".toUri(),
 		name = "",
 		title = "My president is black",
@@ -47,6 +52,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 5,
 		uri = "5".toUri(),
 		name = "",
 		title = "Yellow",
@@ -55,6 +61,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 6,
 		uri = "6".toUri(),
 		name = "",
 		title = "Caribbean time to time",
@@ -63,6 +70,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 7,
 		uri = "7".toUri(),
 		name = "",
 		title = "Country road",
@@ -71,6 +79,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 8,
 		uri = "8".toUri(),
 		name = "",
 		title = "All time low",
@@ -79,6 +88,7 @@ val previewData = listOf(
 		thumbnail = null
 	),
 	Music(
+		id = 9,
 		uri = "9".toUri(),
 		name = "",
 		title = "Cold heart",

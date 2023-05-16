@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -16,16 +15,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
+import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.MenuItems.*
+import com.roland.android.odiyo.ui.dialog.DeleteSongDialog
+import com.roland.android.odiyo.ui.dialog.RenameSongDialog
+import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.SongDetails
 
 @ExperimentalMaterial3Api
 @Composable
 fun MediaItemSheet(
+	song: Music,
 	scaffoldState: SheetState,
 	openBottomSheet: (Boolean) -> Unit,
-	menuAction: (Int) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 ) {
+	val openRenameDialog = remember { mutableStateOf(false) }
+	val openDeleteDialog = remember { mutableStateOf(false) }
+
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
@@ -34,12 +43,43 @@ fun MediaItemSheet(
 
 		Column(Modifier.padding(bottom = 20.dp)) {
 			menuItems.forEachIndexed { index, menu ->
-				SheetItem(menu.icon, menu.menuText) { menuAction(index) }
+				val action = { when (index) {
+					0 -> menuAction(MediaMenuActions.PlayNext(song))
+					1 -> openRenameDialog.value = true
+					4 -> openDeleteDialog.value = true
+					else -> {}
+				} }
+				SheetItem(menu.icon, menu.menuText) { action() }
 			}
 		}
 	}
 
-	BackHandler { openBottomSheet(false) }
+	if (openRenameDialog.value) {
+		RenameSongDialog(
+			song = song,
+			renameSong = { title, artist ->
+				menuAction(
+					MediaMenuActions.RenameSong(
+						SongDetails(song.id, song.uri, title, artist)
+					)
+				)
+			},
+			openDialog = { openRenameDialog.value = it }
+		)
+	}
+
+	if (openDeleteDialog.value) {
+		DeleteSongDialog(
+			deleteSong = {
+				menuAction(
+					MediaMenuActions.DeleteSong(
+						SongDetails(song.id, song.uri)
+					)
+				)
+			},
+			openDialog = { openDeleteDialog.value = it }
+		)
+	}
 }
 
 @Composable
@@ -86,6 +126,7 @@ fun SheetPreview() {
 		) {
 			if (openBottomSheet.value) {
 				MediaItemSheet(
+					song = previewData[6],
 					scaffoldState = sheetState,
 					openBottomSheet = { openBottomSheet.value = it },
 					menuAction = {}

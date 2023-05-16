@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import com.roland.android.odiyo.service.Util.time
 
 data class Music(
+	val id: Long,
 	val uri: Uri,
 	val name: String,
 	val title: String,

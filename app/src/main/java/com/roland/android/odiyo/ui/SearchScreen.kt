@@ -23,6 +23,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.util.MediaMenuActions
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,7 +35,7 @@ fun SearchScreen(
 	onTextChange: (String) -> Unit,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
-	menuAction: (Int, Music) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 	clearSearchQuery: () -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
@@ -48,7 +49,7 @@ fun SearchScreen(
 			)
 		}
 	) { paddingValues ->
-		val sheetState = rememberModalBottomSheetState()
+		val sheetState = rememberModalBottomSheetState(true)
 		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
 		var songClicked by remember { mutableStateOf<Music?>(null) }
 
@@ -86,9 +87,10 @@ fun SearchScreen(
 				}
 				if (openBottomSheet.value) {
 					MediaItemSheet(
+						song = songClicked!!,
 						scaffoldState = sheetState,
 						openBottomSheet = { openBottomSheet.value = it },
-						menuAction = { menuAction(it, songClicked!!); openBottomSheet.value = false }
+						menuAction = menuAction
 					)
 				}
 			}
@@ -143,7 +145,7 @@ fun SearchScreenPreview() {
 			onTextChange = {},
 			currentSong = previewData[3],
 			playAudio = { _, _ -> },
-			menuAction = { _, _ -> },
+			menuAction = {},
 			clearSearchQuery = {},
 			closeSearchScreen = {}
 		)

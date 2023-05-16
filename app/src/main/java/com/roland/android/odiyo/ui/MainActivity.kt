@@ -31,7 +31,7 @@ import com.roland.android.odiyo.service.Util.audioAttribute
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.theme.OdiyoTheme
-import com.roland.android.odiyo.util.Permissions.permissionRequest
+import com.roland.android.odiyo.util.Permissions.storagePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.ViewModelFactory
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
 		setContent {
 			var permissionGranted by rememberSaveable { mutableStateOf(false) }
 
-			permissionRequest(requestPermissionLauncher) {
+			storagePermission(requestPermissionLauncher) {
 				permissionGranted = it
 			}
 
