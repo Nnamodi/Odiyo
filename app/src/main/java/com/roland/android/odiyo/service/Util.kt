@@ -19,8 +19,14 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Constants.DATE
+import com.roland.android.odiyo.service.Constants.MB_DIVISOR
+import com.roland.android.odiyo.service.Constants.MB_FORMAT
+import com.roland.android.odiyo.service.Constants.TIME
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -55,10 +61,16 @@ object Util {
 			ZoneId.systemDefault()
 		).format(
 			DateTimeFormatter.ofPattern(
-				"mm:ss",
+				TIME,
 				Locale.getDefault()
 			)
 		)
+
+	val Long.date: String
+		get() = SimpleDateFormat(DATE, Locale.getDefault()).format(this * 1000)
+
+	val Int.toMb: String
+		get() = DecimalFormat(MB_FORMAT).format(this / MB_DIVISOR)
 
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()

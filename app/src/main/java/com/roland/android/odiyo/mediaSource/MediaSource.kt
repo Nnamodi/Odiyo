@@ -4,13 +4,16 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import com.roland.android.odiyo.mediaSource.MediaDetails.albumSelection
 import com.roland.android.odiyo.mediaSource.MediaDetails.artistSelection
 import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.flow.MutableStateFlow
 import okio.use
 
+@RequiresApi(Build.VERSION_CODES.Q)
 class MediaSource(
 	private val resolver: ContentResolver
 ) {
@@ -43,6 +46,9 @@ class MediaSource(
 			val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
 			val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
 			val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+			val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+			val addedOnColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+			val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
 
 			while (cursor.moveToNext()) {
 				val id = cursor.getLong(idColumn)
@@ -50,6 +56,9 @@ class MediaSource(
 				val title = cursor.getString(titleColumn)
 				val artist = cursor.getString(artistColumn)
 				val duration = cursor.getLong(durationColumn)
+				val size = cursor.getInt(sizeColumn)
+				val addedOn = cursor.getLong(addedOnColumn)
+				val album = cursor.getString(albumColumn)
 
 				val contentUri: Uri = ContentUris.withAppendedId(
 					MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -58,7 +67,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(id, contentUri, name, title, artist, duration, null)
+				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album)
 				media.value += music
 			}
 		}
@@ -77,6 +86,9 @@ class MediaSource(
 			val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
 			val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
 			val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+			val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+			val addedOnColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+			val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
 
 			while (cursor.moveToNext()) {
 				val id = cursor.getLong(idColumn)
@@ -84,6 +96,9 @@ class MediaSource(
 				val title = cursor.getString(titleColumn)
 				val artist = cursor.getString(artistColumn)
 				val duration = cursor.getLong(durationColumn)
+				val size = cursor.getInt(sizeColumn)
+				val addedOn = cursor.getLong(addedOnColumn)
+				val album = cursor.getString(albumColumn)
 
 				val contentUri: Uri = ContentUris.withAppendedId(
 					MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -92,7 +107,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(id, contentUri, name, title, artist, duration, null)
+				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album)
 				mediaFromCollection.value += music
 			}
 		}

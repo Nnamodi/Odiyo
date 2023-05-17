@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.viewmodel.MediaViewModel
@@ -13,6 +14,8 @@ import com.roland.android.odiyo.viewmodel.MediaViewModel
 @UnstableApi
 @Composable
 fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
+	val context = LocalContext.current
+
 	LibraryScreen(
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
@@ -21,7 +24,7 @@ fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
 			viewModel.playAudio(uri, index)
 			index?.let { navActions.navigateToNowPlayingScreen() }
 		},
-		menuAction = viewModel::menuAction
+		menuAction = { viewModel.menuAction(context, it) }
 	)
 }
 

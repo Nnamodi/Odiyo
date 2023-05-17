@@ -8,6 +8,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -29,6 +30,8 @@ fun AppRoute(
 	nowPlayingViewModel: NowPlayingViewModel,
 	audioManager: AudioManager
 ) {
+	val context = LocalContext.current
+
 	Scaffold(
 		bottomBar = {
 			BottomAppBar(
@@ -65,7 +68,7 @@ fun AppRoute(
 						mediaViewModel.playAudio(uri, index)
 						navActions.navigateToNowPlayingScreen()
 					},
-					menuAction = mediaViewModel::menuAction,
+					menuAction = { mediaViewModel.menuAction(context, it) },
 					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = { navController.navigateUp() }
 				)
@@ -93,7 +96,7 @@ fun AppRoute(
 						mediaViewModel.playAudio(uri, index)
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
-					menuAction = mediaViewModel::menuAction,
+					menuAction = { mediaViewModel.menuAction(context, it) },
 					navigateUp = { navController.navigateUp() }
 				)
 			}

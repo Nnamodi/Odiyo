@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.viewmodel
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -60,7 +61,7 @@ class MediaViewModel(
 		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
 				songs = songList.map {
-					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					it.copy(thumbnail = it.getArtwork())
 				}
 			}
 		}
@@ -129,7 +130,7 @@ class MediaViewModel(
 				arrayOf(albumName)
 			).collect { songs ->
 				songsFromAlbum = songs.map {
-					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					it.copy(thumbnail = it.getArtwork())
 				}
 			}
 		}
@@ -143,7 +144,7 @@ class MediaViewModel(
 				arrayOf(artistName)
 			).collect { songs ->
 				songsFromArtist = songs.map {
-					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.getArtwork())
+					it.copy(thumbnail = it.getArtwork())
 				}
 			}
 		}
@@ -164,10 +165,11 @@ class MediaViewModel(
 		return result
 	}
 
-	fun menuAction(action: MediaMenuActions) {
+	fun menuAction(context: Context, action: MediaMenuActions) {
 		when (action) {
 			is MediaMenuActions.PlayNext -> addToQueue(action.song)
 			is MediaMenuActions.RenameSong -> updateSong(action.details)
+			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
 		}
 		Log.d("ViewModelInfo", "menuAction: $action")
@@ -183,6 +185,10 @@ class MediaViewModel(
 
 	private fun updateSong(songDetails: SongDetails) {
 		repository.updateSong(songDetails)
+	}
+
+	private fun shareSong(context: Context, song: Music) {
+		repository.shareSong(context, song)
 	}
 
 	private fun deleteSong(songDetails: SongDetails) {

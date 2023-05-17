@@ -1,5 +1,7 @@
 package com.roland.android.odiyo.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -21,9 +23,11 @@ import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.MenuItems.*
 import com.roland.android.odiyo.ui.dialog.DeleteSongDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
+import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @ExperimentalMaterial3Api
 @Composable
 fun MediaItemSheet(
@@ -33,6 +37,7 @@ fun MediaItemSheet(
 	menuAction: (MediaMenuActions) -> Unit,
 ) {
 	val openRenameDialog = remember { mutableStateOf(false) }
+	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
 
 	ModalBottomSheet(
@@ -46,6 +51,8 @@ fun MediaItemSheet(
 				val action = { when (index) {
 					0 -> menuAction(MediaMenuActions.PlayNext(song))
 					1 -> openRenameDialog.value = true
+					2 -> menuAction(MediaMenuActions.ShareSong(song))
+					3 -> openDetailsDialog.value = true
 					4 -> openDeleteDialog.value = true
 					else -> {}
 				} }
@@ -66,6 +73,10 @@ fun MediaItemSheet(
 			},
 			openDialog = { openRenameDialog.value = it }
 		)
+	}
+
+	if (openDetailsDialog.value) {
+		SongDetailsDialog(song) { openDetailsDialog.value = it }
 	}
 
 	if (openDeleteDialog.value) {
@@ -111,6 +122,7 @@ enum class MenuItems(
 	Delete(Icons.Rounded.Delete, "Delete")
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable

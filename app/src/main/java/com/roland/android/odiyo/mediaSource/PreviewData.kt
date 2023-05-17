@@ -1,10 +1,13 @@
 package com.roland.android.odiyo.mediaSource
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 
+@RequiresApi(Build.VERSION_CODES.Q)
 val previewData = listOf(
 	Music(
 		id = 0,
@@ -45,11 +48,14 @@ val previewData = listOf(
 	Music(
 		id = 4,
 		uri = "4".toUri(),
-		name = "",
+		name = "Lil Wayne - My president is black || roland.com.mp3",
 		title = "My president is black",
 		artist = "Lil Wayne",
 		time = 259464,
-		thumbnail = null
+		thumbnail = null,
+		bytes = 6849581,
+		addedOn = 1597243262,
+		album = "Indiana"
 	),
 	Music(
 		id = 5,

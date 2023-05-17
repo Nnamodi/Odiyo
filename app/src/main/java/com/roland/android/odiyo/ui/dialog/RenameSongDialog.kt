@@ -1,15 +1,14 @@
 package com.roland.android.odiyo.ui.dialog
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -59,7 +58,7 @@ fun RenameSongDialog(
 			}
 		},
 		confirmButton = {
-			TextButton(
+			Button(
 				enabled = isRenamed(song.title, songTitle, song.artist, songArtist),
 				onClick = {
 					renameSong(songTitle, songArtist)
@@ -83,10 +82,11 @@ fun isRenamed(
 	initialArtist: String,
 	artist: String,
 ): Boolean {
-	return title.isNotEmpty() || artist.isNotBlank() ||
+	return title.isNotEmpty() && artist.isNotBlank() &&
 			initialTitle != title || initialArtist != artist
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun RenameSongDialogPreview() {
