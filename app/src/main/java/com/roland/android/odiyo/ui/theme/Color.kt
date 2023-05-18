@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.theme
+package com.roland.android.odiyo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

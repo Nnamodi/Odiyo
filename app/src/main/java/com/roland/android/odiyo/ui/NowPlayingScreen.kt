@@ -11,13 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,12 +25,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
-import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -58,11 +57,11 @@ fun NowPlayingScreen(
 			TopAppBar(
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
-						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back")
+						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
 					}
 				},
 				title = {},
-				colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.Transparent)
+				colors = topAppBarColors(containerColor = Color.Transparent)
 			)
 		}
 	) {
@@ -96,18 +95,15 @@ fun NowPlayingScreen(
 private fun MediaDescription(song: Music?, artwork: Any?) {
 	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
 
-	AsyncImage(
-		model = artwork,
-		contentDescription = "media thumbnail",
-		placeholder = painterResource(R.drawable.default_art),
+	MediaImage(
 		modifier = Modifier
 			.size(screenWidth.dp, (screenWidth * 1.12).dp)
 			.padding(top = 20.dp, bottom = 10.dp),
-		contentScale = ContentScale.Crop
+		artwork = artwork
 	)
 	Column(Modifier.fillMaxWidth()) {
 		Text(
-			text = song?.title ?: "Unknown",
+			text = song?.title ?: stringResource(R.string.unknown),
 			modifier = Modifier.basicMarquee(),
 			style = MaterialTheme.typography.headlineMedium,
 			overflow = TextOverflow.Ellipsis,
@@ -115,7 +111,7 @@ private fun MediaDescription(song: Music?, artwork: Any?) {
 			fontWeight = FontWeight.Medium
 		)
 		Text(
-			text = song?.artist ?: "Unknown",
+			text = song?.artist ?: stringResource(R.string.unknown),
 			fontSize = TextUnit(18f, TextUnitType.Sp),
 			overflow = TextOverflow.Ellipsis,
 			softWrap = false,
@@ -168,7 +164,7 @@ private fun MediaControls(
 		) {
 			Icon(
 				imageVector = Icons.Rounded.Shuffle,
-				contentDescription = "shuffle",
+				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
 				tint = if (onShuffle) Color.Blue.copy(0.65f) else Color.Black
 			)
@@ -181,7 +177,7 @@ private fun MediaControls(
 		) {
 			Icon(
 				imageVector = Icons.Rounded.SkipPrevious,
-				contentDescription = "seek to previous",
+				contentDescription = stringResource(R.string.seek_to_previous),
 				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
@@ -193,7 +189,7 @@ private fun MediaControls(
 		) {
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleFilled else Icons.Rounded.PlayCircleFilled,
-				contentDescription = if (isPlaying) "pause" else "play",
+				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
 				modifier = Modifier.fillMaxSize()
 			)
 		}
@@ -205,7 +201,7 @@ private fun MediaControls(
 		) {
 			Icon(
 				imageVector = Icons.Rounded.SkipNext,
-				contentDescription = "seek to next",
+				contentDescription = stringResource(R.string.seek_to_next),
 				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
@@ -217,7 +213,7 @@ private fun MediaControls(
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
-				contentDescription = if(deviceMuted) "unmute" else "mute",
+				contentDescription = if(deviceMuted) stringResource(R.string.unmute) else stringResource(R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
 				tint = if (deviceMuted) Color.Blue.copy(0.65f) else Color.Black
 			)

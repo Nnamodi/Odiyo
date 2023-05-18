@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui
 
-import androidx.compose.foundation.Image
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,17 +12,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.model.Artist
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun ArtistsScreen(
 	artists: List<Artist>,
@@ -30,18 +34,22 @@ fun ArtistsScreen(
 	LazyColumn {
 		itemsIndexed(
 			items = artists,
-			key = { _, artist -> artist.id }
+			key = { _, artist -> artist.uri }
 		) { _, artist ->
 			ArtistItem(artist, prepareAndViewSongs)
 		}
 	}
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun ArtistItem(
 	artist: Artist,
 	prepareAndViewSongs: (String) -> Unit,
 ) {
+	val context = LocalContext.current
+
 	Row(
 		modifier = Modifier
 			.clickable { prepareAndViewSongs(artist.artist) }
@@ -49,13 +57,13 @@ fun ArtistItem(
 			.padding(10.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		Image(
-			painter = painterResource(R.drawable.default_artist_art),
-			contentDescription = "artist thumbnail",
-			contentScale = ContentScale.Crop,
+		MediaImage(
 			modifier = Modifier
 				.padding(end = 8.dp)
-				.size(70.dp)
+				.size(70.dp),
+			artwork = artist.getBitmap(context),
+			descriptionRes = R.string.artist_art_desc,
+			placeholderRes = R.drawable.default_artist_art
 		)
 		Column(
 			modifier = Modifier.fillMaxWidth(),
@@ -76,6 +84,8 @@ fun ArtistItem(
 	}
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Preview
 @Composable
 fun ArtistsScreenPreview() {

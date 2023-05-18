@@ -3,7 +3,7 @@ package com.roland.android.odiyo.model
 import android.net.Uri
 
 data class Artist(
-	val id: Uri,
+	val uri: Uri,
 	private val numTracks: String,
 	val artist: String
 ) {

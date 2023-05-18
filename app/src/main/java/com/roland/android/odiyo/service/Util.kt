@@ -1,13 +1,13 @@
 package com.roland.android.odiyo.service
 
 import android.app.PendingIntent
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.net.toUri
@@ -18,6 +18,8 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.model.Album
+import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Constants.DATE
 import com.roland.android.odiyo.service.Constants.MB_DIVISOR
@@ -45,7 +47,7 @@ object Util {
 
 	val nowPlaying = MutableStateFlow<MediaItem?>(null)
 
-	var nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
+	val nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
 
 	val playingState = MutableStateFlow(false)
 
@@ -75,17 +77,6 @@ object Util {
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()
 
-	fun Uri.toBitmap(resolver: ContentResolver): Bitmap? {
-		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			val source = ImageDecoder.createSource(resolver, this)
-			ImageDecoder.decodeBitmap(source)
-		} else {
-			resolver.openInputStream(this)?.use { inputStream ->
-				BitmapFactory.decodeStream(inputStream)
-			}
-		}
-	}
-
 	fun Music.getArtwork(): Any {
 		val mediaMetadata = this.uri.toMediaItem.mediaMetadata
 		return mediaMetadata.getArtwork()
@@ -95,6 +86,29 @@ object Util {
 		val bytes = this.artworkData
 		val bitmap = bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
 		return bitmap ?: R.drawable.default_art
+	}
+
+	fun Music.getBitmap(context: Context): Any {
+		return uri.getMediaArt(context) ?: R.drawable.default_art
+	}
+
+	fun Album.getBitmap(context: Context): Any {
+		return uri.getMediaArt(context) ?: R.drawable.default_album_art
+	}
+
+	fun Artist.getBitmap(context: Context): Any {
+		return uri.getMediaArt(context) ?: R.drawable.default_artist_art
+	}
+
+	private fun Uri.getMediaArt(context: Context): Bitmap? {
+		val retriever = MediaMetadataRetriever()
+		try {
+			retriever.setDataSource(context, this)
+		} catch (e: RuntimeException) {
+			Log.e("MediaPathInfo", "Can't retrieve media file", e)
+		}
+		val bytes = retriever.embeddedPicture
+		return bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
 	}
 
 	// an intent to launch UI from player notification.

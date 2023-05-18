@@ -36,24 +36,9 @@ class PlayerListener : Player.Listener {
 		super.onMediaMetadataChanged(mediaMetadata)
 		nowPlaying.value = mediaSession?.player?.currentMediaItem
 		nowPlayingMetadata.value = mediaMetadata
-		Log.i("MediaMetaData", "onMediaMetadataChanged: New song[$mediaMetadata]")
-		Log.i("MediaMetaData", "artworkUri: ${mediaMetadata.artworkUri}\nmediaType: ${mediaMetadata.mediaType}\n" +
-				"composer: ${mediaMetadata.composer}\nstation: ${mediaMetadata.station}\n" +
-				"displayTitle: ${mediaMetadata.displayTitle}\ntotalDiscCount: ${mediaMetadata.totalDiscCount}\n" +
-				"folderType: ${mediaMetadata.folderType}\ndiscNumber: ${mediaMetadata.discNumber}\n" +
-				"description: ${mediaMetadata.description}\nwriter: ${mediaMetadata.writer}\n" +
-				"extras: ${mediaMetadata.extras}\ntitle: ${mediaMetadata.title}\n" +
-				"artworkData: ${mediaMetadata.artworkData}\nalbumArtist: ${mediaMetadata.albumArtist}\n" +
-				"isPlayable: ${mediaMetadata.isPlayable}\nartist: ${mediaMetadata.artist}\n" +
-				"albumTitle: ${mediaMetadata.albumTitle}\nartworkDataType: ${mediaMetadata.artworkDataType}\n" +
-				"compilation: ${mediaMetadata.compilation}\nconductor: ${mediaMetadata.conductor}\n" +
-				"genre: ${mediaMetadata.genre}\nisBrowsable: ${mediaMetadata.isBrowsable}\n" +
-				"overallRating: ${mediaMetadata.overallRating}\nsubtitle: ${mediaMetadata.subtitle}\n" +
-				"totalTrackCount: ${mediaMetadata.totalTrackCount}\ntrackNumber: ${mediaMetadata.trackNumber}\n" +
-				"userRating: ${mediaMetadata.userRating}\nrecordingDay: ${mediaMetadata.recordingDay}\n" +
-				"recordingMonth: ${mediaMetadata.recordingMonth}\nrecordingYear: ${mediaMetadata.recordingYear}\n" +
-				"releaseDay: ${mediaMetadata.releaseDay}\nreleaseMonth: ${mediaMetadata.releaseMonth}\n" +
-				"releaseYear: ${mediaMetadata.releaseYear}"
+		Log.i("MediaMetaData", "New song[$mediaMetadata]\ntitle: ${mediaMetadata.title}\n" +
+				"artworkData: ${mediaMetadata.artworkData}\nartist: ${mediaMetadata.artist}\n" +
+				"albumTitle: ${mediaMetadata.albumTitle}\nartworkDataType: ${mediaMetadata.artworkDataType}"
 		)
 	}
 }

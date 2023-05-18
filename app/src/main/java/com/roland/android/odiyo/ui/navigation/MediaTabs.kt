@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.AlbumsScreen
+import com.roland.android.odiyo.ui.ArtistsScreen
+import com.roland.android.odiyo.ui.LibraryScreen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @ExperimentalMaterial3Api
@@ -29,6 +32,7 @@ fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	AlbumsScreen(
@@ -40,6 +44,7 @@ fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
 @Composable
 fun ArtistsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	ArtistsScreen(

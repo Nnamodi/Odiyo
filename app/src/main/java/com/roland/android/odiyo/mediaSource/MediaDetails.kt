@@ -23,7 +23,8 @@ object MediaDetails {
 		MediaStore.Audio.Media.DURATION,
 		MediaStore.Audio.Media.SIZE,
 		MediaStore.Audio.Media.DATE_ADDED,
-		MediaStore.Audio.Media.ALBUM
+		MediaStore.Audio.Media.ALBUM,
+		MediaStore.Audio.Media.DATA
 	)
 
 	const val librarySortOrder = "${MediaStore.Audio.Media.TITLE} ASC"

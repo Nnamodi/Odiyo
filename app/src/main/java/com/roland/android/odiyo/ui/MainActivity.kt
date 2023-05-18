@@ -30,7 +30,9 @@ import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.pendingIntent
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.navigation.AppRoute
+import com.roland.android.odiyo.ui.navigation.NavActions
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.storagePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
@@ -85,7 +87,7 @@ class MainActivity : ComponentActivity() {
 							navController = navController,
 							mediaViewModel = mediaViewModel,
 							nowPlayingViewModel = nowPlayingViewModel,
-							audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+							audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 						)
 					}
 				}

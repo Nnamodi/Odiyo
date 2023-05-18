@@ -13,22 +13,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.MenuItems.*
 import com.roland.android.odiyo.ui.dialog.DeleteSongDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @ExperimentalMaterial3Api
+@UnstableApi
 @Composable
 fun MediaItemSheet(
 	song: Music,
@@ -49,14 +53,14 @@ fun MediaItemSheet(
 		Column(Modifier.padding(bottom = 20.dp)) {
 			menuItems.forEachIndexed { index, menu ->
 				val action = { when (index) {
-					0 -> menuAction(MediaMenuActions.PlayNext(song))
+					0 -> { menuAction(MediaMenuActions.PlayNext(song)); openBottomSheet(false) }
 					1 -> openRenameDialog.value = true
 					2 -> menuAction(MediaMenuActions.ShareSong(song))
 					3 -> openDetailsDialog.value = true
 					4 -> openDeleteDialog.value = true
 					else -> {}
 				} }
-				SheetItem(menu.icon, menu.menuText) { action() }
+				SheetItem(menu.icon, stringResource(menu.menuText)) { action() }
 			}
 		}
 	}
@@ -70,6 +74,7 @@ fun MediaItemSheet(
 						SongDetails(song.id, song.uri, title, artist)
 					)
 				)
+				openBottomSheet(false)
 			},
 			openDialog = { openRenameDialog.value = it }
 		)
@@ -87,6 +92,7 @@ fun MediaItemSheet(
 						SongDetails(song.id, song.uri)
 					)
 				)
+				openBottomSheet(false)
 			},
 			openDialog = { openDeleteDialog.value = it }
 		)
@@ -113,17 +119,18 @@ fun SheetItem(icon: ImageVector, menuText: String, action: () -> Unit) {
 
 enum class MenuItems(
 	val icon: ImageVector,
-	val menuText: String
+	val menuText: Int
 ) {
-	PlayNext(Icons.Rounded.PlaylistAdd, "Play next"),
-	Rename(Icons.Rounded.Edit, "Rename"),
-	Share(Icons.Rounded.Share, "Share"),
-	Details(Icons.Rounded.Info, "Details"),
-	Delete(Icons.Rounded.Delete, "Delete")
+	PlayNext(Icons.Rounded.PlaylistAdd, R.string.play_next),
+	Rename(Icons.Rounded.Edit, R.string.rename),
+	Share(Icons.Rounded.Share, R.string.share),
+	Details(Icons.Rounded.Info, R.string.details),
+	Delete(Icons.Rounded.Delete, R.string.delete)
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
+@UnstableApi
 @Preview(showBackground = true)
 @Composable
 fun SheetPreview() {

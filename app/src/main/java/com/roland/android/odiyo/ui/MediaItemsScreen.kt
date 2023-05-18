@@ -12,14 +12,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -40,7 +42,7 @@ fun MediaItemsScreen(
 				title = { Text(text = collectionName, overflow = TextOverflow.Ellipsis, softWrap = false) },
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
-						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back")
+						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
 					}
 				}
 			)

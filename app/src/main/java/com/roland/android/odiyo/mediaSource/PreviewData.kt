@@ -55,7 +55,8 @@ val previewData = listOf(
 		thumbnail = null,
 		bytes = 6849581,
 		addedOn = 1597243262,
-		album = "Indiana"
+		album = "Indiana",
+		path = "/storage/emulated/0/Xender/audio/Lil Wayne - My president is black || roland.com.mp3"
 	),
 	Music(
 		id = 5,
@@ -106,52 +107,52 @@ val previewData = listOf(
 
 val previewAlbum = listOf(
 	Album(
-		id = "0".toUri(),
+		uri = "0".toUri(),
 		numSongs = "4",
 		album = "Does it have to be me?"
 	),
 	Album(
-		id = "1".toUri(),
+		uri = "1".toUri(),
 		numSongs = "3",
 		album = "Fire for fun"
 	),
 	Album(
-		id = "2".toUri(),
+		uri = "2".toUri(),
 		numSongs = "1",
 		album = "Why should I care?"
 	),
 	Album(
-		id = "3".toUri(),
+		uri = "3".toUri(),
 		numSongs = "15",
 		album = "None of our business"
 	),
 	Album(
-		id = "4".toUri(),
+		uri = "4".toUri(),
 		numSongs = "9",
 		album = "@Sare_hen.com"
 	),
 	Album(
-		id = "5".toUri(),
+		uri = "5".toUri(),
 		numSongs = "2",
 		album = "The only one"
 	),
 	Album(
-		id = "6".toUri(),
+		uri = "6".toUri(),
 		numSongs = "15",
 		album = "Who said it"
 	),
 	Album(
-		id = "7".toUri(),
+		uri = "7".toUri(),
 		numSongs = "8",
 		album = "Undying remedies"
 	),
 	Album(
-		id = "8".toUri(),
+		uri = "8".toUri(),
 		numSongs = "3",
 		album = "Not yet born"
 	),
 	Album(
-		id = "9".toUri(),
+		uri = "9".toUri(),
 		numSongs = "1",
 		album = "Hero from the sun"
 	)
@@ -159,52 +160,52 @@ val previewAlbum = listOf(
 
 val previewArtist = listOf(
 	Artist(
-		id = "0".toUri(),
+		uri = "0".toUri(),
 		numTracks = "8",
 		artist = "Imagine Dragons"
 	),
 	Artist(
-		id = "1".toUri(),
+		uri = "1".toUri(),
 		numTracks = "5",
 		artist = "Elton John"
 	),
 	Artist(
-		id = "2".toUri(),
+		uri = "2".toUri(),
 		numTracks = "1",
 		artist = "Lonial Jr."
 	),
 	Artist(
-		id = "3".toUri(),
+		uri = "3".toUri(),
 		numTracks = "7",
 		artist = "One Republic"
 	),
 	Artist(
-		id = "4".toUri(),
+		uri = "4".toUri(),
 		numTracks = "10",
 		artist = "Coldplay"
 	),
 	Artist(
-		id = "5".toUri(),
+		uri = "5".toUri(),
 		numTracks = "12",
 		artist = "Halun-vid"
 	),
 	Artist(
-		id = "6".toUri(),
+		uri = "6".toUri(),
 		numTracks = "3",
 		artist = "Samune"
 	),
 	Artist(
-		id = "7".toUri(),
+		uri = "7".toUri(),
 		numTracks = "9",
 		artist = "Denveri"
 	),
 	Artist(
-		id = "8".toUri(),
+		uri = "8".toUri(),
 		numTracks = "17",
 		artist = "Faluo"
 	),
 	Artist(
-		id = "9".toUri(),
+		uri = "9".toUri(),
 		numTracks = "2",
 		artist = "David Mcklin"
 	),

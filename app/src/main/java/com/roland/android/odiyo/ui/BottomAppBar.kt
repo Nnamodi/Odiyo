@@ -17,7 +17,7 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi

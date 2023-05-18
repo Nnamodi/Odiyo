@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.theme
+package com.roland.android.odiyo.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

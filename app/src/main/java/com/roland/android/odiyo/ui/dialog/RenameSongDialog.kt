@@ -11,13 +11,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @Composable
 fun RenameSongDialog(
@@ -32,7 +34,7 @@ fun RenameSongDialog(
 		onDismissRequest = {},
 		title = {
 			Column {
-				Text("Rename Song")
+				Text(stringResource(R.string.rename_song))
 				OutlinedTextField(
 					modifier = Modifier
 						.fillMaxWidth()
@@ -42,7 +44,7 @@ fun RenameSongDialog(
 					singleLine = true,
 					shape = RoundedCornerShape(12.dp),
 					textStyle = TextStyle(fontSize = 18.sp),
-					label = { CustomInputText("Title") }
+					label = { CustomInputText(stringResource(R.string.title)) }
 				)
 				OutlinedTextField(
 					modifier = Modifier
@@ -53,7 +55,7 @@ fun RenameSongDialog(
 					singleLine = true,
 					shape = RoundedCornerShape(12.dp),
 					textStyle = TextStyle(fontSize = 18.sp),
-					label = { CustomInputText("Artist") }
+					label = { CustomInputText(stringResource(R.string.artist)) }
 				)
 			}
 		},
@@ -65,12 +67,12 @@ fun RenameSongDialog(
 					openDialog(false)
 				}
 			) {
-				DialogButtonText("Rename")
+				DialogButtonText(stringResource(R.string.rename))
 			}
 		},
 		dismissButton = {
 			TextButton(onClick = { openDialog(false) }) {
-				DialogButtonText("Cancel")
+				DialogButtonText(stringResource(R.string.cancel))
 			}
 		}
 	)

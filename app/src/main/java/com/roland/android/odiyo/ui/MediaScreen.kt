@@ -33,9 +33,8 @@ import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.getArtwork
-import com.roland.android.odiyo.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.MediaScreen.*
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -60,7 +59,7 @@ fun MediaScreen(
 				},
 				actions = {
 					IconButton(onClick = navigateToSearch) {
-						Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search icon")
+						Icon(imageVector = Icons.Rounded.Search, contentDescription = stringResource(R.string.search_icon_desc))
 					}
 				}
 			)
@@ -118,17 +117,14 @@ fun NowPlayingMinimizedView(
 		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		AsyncImage(
-			model = artwork,
-			contentDescription = "media thumbnail",
-			placeholder = painterResource(R.drawable.default_art),
-			contentScale = ContentScale.Crop,
+		MediaImage(
 			modifier = Modifier
 				.padding(8.dp)
-				.size(44.dp)
+				.size(44.dp),
+			artwork = artwork
 		)
 		Text(
-			text = song?.title ?: "Nothing is playing",
+			text = song?.title ?: stringResource(R.string.nothing_to_play),
 			overflow = TextOverflow.Ellipsis,
 			modifier = Modifier.weight(1.0f),
 			softWrap = false
@@ -141,11 +137,29 @@ fun NowPlayingMinimizedView(
 		) {
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
-				contentDescription = if (isPlaying) "pause" else "play",
+				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
 				modifier = Modifier.fillMaxSize()
 			)
 		}
 	}
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
+@Composable
+fun MediaImage(
+	modifier: Modifier = Modifier,
+	artwork: Any?,
+	descriptionRes: Int = R.string.music_art_desc,
+	placeholderRes: Int = R.drawable.default_art
+) {
+	AsyncImage(
+		model = artwork,
+		contentDescription = stringResource(descriptionRes),
+		contentScale = ContentScale.Crop,
+		placeholder = painterResource(placeholderRes),
+		modifier = modifier
+	)
 }
 
 enum class MediaScreen { Library, Albums, Artists }

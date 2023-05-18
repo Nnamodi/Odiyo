@@ -49,6 +49,7 @@ class MediaSource(
 			val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
 			val addedOnColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 			val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+			val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
 			while (cursor.moveToNext()) {
 				val id = cursor.getLong(idColumn)
@@ -59,6 +60,7 @@ class MediaSource(
 				val size = cursor.getInt(sizeColumn)
 				val addedOn = cursor.getLong(addedOnColumn)
 				val album = cursor.getString(albumColumn)
+				val path = cursor.getString(pathColumn)
 
 				val contentUri: Uri = ContentUris.withAppendedId(
 					MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -67,7 +69,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album)
+				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album, path)
 				media.value += music
 			}
 		}
@@ -89,6 +91,7 @@ class MediaSource(
 			val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
 			val addedOnColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 			val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+			val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
 			while (cursor.moveToNext()) {
 				val id = cursor.getLong(idColumn)
@@ -99,6 +102,7 @@ class MediaSource(
 				val size = cursor.getInt(sizeColumn)
 				val addedOn = cursor.getLong(addedOnColumn)
 				val album = cursor.getString(albumColumn)
+				val path = cursor.getString(pathColumn)
 
 				val contentUri: Uri = ContentUris.withAppendedId(
 					MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -107,7 +111,7 @@ class MediaSource(
 
 				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
 
-				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album)
+				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album, path)
 				mediaFromCollection.value += music
 			}
 		}

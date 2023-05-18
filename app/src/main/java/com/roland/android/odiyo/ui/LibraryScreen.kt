@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,8 +30,9 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
 @ExperimentalMaterial3Api
@@ -81,6 +84,7 @@ fun MediaItem(
 	playAudio: (Uri, Int?) -> Unit,
 	openMenuSheet: (Music) -> Unit
 ) {
+	val context = LocalContext.current
 	val mediaItem = song.uri.toMediaItem
 	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
 	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
@@ -93,8 +97,8 @@ fun MediaItem(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		AsyncImage(
-			model = song.thumbnail,
-			contentDescription = "media thumbnail",
+			model = song.getBitmap(context),
+			contentDescription = stringResource(R.string.music_art_desc),
 			placeholder = painterResource(R.drawable.default_art),
 			contentScale = ContentScale.Crop,
 			modifier = Modifier
@@ -122,7 +126,7 @@ fun MediaItem(
 			Text(song.duration, color = color)
 		}
 		IconButton(onClick = { openMenuSheet(song) }) {
-			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = "More_options")
+			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more_options))
 		}
 	}
 }

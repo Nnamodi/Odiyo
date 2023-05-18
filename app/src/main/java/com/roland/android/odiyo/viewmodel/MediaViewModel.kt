@@ -60,9 +60,7 @@ class MediaViewModel(
 		}
 		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
-				songs = songList.map {
-					it.copy(thumbnail = it.getArtwork())
-				}
+				songs = songList
 			}
 		}
 		viewModelScope.launch {

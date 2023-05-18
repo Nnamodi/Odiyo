@@ -14,15 +14,17 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -58,7 +60,7 @@ fun SearchScreen(
 		) {
 			if (searchQuery.isEmpty()) {
 				Text(
-					text = "Type in the box to search",
+					text = stringResource(R.string.type_to_search),
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(top = 40.dp),
@@ -68,7 +70,7 @@ fun SearchScreen(
 				LazyColumn {
 					item {
 						Text(
-							text = "Search matched ${searchResult.size} songs",
+							text = stringResource(R.string.search_result_size, searchResult.size),
 							modifier = Modifier.padding(12.dp)
 						)
 					}
@@ -113,12 +115,12 @@ private fun SearchBar(
 				value = query,
 				onValueChange = onTextChange,
 				placeholder = {
-					Text(text = "Search", modifier = Modifier.alpha(0.6f))
+					Text(text = stringResource(R.string.search), modifier = Modifier.alpha(0.6f))
 				},
 				trailingIcon = {
 					if (query.isNotEmpty()) {
 						IconButton(onClick = clearSearchQuery) {
-							Icon(imageVector = Icons.Rounded.Clear, contentDescription = "Clear search icon")
+							Icon(imageVector = Icons.Rounded.Clear, contentDescription = stringResource(R.string.clear_icon_desc))
 						}
 					}
 				},
@@ -127,7 +129,7 @@ private fun SearchBar(
 		},
 		navigationIcon = {
 			IconButton(onClick = closeSearchScreen) {
-				Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back")
+				Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
 			}
 		}
 	)

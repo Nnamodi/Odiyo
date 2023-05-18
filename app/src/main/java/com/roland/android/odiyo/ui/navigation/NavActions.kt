@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -12,7 +12,9 @@ class NavActions(private val navController: NavHostController) {
 		navController.navigate(AppRoute.SearchScreen.route)
 	}
 	fun navigateToMediaItemScreen(collectionName: String, collectionType: String) {
-		navController.navigate(AppRoute.MediaItemsScreen.routeWithName(collectionName, collectionType))
+		navController.navigate(
+			AppRoute.MediaItemsScreen.routeWithName(collectionName, collectionType)
+		)
 	}
 }
 
