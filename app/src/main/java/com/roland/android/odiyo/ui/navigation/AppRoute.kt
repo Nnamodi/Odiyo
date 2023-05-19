@@ -36,12 +36,14 @@ fun AppRoute(
 	Scaffold(
 		bottomBar = {
 			BottomAppBar(
-				concealBottomBar = currentRoute(navController = navController) != AppRoute.NowPlayingScreen.route,
 				song = mediaViewModel.currentSong,
 				artwork = mediaViewModel.currentMediaItemImage,
 				isPlaying = mediaViewModel.isPlaying,
+				musicQueue = mediaViewModel.musicQueue,
 				playPause = mediaViewModel::playAudio,
-				moveToNowPlayingScreen = { navActions.navigateToNowPlayingScreen() }
+				queueAction = mediaViewModel::queueAction,
+				moveToNowPlayingScreen = { navActions.navigateToNowPlayingScreen() },
+				concealBottomBar = currentRoute(navController = navController) != AppRoute.NowPlayingScreen.route
 			)
 		}
 	) { innerPadding ->
@@ -65,7 +67,7 @@ fun AppRoute(
 					onTextChange = { mediaViewModel.searchQuery = it },
 					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						mediaViewModel.mediaItems = mediaViewModel.songsFromSearch().map { it.uri.toMediaItem }
+						mediaViewModel.mediaItems = mediaViewModel.songsFromSearch().map { it.uri.toMediaItem }.toMutableList()
 						mediaViewModel.playAudio(uri, index)
 						navActions.navigateToNowPlayingScreen()
 					},
@@ -93,7 +95,7 @@ fun AppRoute(
 					collectionName = collectionName,
 					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						mediaViewModel.mediaItems = songs.map { it.uri.toMediaItem }
+						mediaViewModel.mediaItems = songs.map { it.uri.toMediaItem }.toMutableList()
 						mediaViewModel.playAudio(uri, index)
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
@@ -107,14 +109,12 @@ fun AppRoute(
 					artwork = nowPlayingViewModel.currentMediaItemImage,
 					isPlaying = nowPlayingViewModel.isPlaying,
 					deviceMuted = nowPlayingViewModel.isDeviceMuted,
-					onShuffle = nowPlayingViewModel.shuffleState,
+					shuffleState = nowPlayingViewModel.shuffleState,
 					progress = nowPlayingViewModel.seekProgress,
 					timeElapsed = nowPlayingViewModel.currentDuration,
-					onSeekToPosition = nowPlayingViewModel::onSeekToPosition,
-					playPause = nowPlayingViewModel::playAudio,
-					shuffle = nowPlayingViewModel::shuffle,
-					seekTo = nowPlayingViewModel::seek,
-					muteDevice = { nowPlayingViewModel.onMuteDevice(audioManager) },
+					musicQueue = nowPlayingViewModel.musicQueue,
+					mediaControl = { nowPlayingViewModel.mediaControl(it, audioManager) },
+					queueAction = nowPlayingViewModel::queueAction,
 					navigateUp = { navController.navigateUp() }
 				)
 			}

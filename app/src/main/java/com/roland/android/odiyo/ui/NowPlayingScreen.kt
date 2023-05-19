@@ -1,7 +1,6 @@
 package com.roland.android.odiyo.ui
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,6 +29,8 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.MediaControls
+import com.roland.android.odiyo.util.QueueItemActions
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -41,16 +42,17 @@ fun NowPlayingScreen(
 	artwork: Any?,
 	isPlaying: Boolean,
 	deviceMuted: Boolean,
-	onShuffle: Boolean,
+	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
-	onSeekToPosition: (Long) -> Unit,
-	playPause: (Uri) -> Unit,
-	shuffle: () -> Unit,
-	seekTo: (Boolean, Boolean) -> Unit,
-	muteDevice: () -> Unit,
+	musicQueue: List<Music>,
+	mediaControl: (MediaControls) -> Unit,
+	queueAction: (QueueItemActions) -> Unit,
 	navigateUp: () -> Unit
 ) {
+	val scaffoldState = rememberModalBottomSheetState(true)
+	val openMusicQueue = remember { mutableStateOf(false) }
+
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
@@ -75,16 +77,23 @@ fun NowPlayingScreen(
 				song = song,
 				isPlaying = isPlaying,
 				deviceMuted = deviceMuted,
-				onShuffle = onShuffle,
+				shuffleState = shuffleState,
 				progress = progress,
 				timeElapsed = timeElapsed,
-				onSeekToPosition = onSeekToPosition,
-				playPause = { song?.uri?.let { playPause(it) } },
-				shuffle = shuffle,
-				seekTo = seekTo,
-				muteDevice = muteDevice
+				mediaControl = mediaControl,
+				showMusicQueue = { openMusicQueue.value = it },
 			)
 		}
+	}
+
+	if (openMusicQueue.value) {
+		QueueItemsSheet(
+			songs = musicQueue,
+			currentSong = song,
+			scaffoldState = scaffoldState,
+			openBottomSheet = { openMusicQueue.value = it },
+			queueAction = queueAction
+		)
 	}
 }
 
@@ -125,20 +134,17 @@ private fun MediaControls(
 	song: Music?,
 	isPlaying: Boolean,
 	deviceMuted: Boolean,
-	onShuffle: Boolean,
+	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
-	onSeekToPosition: (Long) -> Unit,
-	playPause: () -> Unit,
-	shuffle: () -> Unit,
-	seekTo: (Boolean, Boolean) -> Unit,
-	muteDevice: () -> Unit
+	mediaControl: (MediaControls) -> Unit,
+	showMusicQueue: (Boolean) -> Unit
 ) {
 	val maxSeekValue = song?.time?.toFloat() ?: 1f
 
 	Slider(
 		value = progress,
-		onValueChange = { onSeekToPosition(it.toLong()) },
+		onValueChange = { mediaControl(MediaControls.SeekToPosition(it.toLong())) },
 		valueRange = 0f..maxSeekValue,
 		modifier = Modifier
 			.fillMaxWidth()
@@ -157,7 +163,7 @@ private fun MediaControls(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		IconButton(
-			onClick = { shuffle() },
+			onClick = { mediaControl(MediaControls.Shuffle) },
 			modifier = Modifier
 				.size(50.dp)
 				.weight(0.9f)
@@ -166,11 +172,11 @@ private fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (onShuffle) Color.Blue.copy(0.65f) else Color.Black
+				tint = if (shuffleState) Color.Blue.copy(0.65f) else Color.Black
 			)
 		}
 		IconButton(
-			onClick = { seekTo(true, false) },
+			onClick = { mediaControl(MediaControls.Seek(previous = true, next = false)) },
 			modifier = Modifier
 				.size(70.dp)
 				.weight(1f)
@@ -182,7 +188,7 @@ private fun MediaControls(
 			)
 		}
 		IconButton(
-			onClick = { playPause() },
+			onClick = { mediaControl(MediaControls.PlayPause) },
 			modifier = Modifier
 				.size(70.dp)
 				.weight(1.2f)
@@ -194,7 +200,7 @@ private fun MediaControls(
 			)
 		}
 		IconButton(
-			onClick = { seekTo(false, true) },
+			onClick = { mediaControl(MediaControls.Seek(previous = false, next = true)) },
 			modifier = Modifier
 				.size(70.dp)
 				.weight(1f)
@@ -206,16 +212,15 @@ private fun MediaControls(
 			)
 		}
 		IconButton(
-			onClick = { muteDevice() },
+			onClick = { showMusicQueue(true) },
 			modifier = Modifier
 				.size(50.dp)
 				.weight(0.9f)
 		) {
 			Icon(
-				imageVector = Icons.Rounded.VolumeOff,
-				contentDescription = if(deviceMuted) stringResource(R.string.unmute) else stringResource(R.string.mute),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (deviceMuted) Color.Blue.copy(0.65f) else Color.Black
+				imageVector = Icons.Rounded.QueueMusic,
+				contentDescription = stringResource(R.string.music_queue),
+				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
 	}
@@ -229,21 +234,26 @@ fun NowPlayingPreview() {
 	OdiyoTheme {
 		var isPlaying by remember { mutableStateOf(false) }
 		var deviceMuted by remember { mutableStateOf(false) }
-		var onShuffle by remember { mutableStateOf(false) }
+		var shuffleState by remember { mutableStateOf(false) }
 
 		NowPlayingScreen(
 			song = previewData[2],
 			artwork = previewData[2].getArtwork(),
 			isPlaying = isPlaying,
 			deviceMuted = deviceMuted,
-			onShuffle = onShuffle,
+			shuffleState = shuffleState,
 			progress = 0f,
 			timeElapsed = "00.00",
-			onSeekToPosition = {},
-			playPause = { isPlaying = !isPlaying },
-			shuffle = { onShuffle = !onShuffle },
-			seekTo = { _, _ -> },
-			muteDevice = { deviceMuted = !deviceMuted },
+			musicQueue = previewData,
+			mediaControl = {
+				when (it) {
+					MediaControls.Mute -> deviceMuted = !deviceMuted
+					MediaControls.PlayPause -> isPlaying = !isPlaying
+					MediaControls.Shuffle -> shuffleState = !shuffleState
+					else -> {}
+				}
+			},
+			queueAction = {},
 			navigateUp = {}
 		)
 	}

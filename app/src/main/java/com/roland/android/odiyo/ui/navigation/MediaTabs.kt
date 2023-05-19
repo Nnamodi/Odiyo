@@ -23,7 +23,7 @@ fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
 		playAudio = { uri, index ->
-			viewModel.mediaItems = viewModel.songs.map { it.uri.toMediaItem }
+			viewModel.mediaItems = viewModel.songs.map { it.uri.toMediaItem }.toMutableList()
 			viewModel.playAudio(uri, index)
 			index?.let { navActions.navigateToNowPlayingScreen() }
 		},

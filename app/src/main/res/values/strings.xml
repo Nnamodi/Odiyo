@@ -38,4 +38,6 @@
     <string name="album_column">Album:</string>
     <string name="path_column">Path:</string>
     <string name="got_it">Got it</string>
+    <string name="music_queue">Music queue</string>
+    <string name="queue_sheet_title">Queue (%d songs)</string>
 </resources>
