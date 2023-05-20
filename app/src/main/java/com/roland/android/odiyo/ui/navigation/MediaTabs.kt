@@ -6,7 +6,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
-import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.AlbumsScreen
 import com.roland.android.odiyo.ui.ArtistsScreen
 import com.roland.android.odiyo.ui.LibraryScreen
@@ -23,8 +22,10 @@ fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
 		playAudio = { uri, index ->
-			viewModel.mediaItems = viewModel.songs.map { it.uri.toMediaItem }.toMutableList()
-			viewModel.playAudio(uri, index)
+			viewModel.apply {
+				resetPlaylist(songs)
+				playAudio(uri, index)
+			}
 			index?.let { navActions.navigateToNowPlayingScreen() }
 		},
 		menuAction = { viewModel.menuAction(context, it) }

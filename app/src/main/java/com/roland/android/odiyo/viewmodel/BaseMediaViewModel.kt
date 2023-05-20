@@ -15,11 +15,14 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
+import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
+import com.roland.android.odiyo.service.Util.songsOnQueue
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
@@ -35,22 +38,24 @@ open class BaseMediaViewModel(
 	private val repository: MediaRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
-	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
-	var mediaItems = mutableListOf<MediaItem>()
+	var musicQueue by mutableStateOf<List<Music>>(emptyList())
 	var currentMediaItemImage by mutableStateOf<Any?>(null); private set
 
 	var currentSong by mutableStateOf<Music?>(null); private set
+	var currentSongIndex by mutableStateOf(0); private set
 	var isPlaying by mutableStateOf(false); private set
 	private var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null)
 
 	init {
 		viewModelScope.launch {
 			appDataStore.getCurrentPlaylist().collect {
-				if (mediaItems.isEmpty()) {
-					mediaItems = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
+				if (mediaItems.value.isEmpty()) {
+					mediaItems.value = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
 					mediaSession?.player?.apply {
-						setMediaItems(mediaItems); prepare()
-						if (mediaItems.isNotEmpty()) seekTo(it.currentSongPosition, it.currentSongSeekPosition)
+						setMediaItems(mediaItems.value); prepare()
+						if (mediaItems.value.isNotEmpty()) {
+							seekTo(it.currentSongPosition, it.currentSongSeekPosition)
+						}
 					}
 					Log.i("ViewModelInfo", "CurrentPlaylist: ${it.playlist.take(15)}, ${it.currentSongPosition}")
 				}
@@ -59,6 +64,11 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
 				songs = songList
+			}
+		}
+		viewModelScope.launch {
+			songsOnQueue.collect {
+				musicQueue = it
 			}
 		}
 		viewModelScope.launch {
@@ -72,10 +82,15 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
+			currentMediaIndex.collect {
+				currentSongIndex = it
+			}
+		}
+		viewModelScope.launch {
 			nowPlayingMetadata.collect {
 				nowPlayingMetaData = it
 				currentMediaItemImage = it?.getArtwork()
-				updateMusicQueue()
+				updateMusicQueue(queueEdited = false)
 			}
 		}
 	}
@@ -88,7 +103,7 @@ open class BaseMediaViewModel(
 	private fun preparePlaylist() {
 		mediaSession?.player?.apply {
 			clearMediaItems()
-			setMediaItems(mediaItems)
+			setMediaItems(mediaItems.value)
 			prepare()
 		}
 	}
@@ -123,13 +138,14 @@ open class BaseMediaViewModel(
 	private fun addToQueue(song: Music) {
 		val mediaItem = song.uri.toMediaItem
 		mediaSession?.player?.apply {
-			if (mediaItems.isNotEmpty()) {
+			if (musicQueue.isNotEmpty()) {
 				val index = currentMediaItemIndex + 1
 				addMediaItem(index, mediaItem)
-				mediaItems.add(index, mediaItem)
+				mediaItems.value.add(index, mediaItem)
 			} else {
-				addMediaItem(mediaItem)
-				mediaItems.add(mediaItem)
+				pause()
+				mediaItems.value = mutableListOf(mediaItem)
+				preparePlaylist()
 			}
 		}
 	}
@@ -146,14 +162,14 @@ open class BaseMediaViewModel(
 		repository.deleteSong(songDetails)
 	}
 
-	private fun updateMusicQueue() {
-		musicQueue = try {
-			mediaItems.map { musicItem(it)!! }
+	private fun updateMusicQueue(queueEdited: Boolean = true) {
+		songsOnQueue.value = try {
+			mediaItems.value.map { musicItem(it)!! }.toMutableList()
 		} catch (e: Exception) {
 			Log.e("ViewModelInfo", "Couldn't fetch queue items", e)
-			emptyList()
+			mutableListOf()
 		}
-		if (mediaItems.isNotEmpty()) saveCurrentPlaylist()
+		if (queueEdited || mediaItems.value.isNotEmpty()) saveCurrentPlaylist()
 	}
 
 	fun queueAction(action: QueueItemActions) {
@@ -162,6 +178,7 @@ open class BaseMediaViewModel(
 			is QueueItemActions.RemoveSong -> removeSong(action.item)
 		}
 		updateMusicQueue()
+		Log.d("ViewModelInfo", "queueAction: $action")
 	}
 
 	private fun playFromQueue(song: QueueMediaItem) {
@@ -174,7 +191,7 @@ open class BaseMediaViewModel(
 	private fun removeSong(song: QueueMediaItem) {
 		mediaSession?.player?.apply {
 			removeMediaItem(song.index)
-			mediaItems.removeAt(song.index)
+			mediaItems.value.removeAt(song.index)
 		}
 	}
 
@@ -184,10 +201,11 @@ open class BaseMediaViewModel(
 		val seekPosition = player?.currentPosition ?: 0
 		viewModelScope.launch(Dispatchers.IO) {
 			appDataStore.saveCurrentPlaylist(
-				playlist = mediaItems.map { it.localConfiguration?.uri ?: "null".toUri() },
+				playlist = mediaItems.value.map { it.localConfiguration?.uri ?: "null".toUri() },
 				currentPosition = songPosition,
 				seekPosition = seekPosition
 			)
 		}
+		Log.i("ViewModelInfo", "CurrentPlaylist saved")
 	}
 }

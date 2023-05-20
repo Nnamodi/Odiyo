@@ -45,6 +45,7 @@ fun NowPlayingScreen(
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
+	currentSongIndex: Int,
 	musicQueue: List<Music>,
 	mediaControl: (MediaControls) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
@@ -89,7 +90,7 @@ fun NowPlayingScreen(
 	if (openMusicQueue.value) {
 		QueueItemsSheet(
 			songs = musicQueue,
-			currentSong = song,
+			currentSongIndex = currentSongIndex,
 			scaffoldState = scaffoldState,
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
@@ -244,6 +245,7 @@ fun NowPlayingPreview() {
 			shuffleState = shuffleState,
 			progress = 0f,
 			timeElapsed = "00.00",
+			currentSongIndex = 5,
 			musicQueue = previewData,
 			mediaControl = {
 				when (it) {

@@ -13,6 +13,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerNotificationManager
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
@@ -30,6 +31,7 @@ class PlayerListener : Player.Listener {
 		deviceMuteState.value = player.isDeviceMuted
 		shuffleModeState.value = player.shuffleModeEnabled
 		progress.value = player.currentPosition
+		currentMediaIndex.value = player.currentMediaItemIndex
 	}
 
 	override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {

@@ -40,6 +40,7 @@ fun BottomAppBar(
 	song: Music?,
 	artwork: Any?,
 	isPlaying: Boolean,
+	currentSongIndex:Int,
 	musicQueue: List<Music>,
 	playPause: (Uri, Int?) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
@@ -67,7 +68,7 @@ fun BottomAppBar(
 	if (openMusicQueue.value) {
 		QueueItemsSheet(
 			songs = musicQueue,
-			currentSong = song,
+			currentSongIndex = currentSongIndex,
 			scaffoldState = scaffoldState,
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
@@ -155,6 +156,7 @@ fun BottomAppBarPreview() {
 				artwork = currentSong.getArtwork(),
 				isPlaying = playPause.value,
 				musicQueue = previewData,
+				currentSongIndex = 3,
 				playPause = { _, _ -> playPause.value = !playPause.value },
 				queueAction = {},
 				moveToNowPlayingScreen = {},

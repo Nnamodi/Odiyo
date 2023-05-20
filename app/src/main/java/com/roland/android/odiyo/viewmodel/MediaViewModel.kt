@@ -11,6 +11,8 @@ import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.mediaItems
+import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -35,6 +37,10 @@ class MediaViewModel(
 				artistList = it
 			}
 		}
+	}
+
+	fun resetPlaylist(newPlaylist: List<Music>) {
+		mediaItems.value = newPlaylist.map { it.uri.toMediaItem }.toMutableList()
 	}
 
 	fun songsFromAlbum(albumName: String): List<Music> {

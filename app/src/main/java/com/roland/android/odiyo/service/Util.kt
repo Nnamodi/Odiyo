@@ -57,6 +57,14 @@ object Util {
 
 	val progress = MutableStateFlow(0L)
 
+	val currentMediaIndex = MutableStateFlow(0)
+
+	// mutable list of MediaItems for populating the Player
+	var mediaItems = MutableStateFlow<MutableList<MediaItem>>(mutableListOf())
+
+	// mutable list of Music items on queue - will be gotten from mediaItems
+	var songsOnQueue = MutableStateFlow<MutableList<Music>>(mutableListOf())
+
 	val Long.time: String
 		get() = LocalDateTime.ofInstant(
 			Instant.ofEpochMilli(this),

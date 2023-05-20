@@ -85,9 +85,8 @@ fun MediaItem(
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
-	val mediaItem = song.uri.toMediaItem
-	val isPlaying by remember { mutableStateOf(mediaItem == currentSongUri) }
-	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
+	val isPlaying = song.uri.toMediaItem == currentSongUri
+	val color = if (isPlaying) Color.Blue else Color.Black
 
 	Row(
 		modifier = Modifier

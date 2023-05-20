@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.navigation
 
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
@@ -39,6 +41,7 @@ fun AppRoute(
 				song = mediaViewModel.currentSong,
 				artwork = mediaViewModel.currentMediaItemImage,
 				isPlaying = mediaViewModel.isPlaying,
+				currentSongIndex = mediaViewModel.currentSongIndex,
 				musicQueue = mediaViewModel.musicQueue,
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
@@ -67,8 +70,10 @@ fun AppRoute(
 					onTextChange = { mediaViewModel.searchQuery = it },
 					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						mediaViewModel.mediaItems = mediaViewModel.songsFromSearch().map { it.uri.toMediaItem }.toMutableList()
-						mediaViewModel.playAudio(uri, index)
+						mediaViewModel.apply {
+							resetPlaylist(songsFromSearch())
+							playAudio(uri, index)
+						}
 						navActions.navigateToNowPlayingScreen()
 					},
 					menuAction = { mediaViewModel.menuAction(context, it) },
@@ -95,8 +100,10 @@ fun AppRoute(
 					collectionName = collectionName,
 					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
-						mediaViewModel.mediaItems = songs.map { it.uri.toMediaItem }.toMutableList()
-						mediaViewModel.playAudio(uri, index)
+						mediaViewModel.apply {
+							resetPlaylist(songs)
+							playAudio(uri, index)
+						}
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
 					menuAction = { mediaViewModel.menuAction(context, it) },
@@ -112,6 +119,7 @@ fun AppRoute(
 					shuffleState = nowPlayingViewModel.shuffleState,
 					progress = nowPlayingViewModel.seekProgress,
 					timeElapsed = nowPlayingViewModel.currentDuration,
+					currentSongIndex = mediaViewModel.currentSongIndex,
 					musicQueue = nowPlayingViewModel.musicQueue,
 					mediaControl = { nowPlayingViewModel.mediaControl(it, audioManager) },
 					queueAction = nowPlayingViewModel::queueAction,

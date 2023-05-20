@@ -24,13 +24,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util
-import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.QueueItemActions
@@ -43,14 +40,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun QueueItemsSheet(
 	songs: List<Music>,
-	currentSong: Music?,
+	currentSongIndex: Int,
 	scaffoldState: SheetState,
 	openBottomSheet: (Boolean) -> Unit,
 	queueAction: (QueueItemActions) -> Unit
 ) {
 	val scope = rememberCoroutineScope()
 	val sheetHeight = (LocalConfiguration.current.screenHeightDp / 2).dp
-	val currentSongPosition = songs.indexOf(currentSong)
 	val scrollState = rememberLazyListState()
 
 	ModalBottomSheet(
@@ -76,17 +72,17 @@ fun QueueItemsSheet(
 					QueueItem(
 						itemIndex = index,
 						song = song,
-						currentSong = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
+						currentSongIndex = currentSongIndex,
 						itemIsLast = song == songs.last(),
-						action = queueAction
+						action = { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					)
 				}
 			}
 		}
 	}
-	if (currentSongPosition > 0) {
+	if (currentSongIndex > 0) {
 		LaunchedEffect(key1 = true) {
-			scope.launch { scrollState.scrollToItem(currentSongPosition) }
+			scope.launch { scrollState.scrollToItem(currentSongIndex) }
 		}
 	}
 }
@@ -96,13 +92,12 @@ fun QueueItemsSheet(
 fun QueueItem(
 	itemIndex: Int,
 	song: Music,
-	currentSong: MediaItem,
+	currentSongIndex: Int,
 	itemIsLast: Boolean,
 	action: (QueueItemActions) -> Unit
 ) {
-	val mediaItem = song.uri.toMediaItem
-	val isPlaying by remember { mutableStateOf(mediaItem == currentSong) }
-	val color by remember { mutableStateOf(if (isPlaying) Color.Blue else Color.Black) }
+	val isPlaying = itemIndex == currentSongIndex
+	val color = if (isPlaying) Color.Blue else Color.Black
 
 	Column(
 		modifier = Modifier.fillMaxWidth()
@@ -179,7 +174,7 @@ fun QueueItemsPreview() {
 			if (openBottomSheet.value) {
 				QueueItemsSheet(
 					songs = previewData.shuffled(),
-					currentSong = previewData[3],
+					currentSongIndex = 4,
 					scaffoldState = sheetState,
 					openBottomSheet = { openBottomSheet.value = it },
 					queueAction = {}
