@@ -22,6 +22,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)

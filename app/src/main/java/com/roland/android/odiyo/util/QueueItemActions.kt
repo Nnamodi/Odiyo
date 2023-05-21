@@ -4,6 +4,7 @@ import android.net.Uri
 
 sealed interface QueueItemActions {
 	data class Play(val item: QueueMediaItem) : QueueItemActions
+	data class DuplicateSong(val item: QueueMediaItem): QueueItemActions
 	data class RemoveSong(val item: QueueMediaItem): QueueItemActions
 }
 

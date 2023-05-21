@@ -40,4 +40,8 @@
     <string name="got_it">Got it</string>
     <string name="music_queue">Music queue</string>
     <string name="queue_sheet_title">Queue (%d songs)</string>
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="remove_from_queue">Remove from queue</string>
 </resources>

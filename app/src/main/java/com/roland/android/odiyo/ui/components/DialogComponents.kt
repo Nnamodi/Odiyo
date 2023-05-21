@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui.dialog
+package com.roland.android.odiyo.ui.components
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

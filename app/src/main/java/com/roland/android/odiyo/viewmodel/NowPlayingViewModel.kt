@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.viewmodel
 
+import android.content.Context
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
@@ -76,12 +77,13 @@ class NowPlayingViewModel(
 		}, 100L)
 	}
 
-	fun mediaControl(action: MediaControls, audioManager: AudioManager) {
+	fun mediaControl(context: Context, action: MediaControls) {
 		when (action) {
-			MediaControls.Mute -> onMuteDevice(audioManager)
+			MediaControls.Mute -> onMuteDevice(context)
 			is MediaControls.PlayPause -> playPause()
 			is MediaControls.Seek -> seek(action.previous, action.next)
 			is MediaControls.SeekToPosition -> onSeekToPosition(action.position)
+			is MediaControls.Share -> shareSong(context, action.music)
 			MediaControls.Shuffle -> shuffle()
 		}
 	}
@@ -113,7 +115,8 @@ class NowPlayingViewModel(
 		}
 	}
 
-	private fun onMuteDevice(audioManager: AudioManager) {
+	private fun onMuteDevice(context: Context) {
+		val audioManager = (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager)
 		val streamType = AudioManager.STREAM_MUSIC
 		val setVolume: (Int) -> Unit = { audioManager.setStreamVolume(streamType, it, 0) }
 

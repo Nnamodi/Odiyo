@@ -20,8 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
@@ -48,18 +46,33 @@ fun QueueItemsSheet(
 	val scope = rememberCoroutineScope()
 	val sheetHeight = (LocalConfiguration.current.screenHeightDp / 2).dp
 	val scrollState = rememberLazyListState()
+	val addToQueue = remember { mutableStateOf(false) }
 
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
 	) {
 		Column(Modifier.height(sheetHeight)) {
-			Text(
-				text = stringResource(R.string.queue_sheet_title, songs.size),
-				modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-				fontSize = TextUnit(22f, Sp),
-				fontWeight = FontWeight.Bold
-			)
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp),
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Text(
+					text = stringResource(R.string.queue_sheet_title, songs.size),
+					fontSize = 22.sp,
+					fontWeight = FontWeight.Bold
+				)
+				Spacer(Modifier.weight(1f))
+				if (songs.isNotEmpty()) {
+					TextButton(
+						onClick = { addToQueue.value = !addToQueue.value }
+					) {
+						Text(stringResource(if (!addToQueue.value) R.string.add else R.string.remove))
+					}
+				}
+			}
 			Divider()
 			LazyColumn(
 				contentPadding = PaddingValues(bottom = 14.dp),
@@ -73,6 +86,7 @@ fun QueueItemsSheet(
 						itemIndex = index,
 						song = song,
 						currentSongIndex = currentSongIndex,
+						addToQueue = addToQueue.value,
 						itemIsLast = song == songs.last(),
 						action = { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					)
@@ -93,11 +107,12 @@ fun QueueItem(
 	itemIndex: Int,
 	song: Music,
 	currentSongIndex: Int,
+	addToQueue: Boolean,
 	itemIsLast: Boolean,
 	action: (QueueItemActions) -> Unit
 ) {
 	val isPlaying = itemIndex == currentSongIndex
-	val color = if (isPlaying) Color.Blue else Color.Black
+	val color = if (isPlaying) MaterialTheme.colorScheme.primary else Color.Black
 
 	Column(
 		modifier = Modifier.fillMaxWidth()
@@ -139,15 +154,17 @@ fun QueueItem(
 			IconButton(
 				onClick = {
 					action(
-						QueueItemActions.RemoveSong(
-							QueueMediaItem(itemIndex, song.uri)
-						)
+						if (addToQueue) {
+							QueueItemActions.DuplicateSong(QueueMediaItem(itemIndex, song.uri))
+						} else {
+							QueueItemActions.RemoveSong(QueueMediaItem(itemIndex, song.uri))
+						}
 					)
 				}
 			) {
 				Icon(
-					imageVector = Icons.Rounded.Clear,
-					contentDescription = stringResource(R.string.clear_icon_desc),
+					imageVector = if (addToQueue) Icons.Rounded.Add else Icons.Rounded.Clear,
+					contentDescription = if (addToQueue) stringResource(R.string.add_to_queue) else stringResource(R.string.remove_from_queue),
 					tint = LocalContentColor.current.copy(alpha = 0.7f)
 				)
 			}

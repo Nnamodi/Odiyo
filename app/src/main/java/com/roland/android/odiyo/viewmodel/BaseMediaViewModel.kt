@@ -154,7 +154,7 @@ open class BaseMediaViewModel(
 		repository.updateSong(songDetails)
 	}
 
-	private fun shareSong(context: Context, song: Music) {
+	fun shareSong(context: Context, song: Music) {
 		repository.shareSong(context, song)
 	}
 
@@ -175,6 +175,7 @@ open class BaseMediaViewModel(
 	fun queueAction(action: QueueItemActions) {
 		when (action) {
 			is QueueItemActions.Play -> playFromQueue(action.item)
+			is QueueItemActions.DuplicateSong -> duplicateSong(action.item)
 			is QueueItemActions.RemoveSong -> removeSong(action.item)
 		}
 		updateMusicQueue()
@@ -188,11 +189,16 @@ open class BaseMediaViewModel(
 		}
 	}
 
+	private fun duplicateSong(song: QueueMediaItem) {
+		val index = song.index + 1
+		val mediaItem = song.uri.toMediaItem
+		mediaSession?.player?.addMediaItem(index, mediaItem)
+		mediaItems.value.add(index, mediaItem)
+	}
+
 	private fun removeSong(song: QueueMediaItem) {
-		mediaSession?.player?.apply {
-			removeMediaItem(song.index)
-			mediaItems.value.removeAt(song.index)
-		}
+		mediaSession?.player?.removeMediaItem(song.index)
+		mediaItems.value.removeAt(song.index)
 	}
 
 	private fun saveCurrentPlaylist() {

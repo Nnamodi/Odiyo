@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.navigation
 
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -31,7 +30,6 @@ fun AppRoute(
 	navController: NavHostController,
 	mediaViewModel: MediaViewModel,
 	nowPlayingViewModel: NowPlayingViewModel,
-	audioManager: AudioManager
 ) {
 	val context = LocalContext.current
 
@@ -121,7 +119,7 @@ fun AppRoute(
 					timeElapsed = nowPlayingViewModel.currentDuration,
 					currentSongIndex = mediaViewModel.currentSongIndex,
 					musicQueue = nowPlayingViewModel.musicQueue,
-					mediaControl = { nowPlayingViewModel.mediaControl(it, audioManager) },
+					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
 					navigateUp = { navController.navigateUp() }
 				)

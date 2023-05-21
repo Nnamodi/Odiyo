@@ -28,6 +28,8 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaControls
 import com.roland.android.odiyo.util.QueueItemActions
@@ -53,6 +55,7 @@ fun NowPlayingScreen(
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
+	val openDetailsDialog = remember { mutableStateOf(false) }
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
@@ -69,7 +72,7 @@ fun NowPlayingScreen(
 		}
 	) {
 		Column(
-			modifier = Modifier.padding(horizontal = 30.dp, vertical = 40.dp),
+			modifier = Modifier.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			MediaDescription(song, artwork)
@@ -77,12 +80,20 @@ fun NowPlayingScreen(
 			MediaControls(
 				song = song,
 				isPlaying = isPlaying,
-				deviceMuted = deviceMuted,
 				shuffleState = shuffleState,
 				progress = progress,
 				timeElapsed = timeElapsed,
 				mediaControl = mediaControl,
 				showMusicQueue = { openMusicQueue.value = it },
+			)
+
+			Spacer(Modifier.weight(1f))
+
+			MediaUtilActions(
+				song = song,
+				deviceMuted = deviceMuted,
+				mediaControl = mediaControl,
+				openDetailsDialog = { openDetailsDialog.value = it }
 			)
 		}
 	}
@@ -95,6 +106,10 @@ fun NowPlayingScreen(
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
 		)
+	}
+
+	if (openDetailsDialog.value && song != null) {
+		SongDetailsDialog(song, artwork) { openDetailsDialog.value = it }
 	}
 }
 
@@ -134,7 +149,6 @@ private fun MediaDescription(song: Music?, artwork: Any?) {
 private fun MediaControls(
 	song: Music?,
 	isPlaying: Boolean,
-	deviceMuted: Boolean,
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
@@ -173,7 +187,7 @@ private fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (shuffleState) Color.Blue.copy(0.65f) else Color.Black
+				tint = if (shuffleState) MaterialTheme.colorScheme.primary else Color.Black
 			)
 		}
 		IconButton(
@@ -222,6 +236,58 @@ private fun MediaControls(
 				imageVector = Icons.Rounded.QueueMusic,
 				contentDescription = stringResource(R.string.music_queue),
 				modifier = Modifier.fillMaxSize(0.75f)
+			)
+		}
+	}
+}
+
+@Composable
+fun MediaUtilActions(
+	song: Music?,
+	deviceMuted: Boolean,
+	mediaControl: (MediaControls) -> Unit,
+	openDetailsDialog: (Boolean) -> Unit
+) {
+	Row(
+		modifier = Modifier.fillMaxWidth(),
+		horizontalArrangement = Arrangement.SpaceEvenly,
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		IconButton(
+			onClick = { song?.let { mediaControl(MediaControls.Share(it)) } },
+			modifier = Modifier
+				.size(50.dp)
+				.weight(1f)
+		) {
+			Icon(
+				imageVector = Icons.Rounded.Share,
+				contentDescription = stringResource(R.string.share),
+				modifier = Modifier.fillMaxSize(0.75f)
+			)
+		}
+		IconButton(
+			onClick = { openDetailsDialog(true) },
+			modifier = Modifier
+				.size(50.dp)
+				.weight(1f)
+		) {
+			Icon(
+				imageVector = Icons.Rounded.Info,
+				contentDescription = stringResource(R.string.details),
+				modifier = Modifier.fillMaxSize(0.75f)
+			)
+		}
+		IconButton(
+			onClick = { mediaControl(MediaControls.Mute) },
+			modifier = Modifier
+				.size(50.dp)
+				.weight(1f)
+		) {
+			Icon(
+				imageVector = Icons.Rounded.VolumeOff,
+				contentDescription = stringResource(R.string.mute),
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else Color.Black
 			)
 		}
 	}

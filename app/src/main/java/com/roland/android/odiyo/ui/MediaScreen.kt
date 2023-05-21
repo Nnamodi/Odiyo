@@ -13,14 +13,11 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
-import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
@@ -93,24 +90,6 @@ fun MediaScreen(
 			}
 		}
 	}
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
-@Composable
-fun MediaImage(
-	modifier: Modifier = Modifier,
-	artwork: Any?,
-	descriptionRes: Int = R.string.music_art_desc,
-	placeholderRes: Int = R.drawable.default_art
-) {
-	AsyncImage(
-		model = artwork,
-		contentDescription = stringResource(descriptionRes),
-		contentScale = ContentScale.Crop,
-		placeholder = painterResource(placeholderRes),
-		modifier = modifier
-	)
 }
 
 enum class MediaScreen { Library, Albums, Artists }

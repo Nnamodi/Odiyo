@@ -18,14 +18,21 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
-import com.roland.android.odiyo.ui.MediaImage
+import com.roland.android.odiyo.ui.components.DialogButtonText
+import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.components.SongDetailText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun SongDetailsDialog(song: Music, openDialog: (Boolean) -> Unit) {
+fun SongDetailsDialog(
+	song: Music,
+	songArtwork: Any? = null,
+	openDialog: (Boolean) -> Unit
+) {
 	val context = LocalContext.current
+	val artwork = songArtwork ?: song.getBitmap(context)
 
 	AlertDialog(
 		onDismissRequest = { openDialog(false) },
@@ -37,7 +44,7 @@ fun SongDetailsDialog(song: Music, openDialog: (Boolean) -> Unit) {
 				Row(
 					modifier = Modifier.fillMaxWidth(),
 					horizontalArrangement = Arrangement.Center
-				) { MediaImage(modifier = Modifier.size(100.dp), artwork = song.getBitmap(context)) }
+				) { MediaImage(modifier = Modifier.size(100.dp), artwork = artwork) }
 				Row { SongDetailText(song.name, Modifier.padding(vertical = 12.dp)) }
 				Row { Text(stringResource(R.string.title_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.title) }
 				Row { Text(stringResource(R.string.artist_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.artist) }

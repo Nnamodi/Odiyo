@@ -86,8 +86,7 @@ class MainActivity : ComponentActivity() {
 							navActions = navActions,
 							navController = navController,
 							mediaViewModel = mediaViewModel,
-							nowPlayingViewModel = nowPlayingViewModel,
-							audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+							nowPlayingViewModel = nowPlayingViewModel
 						)
 					}
 				}
