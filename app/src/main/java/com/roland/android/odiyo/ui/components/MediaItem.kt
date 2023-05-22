@@ -11,10 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
@@ -37,7 +36,7 @@ fun MediaItem(
 ) {
 	val context = LocalContext.current
 	val isPlaying = song.uri.toMediaItem == currentSongUri
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else Color.Black
+	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
 	Row(
 		modifier = Modifier
@@ -50,7 +49,7 @@ fun MediaItem(
 			artwork = song.getBitmap(context),
 			modifier = Modifier
 				.padding(end = 8.dp)
-				.size(70.dp)
+				.size(50.dp)
 		)
 		Column(
 			modifier = Modifier.weight(1f),
@@ -59,18 +58,31 @@ fun MediaItem(
 			Text(
 				text = song.title,
 				overflow = TextOverflow.Ellipsis,
-				fontWeight = FontWeight.Bold,
 				maxLines = 2,
 				color = color
 			)
-			Text(
-				text = song.artist,
-				overflow = TextOverflow.Ellipsis,
-				fontWeight = FontWeight.Light,
-				softWrap = false,
-				color = color
-			)
-			Text(song.duration, color = color)
+			Row(
+				modifier = Modifier.fillMaxWidth(),
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Text(
+					text = song.artist,
+					overflow = TextOverflow.Ellipsis,
+					softWrap = false,
+					color = color,
+					modifier = Modifier
+						.alpha(0.5f)
+						.weight(1f)
+				)
+				Text(
+					song.duration,
+					color = color,
+					style = MaterialTheme.typography.bodySmall,
+					modifier = Modifier
+						.alpha(0.5f)
+						.padding(start = 4.dp)
+				)
+			}
 		}
 		IconButton(onClick = { openMenuSheet(song) }) {
 			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more_options))

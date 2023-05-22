@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Odiyo" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Odiyo" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">#FF1F1B16</item>
+    </style>
 </resources>

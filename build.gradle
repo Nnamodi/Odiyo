@@ -10,6 +10,7 @@ buildscript {
         lifecycle_version = '2.6.1'
         material3_version = '1.1.0'
         nav_version = '2.5.3'
+        system_ui_controller_version = '0.31.2-alpha'
         expresso_version = '3.5.1'
         ext_junit_version = '1.1.5'
         junit_version = '4.13.2'

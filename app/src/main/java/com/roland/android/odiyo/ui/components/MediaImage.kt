@@ -2,8 +2,10 @@ package com.roland.android.odiyo.ui.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -26,5 +28,6 @@ fun MediaImage(
 		contentScale = ContentScale.Crop,
 		placeholder = painterResource(placeholderRes),
 		modifier = modifier
+			.then(Modifier.clip(MaterialTheme.shapes.large))
 	)
 }

@@ -44,4 +44,5 @@
     <string name="remove">Remove</string>
     <string name="add_to_queue">Add to queue</string>
     <string name="remove_from_queue">Remove from queue</string>
+    <string name="delete_dialog_text">You will not be able to recover this song again</string>
 </resources>

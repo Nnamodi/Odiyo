@@ -17,11 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
@@ -132,14 +129,13 @@ private fun MediaDescription(song: Music?, artwork: Any?) {
 			modifier = Modifier.basicMarquee(),
 			style = MaterialTheme.typography.headlineMedium,
 			overflow = TextOverflow.Ellipsis,
-			softWrap = false,
-			fontWeight = FontWeight.Medium
+			softWrap = false
 		)
 		Text(
 			text = song?.artist ?: stringResource(R.string.unknown),
-			fontSize = TextUnit(18f, TextUnitType.Sp),
+			style = MaterialTheme.typography.titleMedium,
 			overflow = TextOverflow.Ellipsis,
-			softWrap = false,
+			softWrap = false
 		)
 	}
 }
@@ -187,7 +183,7 @@ private fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (shuffleState) MaterialTheme.colorScheme.primary else Color.Black
+				tint = if (shuffleState) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 			)
 		}
 		IconButton(
@@ -287,7 +283,7 @@ fun MediaUtilActions(
 				imageVector = Icons.Rounded.VolumeOff,
 				contentDescription = stringResource(R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else Color.Black
+				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 			)
 		}
 	}

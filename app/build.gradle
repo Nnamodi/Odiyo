@@ -73,6 +73,9 @@ dependencies {
     // persistence_lib
     implementation "androidx.datastore:datastore-preferences:$datastore_version"
 
+    // system_bar
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$system_ui_controller_version"
+
     // unit testing
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"

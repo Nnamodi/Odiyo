@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,8 +60,7 @@ fun QueueItemsSheet(
 			) {
 				Text(
 					text = stringResource(R.string.queue_sheet_title, songs.size),
-					fontSize = 22.sp,
-					fontWeight = FontWeight.Bold
+					style = MaterialTheme.typography.titleLarge
 				)
 				Spacer(Modifier.weight(1f))
 				if (songs.isNotEmpty()) {
@@ -112,7 +110,7 @@ fun QueueItem(
 	action: (QueueItemActions) -> Unit
 ) {
 	val isPlaying = itemIndex == currentSongIndex
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else Color.Black
+	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
 	Column(
 		modifier = Modifier.fillMaxWidth()

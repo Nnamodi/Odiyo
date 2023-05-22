@@ -15,9 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType.Companion.Sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
@@ -112,7 +111,7 @@ fun SheetItem(icon: ImageVector, menuText: String, action: () -> Unit) {
 		Spacer(Modifier.width(20.dp))
 		Text(
 			text = menuText,
-			fontSize = TextUnit(20f, Sp)
+			fontSize = 20.sp
 		)
 	}
 }

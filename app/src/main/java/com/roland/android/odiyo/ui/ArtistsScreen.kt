@@ -12,8 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,7 +61,7 @@ fun ArtistItem(
 		MediaImage(
 			modifier = Modifier
 				.padding(end = 8.dp)
-				.size(70.dp),
+				.size(50.dp),
 			artwork = artist.getBitmap(context),
 			descriptionRes = R.string.artist_art_desc,
 			placeholderRes = R.drawable.default_artist_art
@@ -73,13 +73,13 @@ fun ArtistItem(
 			Text(
 				text = artist.artist,
 				overflow = TextOverflow.Ellipsis,
-				fontWeight = FontWeight.Bold,
 				maxLines = 2
 			)
 			Text(
 				text = artist.numberOfTracks,
 				overflow = TextOverflow.Ellipsis,
-				fontWeight = FontWeight.Light
+				style = MaterialTheme.typography.bodySmall,
+				modifier = Modifier.alpha(0.5f)
 			)
 		}
 	}

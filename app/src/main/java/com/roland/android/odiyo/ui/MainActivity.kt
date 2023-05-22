@@ -3,6 +3,7 @@ package com.roland.android.odiyo.ui
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -10,10 +11,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,6 +28,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
@@ -89,6 +93,18 @@ class MainActivity : ComponentActivity() {
 							nowPlayingViewModel = nowPlayingViewModel
 						)
 					}
+				}
+
+				val systemUiController = rememberSystemUiController()
+				val useDarkIcons = isSystemInDarkTheme()
+				val color = MaterialTheme.colorScheme.background
+
+				DisposableEffect(systemUiController, useDarkIcons) {
+					systemUiController.setSystemBarsColor(
+						color = color,
+						darkIcons = useDarkIcons
+					)
+					onDispose {}
 				}
 			}
 		}
