@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
@@ -9,22 +9,26 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.components.EmptyListText
 import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
@@ -56,46 +60,41 @@ fun SearchScreen(
 		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
 		var songClicked by remember { mutableStateOf<Music?>(null) }
 
-		Column(
-			modifier = Modifier.padding(paddingValues)
-		) {
-			if (searchQuery.isEmpty()) {
-				Text(
-					text = stringResource(R.string.type_to_search),
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(top = 40.dp),
-					textAlign = TextAlign.Center
-				)
-			} else {
-				LazyColumn {
-					item {
-						Text(
-							text = stringResource(R.string.search_result_size, searchResult.size),
-							modifier = Modifier.padding(12.dp)
-						)
-					}
-					itemsIndexed(
-						items = searchResult,
-						key = { _, song -> song.uri }
-					) { index, song ->
-						MediaItem(
-							itemIndex = index,
-							song = song,
-							currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
-							playAudio = playAudio,
-							openMenuSheet = { songClicked = it; openBottomSheet.value = true }
-						)
-					}
-				}
-				if (openBottomSheet.value) {
-					MediaItemSheet(
-						song = songClicked!!,
-						scaffoldState = sheetState,
-						openBottomSheet = { openBottomSheet.value = it },
-						menuAction = menuAction
+		if (searchQuery.isEmpty()) {
+			EmptyListText(
+				text = stringResource(R.string.type_to_search),
+				modifier = Modifier.padding(paddingValues)
+			)
+		} else {
+			LazyColumn(Modifier.padding(paddingValues)) {
+				item {
+					SongListHeader(
+						songs = searchResult,
+						songsFromSearch = true,
+						playAllSongs = { _, _ -> },
+						addSongsToQueue = menuAction
 					)
 				}
+				itemsIndexed(
+					items = searchResult,
+					key = { _, song -> song.uri }
+				) { index, song ->
+					MediaItem(
+						itemIndex = index,
+						song = song,
+						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						playAudio = playAudio,
+						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+					)
+				}
+			}
+			if (openBottomSheet.value) {
+				MediaItemSheet(
+					song = songClicked!!,
+					scaffoldState = sheetState,
+					openBottomSheet = { openBottomSheet.value = it },
+					menuAction = menuAction
+				)
 			}
 		}
 	}
@@ -116,21 +115,27 @@ private fun SearchBar(
 				value = query,
 				onValueChange = onTextChange,
 				placeholder = {
-					Text(text = stringResource(R.string.search), modifier = Modifier.alpha(0.6f))
+					Row(
+						Modifier.alpha(0.6f), Arrangement.Center, Alignment.CenterVertically
+					) {
+						Icon(Icons.Rounded.Search, null)
+						Text(stringResource(R.string.search), Modifier.padding(start = 4.dp))
+					}
 				},
 				trailingIcon = {
 					if (query.isNotEmpty()) {
 						IconButton(onClick = clearSearchQuery) {
-							Icon(imageVector = Icons.Rounded.Clear, contentDescription = stringResource(R.string.clear_icon_desc))
+							Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
 						}
 					}
 				},
-				singleLine = true
+				singleLine = true,
+				shape = MaterialTheme.shapes.large
 			)
 		},
 		navigationIcon = {
 			IconButton(onClick = closeSearchScreen) {
-				Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
+				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
 		}
 	)

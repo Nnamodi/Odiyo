@@ -15,6 +15,7 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
+import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.service.Util.mediaItems
@@ -126,7 +127,7 @@ open class BaseMediaViewModel(
 
 	fun menuAction(context: Context, action: MediaMenuActions) {
 		when (action) {
-			is MediaMenuActions.PlayNext -> addToQueue(action.song)
+			is MediaMenuActions.PlayNext -> addToQueue(action.songs)
 			is MediaMenuActions.RenameSong -> updateSong(action.details)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
@@ -135,16 +136,16 @@ open class BaseMediaViewModel(
 		Log.d("ViewModelInfo", "menuAction: $action")
 	}
 
-	private fun addToQueue(song: Music) {
-		val mediaItem = song.uri.toMediaItem
+	private fun addToQueue(song: List<Music>) {
+		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
 			if (musicQueue.isNotEmpty()) {
 				val index = currentMediaItemIndex + 1
-				addMediaItem(index, mediaItem)
-				mediaItems.value.add(index, mediaItem)
+				addMediaItems(index, mediaItems)
+				Util.mediaItems.value.addAll(index, mediaItems)
 			} else {
 				pause()
-				mediaItems.value = mutableListOf(mediaItem)
+				Util.mediaItems.value = mediaItems.toMutableList()
 				preparePlaylist()
 			}
 		}
@@ -159,7 +160,11 @@ open class BaseMediaViewModel(
 	}
 
 	private fun deleteSong(songDetails: SongDetails) {
+		val songToDelete = songs.find { it.id == songDetails.id }
 		repository.deleteSong(songDetails)
+		if (musicQueue.contains(songToDelete)) {
+			mediaItems.value.removeAll { it == songToDelete?.uri?.toMediaItem }
+		}
 	}
 
 	private fun updateMusicQueue(queueEdited: Boolean = true) {

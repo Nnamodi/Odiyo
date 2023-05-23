@@ -35,11 +35,11 @@ class MediaSource(
 		)
 	}
 
-	private val media = MutableStateFlow<List<Music>>(mutableListOf())
+	private val media = MutableStateFlow<MutableList<Music>>(mutableListOf())
 
-	private val mediaFromCollection = MutableStateFlow<List<Music>>(mutableListOf())
+	private val mediaFromCollection = MutableStateFlow<MutableList<Music>>(mutableListOf())
 
-	fun media(): MutableStateFlow<List<Music>> {
+	fun media(): MutableStateFlow<MutableList<Music>> {
 		query?.use { cursor ->
 			val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
 			val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
@@ -79,7 +79,7 @@ class MediaSource(
 	private fun mediaFromCollection(
 		selection: String,
 		selectionArgs: Array<String>
-	): MutableStateFlow<List<Music>> {
+	): MutableStateFlow<MutableList<Music>> {
 		// empty list of songs previously fetched and re-fetch
 		mediaFromCollection.value = mutableListOf()
 		collectionMediaQuery(selection, selectionArgs)?.use { cursor ->
@@ -120,14 +120,14 @@ class MediaSource(
 
 	fun mediaFromAlbum(
 		selectionArgs: Array<String>
-	): MutableStateFlow<List<Music>> {
+	): MutableStateFlow<MutableList<Music>> {
 		mediaFromCollection(albumSelection, selectionArgs)
 		return mediaFromCollection
 	}
 
 	fun mediaFromArtist(
 		selectionArgs: Array<String>
-	): MutableStateFlow<List<Music>> {
+	): MutableStateFlow<MutableList<Music>> {
 		mediaFromCollection(artistSelection, selectionArgs)
 		return mediaFromCollection
 	}

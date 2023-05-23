@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.sheets
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -25,7 +25,6 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.ui.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
@@ -60,7 +59,8 @@ fun QueueItemsSheet(
 			) {
 				Text(
 					text = stringResource(R.string.queue_sheet_title, songs.size),
-					style = MaterialTheme.typography.titleLarge
+					style = MaterialTheme.typography.titleLarge,
+					modifier = Modifier.padding(vertical = 12.dp)
 				)
 				Spacer(Modifier.weight(1f))
 				if (songs.isNotEmpty()) {
@@ -85,7 +85,7 @@ fun QueueItemsSheet(
 						song = song,
 						currentSongIndex = currentSongIndex,
 						addToQueue = addToQueue.value,
-						itemIsLast = song == songs.last(),
+						itemIsLast = index == songs.size,
 						action = { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					)
 				}

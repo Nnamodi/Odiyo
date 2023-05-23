@@ -6,9 +6,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
-import com.roland.android.odiyo.ui.AlbumsScreen
-import com.roland.android.odiyo.ui.ArtistsScreen
-import com.roland.android.odiyo.ui.LibraryScreen
+import com.roland.android.odiyo.ui.screens.AlbumsScreen
+import com.roland.android.odiyo.ui.screens.ArtistsScreen
+import com.roland.android.odiyo.ui.screens.LibraryScreen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @ExperimentalMaterial3Api

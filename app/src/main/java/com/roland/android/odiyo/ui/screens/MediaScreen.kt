@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
@@ -23,7 +23,7 @@ import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.MediaScreen.*
+import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import kotlinx.coroutines.launch
 

@@ -10,7 +10,6 @@ import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
-import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
@@ -49,9 +48,7 @@ class MediaViewModel(
 			repository.getSongsFromAlbum(
 				arrayOf(albumName)
 			).collect { songs ->
-				songsFromAlbum = songs.map {
-					it.copy(thumbnail = it.getArtwork())
-				}
+				songsFromAlbum = songs
 			}
 		}
 		return songsFromAlbum
@@ -63,9 +60,7 @@ class MediaViewModel(
 			repository.getSongsFromArtist(
 				arrayOf(artistName)
 			).collect { songs ->
-				songsFromArtist = songs.map {
-					it.copy(thumbnail = it.getArtwork())
-				}
+				songsFromArtist = songs
 			}
 		}
 		return songsFromArtist

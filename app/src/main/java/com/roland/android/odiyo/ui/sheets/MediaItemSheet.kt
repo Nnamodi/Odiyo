@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.sheets
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -21,10 +21,10 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.ui.MenuItems.*
 import com.roland.android.odiyo.ui.dialog.DeleteSongDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
@@ -52,7 +52,7 @@ fun MediaItemSheet(
 		Column(Modifier.padding(bottom = 20.dp)) {
 			menuItems.forEachIndexed { index, menu ->
 				val action = { when (index) {
-					0 -> { menuAction(MediaMenuActions.PlayNext(song)); openBottomSheet(false) }
+					0 -> { menuAction(MediaMenuActions.PlayNext(listOf(song))); openBottomSheet(false) }
 					1 -> openRenameDialog.value = true
 					2 -> menuAction(MediaMenuActions.ShareSong(song))
 					3 -> openDetailsDialog.value = true

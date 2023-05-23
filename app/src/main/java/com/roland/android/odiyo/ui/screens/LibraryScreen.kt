@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
@@ -14,9 +14,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
@@ -42,7 +43,7 @@ fun LibraryScreen(
 			MediaItem(
 				itemIndex = index,
 				song = song,
-				currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
+				currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
 				playAudio = playAudio,
 				openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 			)

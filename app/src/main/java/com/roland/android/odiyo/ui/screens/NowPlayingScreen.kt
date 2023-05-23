@@ -27,6 +27,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaControls
 import com.roland.android.odiyo.util.QueueItemActions
@@ -60,7 +61,7 @@ fun NowPlayingScreen(
 			TopAppBar(
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
-						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
+						Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 					}
 				},
 				title = {},

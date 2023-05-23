@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -19,8 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewArtist
-import com.roland.android.odiyo.model.Artist
+import com.roland.android.odiyo.mediaSource.previewAlbum
+import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -28,16 +28,16 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun ArtistsScreen(
-	artists: List<Artist>,
+fun AlbumsScreen(
+	albums: List<Album>,
 	prepareAndViewSongs: (String) -> Unit,
 ) {
 	LazyColumn {
 		itemsIndexed(
-			items = artists,
-			key = { _, artist -> artist.uri }
-		) { _, artist ->
-			ArtistItem(artist, prepareAndViewSongs)
+			items = albums,
+			key = { _, album -> album.uri }
+		) { _, album ->
+			AlbumItem(album, prepareAndViewSongs)
 		}
 	}
 }
@@ -45,15 +45,15 @@ fun ArtistsScreen(
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun ArtistItem(
-	artist: Artist,
+fun AlbumItem(
+	album: Album,
 	prepareAndViewSongs: (String) -> Unit,
 ) {
 	val context = LocalContext.current
 
 	Row(
 		modifier = Modifier
-			.clickable { prepareAndViewSongs(artist.artist) }
+			.clickable { prepareAndViewSongs(album.album) }
 			.fillMaxWidth()
 			.padding(10.dp),
 		verticalAlignment = Alignment.CenterVertically
@@ -62,21 +62,21 @@ fun ArtistItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = artist.getBitmap(context),
-			descriptionRes = R.string.artist_art_desc,
-			placeholderRes = R.drawable.default_artist_art
+			artwork = album.getBitmap(context),
+			descriptionRes = R.string.album_art_desc,
+			placeholderRes = R.drawable.default_album_art
 		)
 		Column(
 			modifier = Modifier.fillMaxWidth(),
 			verticalArrangement = Arrangement.SpaceBetween
 		) {
 			Text(
-				text = artist.artist,
+				text = album.album,
 				overflow = TextOverflow.Ellipsis,
 				maxLines = 2
 			)
 			Text(
-				text = artist.numberOfTracks,
+				text = album.numberOfSongs,
 				overflow = TextOverflow.Ellipsis,
 				style = MaterialTheme.typography.bodySmall,
 				modifier = Modifier.alpha(0.5f)
@@ -89,12 +89,12 @@ fun ArtistItem(
 @UnstableApi
 @Preview
 @Composable
-fun ArtistsScreenPreview() {
+fun AlbumsScreenPreview() {
 	OdiyoTheme {
 		Surface(
 			color = MaterialTheme.colorScheme.background
 		) {
-			ArtistsScreen(previewArtist) {}
+			AlbumsScreen(previewAlbum) {}
 		}
 	}
 }

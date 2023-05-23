@@ -1,9 +1,9 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -19,9 +19,12 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.components.EmptyListText
 import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
@@ -43,7 +46,7 @@ fun MediaItemsScreen(
 				title = { Text(text = collectionName, overflow = TextOverflow.Ellipsis, softWrap = false) },
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
-						Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = stringResource(R.string.back_icon_desc))
+						Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 					}
 				}
 			)
@@ -53,29 +56,41 @@ fun MediaItemsScreen(
 		val openBottomSheet = rememberSaveable { mutableStateOf(false) }
 		var songClicked by remember { mutableStateOf<Music?>(null) }
 
-		LazyColumn(
-			modifier = Modifier.padding(innerPadding)
-		) {
-			itemsIndexed(
-				items = songs,
-				key = { _, song -> song.uri }
-			) { index, song ->
-				MediaItem(
-					itemIndex = index,
-					song = song,
-					currentSongUri = currentSong?.uri?.toMediaItem ?: Util.NOTHING_PLAYING,
-					playAudio = playAudio,
-					openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+		if (songs.isEmpty()) {
+			EmptyListText(
+				text = stringResource(R.string.nothing_here),
+				modifier = Modifier.padding(innerPadding)
+			)
+		} else {
+			LazyColumn(Modifier.padding(innerPadding)) {
+				item {
+					SongListHeader(
+						songs = songs,
+						playAllSongs = playAudio,
+						addSongsToQueue = menuAction
+					)
+				}
+				itemsIndexed(
+					items = songs,
+					key = { _, song -> song.uri }
+				) { index, song ->
+					MediaItem(
+						itemIndex = index,
+						song = song,
+						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						playAudio = playAudio,
+						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+					)
+				}
+			}
+			if (openBottomSheet.value) {
+				MediaItemSheet(
+					song = songClicked!!,
+					scaffoldState = sheetState,
+					openBottomSheet = { openBottomSheet.value = it },
+					menuAction = menuAction
 				)
 			}
-		}
-		if (openBottomSheet.value) {
-			MediaItemSheet(
-				song = songClicked!!,
-				scaffoldState = sheetState,
-				openBottomSheet = { openBottomSheet.value = it },
-				menuAction = menuAction
-			)
 		}
 	}
 }
@@ -86,11 +101,10 @@ fun MediaItemsScreen(
 @Composable
 fun MediaItemsScreenPreview() {
 	OdiyoTheme {
-		val currentSong = previewData[5]
 		MediaItemsScreen(
 			songs = previewData.takeLast(5),
 			collectionName = "Does it have to be me?",
-			currentSong = currentSong,
+			currentSong = previewData[5],
 			playAudio = { _, _ -> },
 			menuAction = {},
 			navigateUp = {}
