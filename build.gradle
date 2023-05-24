@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
+        accompanist_version = '0.31.2-alpha'
         activity_compose_version = '1.7.1'
         coil_version = '2.3.0'
         compose_version = '1.4.1'
@@ -10,7 +11,7 @@ buildscript {
         lifecycle_version = '2.6.1'
         material3_version = '1.1.0'
         nav_version = '2.5.3'
-        system_ui_controller_version = '0.31.2-alpha'
+        palette_version = '1.0.0'
         expresso_version = '3.5.1'
         ext_junit_version = '1.1.5'
         junit_version = '4.13.2'

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
@@ -85,27 +86,24 @@ object Util {
 	val Uri.toMediaItem: MediaItem
 		get() = MediaItem.Builder().setUri(this).build()
 
-	fun Music.getArtwork(): Any {
-		val mediaMetadata = this.uri.toMediaItem.mediaMetadata
-		return mediaMetadata.getArtwork()
+	fun MediaItem.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+		return localConfiguration?.uri?.getMediaArt(context) ?: defaultArt
 	}
 
-	fun MediaMetadata.getArtwork(): Any {
-		val bytes = this.artworkData
-		val bitmap = bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
-		return bitmap ?: R.drawable.default_art
+	fun Music.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+		return uri.getMediaArt(context) ?: defaultArt
 	}
 
-	fun Music.getBitmap(context: Context): Any {
-		return uri.getMediaArt(context) ?: R.drawable.default_art
+	fun Album.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_album_art)
+		return uri.getMediaArt(context) ?: defaultArt
 	}
 
-	fun Album.getBitmap(context: Context): Any {
-		return uri.getMediaArt(context) ?: R.drawable.default_album_art
-	}
-
-	fun Artist.getBitmap(context: Context): Any {
-		return uri.getMediaArt(context) ?: R.drawable.default_artist_art
+	fun Artist.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_artist_art)
+		return uri.getMediaArt(context) ?: defaultArt
 	}
 
 	private fun Uri.getMediaArt(context: Context): Bitmap? {
@@ -120,6 +118,7 @@ object Util {
 	}
 
 	// an intent to launch UI from player notification.
+	@ExperimentalAnimationApi
 	@ExperimentalMaterial3Api
 	val Context.pendingIntent: PendingIntent
 		get() = PendingIntent.getActivity(

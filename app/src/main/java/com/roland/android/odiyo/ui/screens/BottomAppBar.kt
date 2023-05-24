@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,10 +30,11 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.util.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,10 +54,10 @@ fun BottomAppBar(
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
-	
+
 	AnimatedVisibility(
 		visible = concealBottomBar,
-		enter = slideInVertically(initialOffsetY = { it }),
+		enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(delayMillis = 750)),
 		exit = slideOutVertically(targetOffsetY = { it })
 	) {
 		NowPlayingMinimizedView(
@@ -94,7 +97,7 @@ fun NowPlayingMinimizedView(
 			.fillMaxWidth()
 			.padding(10.dp)
 			.clip(MaterialTheme.shapes.large)
-			.background(MaterialTheme.colorScheme.outlineVariant)
+			.background(nowPlayingBackgroundColor(artwork))
 			.clickable { moveToNowPlayingScreen() },
 		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
@@ -144,6 +147,7 @@ fun NowPlayingMinimizedView(
 @Composable
 fun BottomAppBarPreview() {
 	OdiyoTheme {
+		val context = LocalContext.current
 		val currentSong = previewData[3]
 		val concealBottomBar = remember { mutableStateOf(true) }
 		val playPause = remember { mutableStateOf(false) }
@@ -156,7 +160,7 @@ fun BottomAppBarPreview() {
 		) {
 			BottomAppBar(
 				song = currentSong,
-				artwork = currentSong.getArtwork(),
+				artwork = currentSong.getBitmap(context),
 				isPlaying = playPause.value,
 				musicQueue = previewData,
 				currentSongIndex = 3,

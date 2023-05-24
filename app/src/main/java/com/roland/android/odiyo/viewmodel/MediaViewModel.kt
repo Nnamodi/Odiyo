@@ -73,7 +73,7 @@ class MediaViewModel(
 				"${music.artist} ${music.title}",
 				"${music.title}${music.artist}",
 				"${music.title} ${music.artist}",
-				music.title, music.artist
+				music.title, music.artist, music.album
 			)
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}

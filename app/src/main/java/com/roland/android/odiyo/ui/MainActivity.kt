@@ -2,8 +2,9 @@ package com.roland.android.odiyo.ui
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,28 +12,30 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.mediaSession
+import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
@@ -41,7 +44,9 @@ import com.roland.android.odiyo.util.Permissions.storagePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.ViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -70,6 +75,7 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			var permissionGranted by rememberSaveable { mutableStateOf(false) }
+			val context = LocalContext.current
 
 			storagePermission(requestPermissionLauncher) {
 				permissionGranted = it
@@ -83,7 +89,7 @@ class MainActivity : ComponentActivity() {
 					if (permissionGranted) {
 						val mediaViewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
 						val nowPlayingViewModel: NowPlayingViewModel = viewModel(factory = ViewModelFactory())
-						val navController = rememberNavController()
+						val navController = rememberAnimatedNavController()
 						val navActions = NavActions(navController)
 
 						AppRoute(
@@ -92,6 +98,16 @@ class MainActivity : ComponentActivity() {
 							mediaViewModel = mediaViewModel,
 							nowPlayingViewModel = nowPlayingViewModel
 						)
+
+						LaunchedEffect(true) {
+							nowPlaying.collectLatest {
+								val mediaArt: Bitmap = it?.getBitmap(context) ?:
+								BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+
+								mediaViewModel.currentMediaItemImage = mediaArt
+								nowPlayingViewModel.currentMediaItemImage = mediaArt
+							}
+						}
 					}
 				}
 

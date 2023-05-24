@@ -17,7 +17,6 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.currentMediaIndex
-import com.roland.android.odiyo.service.Util.getArtwork
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
@@ -40,7 +39,7 @@ open class BaseMediaViewModel(
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList())
-	var currentMediaItemImage by mutableStateOf<Any?>(null); private set
+	var currentMediaItemImage by mutableStateOf<Any?>(null)
 
 	var currentSong by mutableStateOf<Music?>(null); private set
 	var currentSongIndex by mutableStateOf(0); private set
@@ -90,7 +89,6 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			nowPlayingMetadata.collect {
 				nowPlayingMetaData = it
-				currentMediaItemImage = it?.getArtwork()
 				updateMusicQueue(queueEdited = false)
 			}
 		}

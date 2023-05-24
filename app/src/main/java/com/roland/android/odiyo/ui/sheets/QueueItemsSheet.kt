@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +39,7 @@ fun QueueItemsSheet(
 	songs: List<Music>,
 	currentSongIndex: Int,
 	scaffoldState: SheetState,
+	containerColor: Color = BottomSheetDefaults.ContainerColor,
 	openBottomSheet: (Boolean) -> Unit,
 	queueAction: (QueueItemActions) -> Unit
 ) {
@@ -49,6 +51,7 @@ fun QueueItemsSheet(
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
+		containerColor = containerColor
 	) {
 		Column(Modifier.height(sheetHeight)) {
 			Row(
@@ -71,7 +74,7 @@ fun QueueItemsSheet(
 					}
 				}
 			}
-			Divider()
+			Divider(color = Color.White.copy(alpha = 0.5f))
 			LazyColumn(
 				contentPadding = PaddingValues(bottom = 14.dp),
 				state = scrollState
@@ -167,7 +170,7 @@ fun QueueItem(
 				)
 			}
 		}
-		if (!itemIsLast) Divider()
+		if (!itemIsLast) Divider(color = Color.White.copy(alpha = 0.5f))
 	}
 }
 

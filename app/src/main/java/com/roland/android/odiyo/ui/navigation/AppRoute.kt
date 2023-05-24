@@ -1,8 +1,9 @@
 package com.roland.android.odiyo.ui.navigation
 
-import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -12,19 +13,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.roland.android.odiyo.service.Util.mediaItems
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
 import com.roland.android.odiyo.ui.*
-import com.roland.android.odiyo.ui.screens.BottomAppBar
-import com.roland.android.odiyo.ui.screens.MediaItemsScreen
-import com.roland.android.odiyo.ui.screens.MediaScreen
-import com.roland.android.odiyo.ui.screens.SearchScreen
+import com.roland.android.odiyo.ui.navigation.NavAnimations.DOWN
+import com.roland.android.odiyo.ui.navigation.NavAnimations.LEFT
+import com.roland.android.odiyo.ui.navigation.NavAnimations.RIGHT
+import com.roland.android.odiyo.ui.navigation.NavAnimations.UP
+import com.roland.android.odiyo.ui.screens.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 
+@ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -48,11 +49,11 @@ fun AppRoute(
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
 				moveToNowPlayingScreen = { navActions.navigateToNowPlayingScreen() },
-				concealBottomBar = currentRoute(navController = navController) != AppRoute.NowPlayingScreen.route
+				concealBottomBar = concealMinimizedView(navController)
 			)
 		}
 	) { innerPadding ->
-		NavHost(
+		AnimatedNavHost(
 			navController = navController,
 			startDestination = AppRoute.MediaScreen.route,
 			modifier = Modifier.padding(innerPadding)
@@ -65,7 +66,13 @@ fun AppRoute(
 					navigateToSearch = { navActions.navigateToSearch() }
 				)
 			}
-			composable(AppRoute.SearchScreen.route) {
+			composable(
+				AppRoute.SearchScreen.route,
+				enterTransition = { slideIntoContainer(LEFT, tween(700)) },
+				exitTransition = null,
+				popEnterTransition = null,
+				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
+			) {
 				SearchScreen(
 					searchQuery = mediaViewModel.searchQuery,
 					searchResult = mediaViewModel.songsFromSearch(),
@@ -88,7 +95,11 @@ fun AppRoute(
 				arguments = listOf(
 					navArgument("collectionName") { type = NavType.StringType },
 					navArgument("collectionType") { type = NavType.StringType }
-				)
+				),
+				enterTransition = { slideIntoContainer(LEFT, tween(700)) },
+				exitTransition = null,
+				popEnterTransition = null,
+				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName")!!
 				val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
@@ -112,7 +123,13 @@ fun AppRoute(
 					navigateUp = { navController.navigateUp() }
 				)
 			}
-			composable(AppRoute.NowPlayingScreen.route) {
+			composable(
+				AppRoute.NowPlayingScreen.route,
+				enterTransition = { slideIntoContainer(UP, tween(700)) },
+				exitTransition = null,
+				popEnterTransition = null,
+				popExitTransition = { slideOutOfContainer(DOWN, tween(700)) }
+			) {
 				NowPlayingScreen(
 					song = nowPlayingViewModel.currentSong,
 					artwork = nowPlayingViewModel.currentMediaItemImage,

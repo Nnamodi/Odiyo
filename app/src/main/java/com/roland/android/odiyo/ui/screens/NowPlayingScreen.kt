@@ -1,10 +1,12 @@
-package com.roland.android.odiyo.ui
+package com.roland.android.odiyo.ui.screens
 
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,23 +16,30 @@ import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.getArtwork
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
+import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.MediaControls
 import com.roland.android.odiyo.util.QueueItemActions
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -54,6 +63,9 @@ fun NowPlayingScreen(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
+	val screenLaunched = remember { mutableStateOf(false) }
+	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val scope = rememberCoroutineScope()
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
@@ -61,7 +73,7 @@ fun NowPlayingScreen(
 			TopAppBar(
 				navigationIcon = {
 					IconButton(onClick = navigateUp) {
-						Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
+						Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc), Modifier.rotate(-90f))
 					}
 				},
 				title = {},
@@ -70,7 +82,9 @@ fun NowPlayingScreen(
 		}
 	) {
 		Column(
-			modifier = Modifier.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
+			modifier = Modifier
+				.background(generatedColor)
+				.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			MediaDescription(song, artwork)
@@ -101,6 +115,7 @@ fun NowPlayingScreen(
 			songs = musicQueue,
 			currentSongIndex = currentSongIndex,
 			scaffoldState = scaffoldState,
+			containerColor = generatedColor,
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
 		)
@@ -108,6 +123,27 @@ fun NowPlayingScreen(
 
 	if (openDetailsDialog.value && song != null) {
 		SongDetailsDialog(song, artwork) { openDetailsDialog.value = it }
+	}
+
+	val systemUiController = rememberSystemUiController()
+	val useDarkIcons = isSystemInDarkTheme()
+	val color = MaterialTheme.colorScheme.background
+
+	DisposableEffect(systemUiController, useDarkIcons, generatedColor) {
+		scope.launch {
+			if (!screenLaunched.value) delay(700)
+			systemUiController.setSystemBarsColor(
+				color = generatedColor,
+				darkIcons = useDarkIcons
+			)
+			screenLaunched.value = true
+		}
+		onDispose {
+			systemUiController.setSystemBarsColor(
+				color = color,
+				darkIcons = useDarkIcons
+			)
+		}
 	}
 }
 
@@ -160,7 +196,8 @@ private fun MediaControls(
 		valueRange = 0f..maxSeekValue,
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(top = 20.dp)
+			.padding(top = 20.dp),
+		colors = sliderColor()
 	)
 	Row {
 		Text(timeElapsed)
@@ -296,13 +333,14 @@ fun MediaUtilActions(
 @Composable
 fun NowPlayingPreview() {
 	OdiyoTheme {
+		val context = LocalContext.current
 		var isPlaying by remember { mutableStateOf(false) }
 		var deviceMuted by remember { mutableStateOf(false) }
 		var shuffleState by remember { mutableStateOf(false) }
 
 		NowPlayingScreen(
 			song = previewData[2],
-			artwork = previewData[2].getArtwork(),
+			artwork = previewData[2].getBitmap(context),
 			isPlaying = isPlaying,
 			deviceMuted = deviceMuted,
 			shuffleState = shuffleState,

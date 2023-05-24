@@ -69,12 +69,16 @@ dependencies {
 
     // navigation
     implementation "androidx.navigation:navigation-compose:$nav_version"
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+
+    // palette
+    implementation "androidx.palette:palette-ktx:$palette_version"
 
     // persistence_lib
     implementation "androidx.datastore:datastore-preferences:$datastore_version"
 
     // system_bar
-    implementation "com.google.accompanist:accompanist-systemuicontroller:$system_ui_controller_version"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 
     // unit testing
     testImplementation "junit:junit:$junit_version"

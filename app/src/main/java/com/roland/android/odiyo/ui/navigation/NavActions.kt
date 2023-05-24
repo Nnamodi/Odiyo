@@ -19,9 +19,10 @@ class NavActions(private val navController: NavHostController) {
 }
 
 @Composable
-fun currentRoute(navController: NavHostController): String? {
+fun concealMinimizedView(navController: NavHostController): Boolean {
 	val navBackStackEntry = navController.currentBackStackEntryAsState()
-	return navBackStackEntry.value?.destination?.route
+	val currentDestination = navBackStackEntry.value?.destination?.route
+	return currentDestination != AppRoute.NowPlayingScreen.route
 }
 
 sealed class AppRoute(val route: String) {
