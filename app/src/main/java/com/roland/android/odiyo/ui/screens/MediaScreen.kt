@@ -1,75 +1,52 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.components.MainAppBar
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
 fun MediaScreen(
-	libraryTab: @Composable () -> Unit,
+	songsTab: @Composable () -> Unit,
 	albumsTab: @Composable () -> Unit,
 	artistsTab: @Composable () -> Unit,
 	navigateToSearch: () -> Unit
 ) {
 	Scaffold(
 		topBar = {
-			TopAppBar(
-				title = {
-					Text(
-						text = stringResource(R.string.app_name),
-						fontStyle = FontStyle.Italic,
-						fontWeight = FontWeight.Bold
-					)
-				},
-				actions = {
-					IconButton(onClick = navigateToSearch) {
-						Icon(
-							imageVector = Icons.Rounded.Search,
-							contentDescription = stringResource(R.string.search_icon_desc),
-							tint = LocalContentColor.current.copy(alpha = 1f)
-						)
-					}
-				}
-			)
+			MainAppBar(navigateToSearch)
 		}
 	) {
 		Column(
 			modifier = Modifier.padding(it)
 		) {
-			val tabTitles = listOf(Library, Albums, Artists)
+			val tabTitles = MediaScreen.values()
 			val scope = rememberCoroutineScope()
 			val pagerState = rememberPagerState(0)
 
 			TabRow(selectedTabIndex = pagerState.currentPage) {
 				tabTitles.forEachIndexed { index, title ->
 					Tab(
-						text = { Text(title.name) },
+						text = { Text(stringResource(title.nameRes)) },
 						selected = pagerState.currentPage == index,
 						onClick = {
 							scope.launch { pagerState.animateScrollToPage(index) }
@@ -82,7 +59,7 @@ fun MediaScreen(
 				pageCount = tabTitles.size
 			) { page ->
 				when (page) {
-					0 -> libraryTab()
+					0 -> songsTab()
 					1 -> albumsTab()
 					2 -> artistsTab()
 					else -> {}
@@ -92,7 +69,11 @@ fun MediaScreen(
 	}
 }
 
-enum class MediaScreen { Library, Albums, Artists }
+enum class MediaScreen(val nameRes: Int) {
+	Songs(R.string.songs),
+	Albums(R.string.albums),
+	Artists(R.string.artists)
+}
 
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -102,11 +83,12 @@ enum class MediaScreen { Library, Albums, Artists }
 fun MediaScreenPreview() {
 	OdiyoTheme {
 		MediaScreen(
-			libraryTab = {
-				LibraryScreen(
+			songsTab = {
+				SongsScreen(
 					songs = previewData,
 					currentSong = previewData[5],
 					playAudio = { _, _ -> },
+					goToCollection = { _, _ -> },
 					menuAction = {}
 				)
 			},

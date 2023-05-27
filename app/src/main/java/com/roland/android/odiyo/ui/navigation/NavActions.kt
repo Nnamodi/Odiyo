@@ -34,3 +34,6 @@ sealed class AppRoute(val route: String) {
 			String.format("media_item_screen/%s/%s", collectionName, collectionType)
 	}
 }
+
+const val ALBUMS = "albums"
+const val ARTISTS = "artist"

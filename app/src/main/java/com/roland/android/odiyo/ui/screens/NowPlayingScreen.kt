@@ -3,21 +3,16 @@ package com.roland.android.odiyo.ui.screens
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,7 +26,9 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
@@ -58,6 +55,7 @@ fun NowPlayingScreen(
 	musicQueue: List<Music>,
 	mediaControl: (MediaControls) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
+	goToCollection: (String, String) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
@@ -70,15 +68,7 @@ fun NowPlayingScreen(
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
-			TopAppBar(
-				navigationIcon = {
-					IconButton(onClick = navigateUp) {
-						Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc), Modifier.rotate(-90f))
-					}
-				},
-				title = {},
-				colors = topAppBarColors(containerColor = Color.Transparent)
-			)
+			NowPlayingTopAppBar(song, goToCollection, navigateUp)
 		}
 	) {
 		Column(
@@ -87,7 +77,7 @@ fun NowPlayingScreen(
 				.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			MediaDescription(song, artwork)
+			MediaDescription(song, artwork, goToCollection)
 
 			MediaControls(
 				song = song,
@@ -151,7 +141,11 @@ fun NowPlayingScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
-private fun MediaDescription(song: Music?, artwork: Any?) {
+private fun MediaDescription(
+	song: Music?,
+	artwork: Any?,
+	goToCollection: (String, String) -> Unit
+) {
 	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
 
 	MediaImage(
@@ -170,6 +164,10 @@ private fun MediaDescription(song: Music?, artwork: Any?) {
 		)
 		Text(
 			text = song?.artist ?: stringResource(R.string.unknown),
+			modifier = Modifier
+				.clip(MaterialTheme.shapes.small)
+				.clickable(song != null) { goToCollection(song!!.artist, ARTISTS) }
+				.padding(4.dp),
 			style = MaterialTheme.typography.titleMedium,
 			overflow = TextOverflow.Ellipsis,
 			softWrap = false
@@ -189,10 +187,16 @@ private fun MediaControls(
 	showMusicQueue: (Boolean) -> Unit
 ) {
 	val maxSeekValue = song?.time?.toFloat() ?: 1f
+	var seekValue by remember { mutableStateOf(progress) }
+	var valueBeingChanged by remember { mutableStateOf(false) }
 
 	Slider(
-		value = progress,
-		onValueChange = { mediaControl(MediaControls.SeekToPosition(it.toLong())) },
+		value = if (valueBeingChanged) seekValue else progress,
+		onValueChange = { valueBeingChanged = true; seekValue = it },
+		onValueChangeFinished = {
+			mediaControl(MediaControls.SeekToPosition(seekValue.toLong()))
+			valueBeingChanged = false
+		},
 		valueRange = 0f..maxSeekValue,
 		modifier = Modifier
 			.fillMaxWidth()
@@ -339,8 +343,8 @@ fun NowPlayingPreview() {
 		var shuffleState by remember { mutableStateOf(false) }
 
 		NowPlayingScreen(
-			song = previewData[2],
-			artwork = previewData[2].getBitmap(context),
+			song = previewData[4],
+			artwork = previewData[4].getBitmap(context),
 			isPlaying = isPlaying,
 			deviceMuted = deviceMuted,
 			shuffleState = shuffleState,
@@ -357,6 +361,7 @@ fun NowPlayingPreview() {
 				}
 			},
 			queueAction = {},
+			goToCollection = { _, _ -> },
 			navigateUp = {}
 		)
 	}

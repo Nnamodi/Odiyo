@@ -60,7 +60,7 @@ fun AppRoute(
 		) {
 			composable(AppRoute.MediaScreen.route) {
 				MediaScreen(
-					libraryTab = { LibraryTab(mediaViewModel, navActions) },
+					songsTab = { SongsTab(mediaViewModel, navActions) },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
 					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
 					navigateToSearch = { navActions.navigateToSearch() }
@@ -86,6 +86,7 @@ fun AppRoute(
 						navActions.navigateToNowPlayingScreen()
 					},
 					menuAction = { mediaViewModel.menuAction(context, it) },
+					goToCollection = navActions::navigateToMediaItemScreen,
 					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = { navController.navigateUp() }
 				)
@@ -103,8 +104,8 @@ fun AppRoute(
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName")!!
 				val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
-					"albums" -> mediaViewModel.songsFromAlbum(collectionName)
-					"artists" -> mediaViewModel.songsFromArtist(collectionName)
+					ALBUMS -> mediaViewModel.songsFromAlbum(collectionName)
+					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
 					else -> emptyList()
 				}
 
@@ -119,6 +120,7 @@ fun AppRoute(
 						}
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
+					goToCollection = navActions::navigateToMediaItemScreen,
 					menuAction = { mediaViewModel.menuAction(context, it) },
 					navigateUp = { navController.navigateUp() }
 				)
@@ -142,6 +144,7 @@ fun AppRoute(
 					musicQueue = nowPlayingViewModel.musicQueue,
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
+					goToCollection = navActions::navigateToMediaItemScreen,
 					navigateUp = { navController.navigateUp() }
 				)
 			}

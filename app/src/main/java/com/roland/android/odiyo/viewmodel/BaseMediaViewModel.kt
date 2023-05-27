@@ -125,7 +125,8 @@ open class BaseMediaViewModel(
 
 	fun menuAction(context: Context, action: MediaMenuActions) {
 		when (action) {
-			is MediaMenuActions.PlayNext -> addToQueue(action.songs)
+			is MediaMenuActions.PlayNext -> playNext(action.songs)
+			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
 			is MediaMenuActions.RenameSong -> updateSong(action.details)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
@@ -134,13 +135,27 @@ open class BaseMediaViewModel(
 		Log.d("ViewModelInfo", "menuAction: $action")
 	}
 
-	private fun addToQueue(song: List<Music>) {
+	private fun playNext(song: List<Music>) {
 		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
 			if (musicQueue.isNotEmpty()) {
 				val index = currentMediaItemIndex + 1
 				addMediaItems(index, mediaItems)
 				Util.mediaItems.value.addAll(index, mediaItems)
+			} else {
+				pause()
+				Util.mediaItems.value = mediaItems.toMutableList()
+				preparePlaylist()
+			}
+		}
+	}
+
+	private fun addToQueue(song: List<Music>) {
+		val mediaItems = song.map { it.uri.toMediaItem }
+		mediaSession?.player?.apply {
+			if (musicQueue.isNotEmpty()) {
+				addMediaItems(mediaItems)
+				Util.mediaItems.value.addAll(mediaItems)
 			} else {
 				pause()
 				Util.mediaItems.value = mediaItems.toMutableList()

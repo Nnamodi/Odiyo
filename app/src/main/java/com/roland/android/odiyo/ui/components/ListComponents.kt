@@ -3,8 +3,10 @@ package com.roland.android.odiyo.ui.components
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -15,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.util.MediaMenuActions
 
 @Composable
 fun EmptyListText(text: String, modifier: Modifier = Modifier) {
@@ -35,17 +36,23 @@ fun SongListHeader(
 	songs: List<Music>,
 	songsFromSearch: Boolean = false,
 	playAllSongs: (Uri, Int) -> Unit,
-	addSongsToQueue: (MediaMenuActions) -> Unit
+	openMenu: () -> Unit = {}
 ) {
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(horizontal = 12.dp, vertical = 4.dp),
-		horizontalArrangement = Arrangement.Center,
+			.padding(start = 12.dp, top = 4.dp, bottom = 4.dp),
+		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		if (songsFromSearch) {
-			Text(stringResource(R.string.search_result_size, songs.size))
+			Text(stringResource(R.string.search_result_size, songs.size), Modifier.padding(vertical = 16.dp))
+			Spacer(Modifier.weight(1f))
+			if (songs.isNotEmpty()) {
+				IconButton(onClick = openMenu) {
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+				}
+			}
 		} else {
 			TextButton(onClick = {
 				playAllSongs(songs.first().uri, 0)
@@ -53,14 +60,6 @@ fun SongListHeader(
 				Icon(Icons.Rounded.PlayCircleFilled, null)
 				Text(stringResource(R.string.play_all_songs, songs.size), Modifier.padding(start = 4.dp))
 			}
-		}
-		Spacer(Modifier.weight(1f))
-		TextButton(
-			onClick = {
-				addSongsToQueue(MediaMenuActions.PlayNext(songs))
-			}
-		) {
-			Text(stringResource(R.string.add_to_queue))
 		}
 	}
 }

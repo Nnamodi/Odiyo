@@ -8,17 +8,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.ui.screens.AlbumsScreen
 import com.roland.android.odiyo.ui.screens.ArtistsScreen
-import com.roland.android.odiyo.ui.screens.LibraryScreen
+import com.roland.android.odiyo.ui.screens.SongsScreen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
+fun SongsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	val context = LocalContext.current
 
-	LibraryScreen(
+	SongsScreen(
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
 		playAudio = { uri, index ->
@@ -28,6 +28,7 @@ fun LibraryTab(viewModel: MediaViewModel, navActions: NavActions) {
 			}
 			index?.let { navActions.navigateToNowPlayingScreen() }
 		},
+		goToCollection = navActions::navigateToMediaItemScreen,
 		menuAction = { viewModel.menuAction(context, it) }
 	)
 }
@@ -39,7 +40,7 @@ fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	AlbumsScreen(
 		albums = viewModel.albumList,
 		prepareAndViewSongs = {
-			navActions.navigateToMediaItemScreen(it, "albums")
+			navActions.navigateToMediaItemScreen(it, ALBUMS)
 		}
 	)
 }
@@ -51,7 +52,7 @@ fun ArtistsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	ArtistsScreen(
 		artists = viewModel.artistList,
 		prepareAndViewSongs = {
-			navActions.navigateToMediaItemScreen(it, "artists")
+			navActions.navigateToMediaItemScreen(it, ARTISTS)
 		}
 	)
 }
