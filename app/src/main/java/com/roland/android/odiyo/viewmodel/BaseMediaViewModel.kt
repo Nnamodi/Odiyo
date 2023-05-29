@@ -38,6 +38,7 @@ open class BaseMediaViewModel(
 	private val repository: MediaRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
+	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList())
 	var currentMediaItemImage by mutableStateOf<Any?>(null)
 
@@ -63,7 +64,10 @@ open class BaseMediaViewModel(
 		}
 		viewModelScope.launch {
 			repository.getAllSongs.collect { songList ->
-				songs = songList
+				songs = songList.filter { it.name.endsWith(".mp3") }
+				recentSongs = songs
+					.sortedByDescending { it.addedOn }
+					.take(45)
 			}
 		}
 		viewModelScope.launch {

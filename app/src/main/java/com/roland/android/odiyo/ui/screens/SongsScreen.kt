@@ -85,7 +85,7 @@ fun SongsScreen(
 @UnstableApi
 @Preview
 @Composable
-fun LibraryPreview() {
+fun SongsScreenPreview() {
 	OdiyoTheme {
 		Surface(
 			modifier = Modifier.fillMaxSize(),

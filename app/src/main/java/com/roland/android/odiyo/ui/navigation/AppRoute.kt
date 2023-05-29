@@ -16,6 +16,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
+import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.*
 import com.roland.android.odiyo.ui.navigation.NavAnimations.DOWN
 import com.roland.android.odiyo.ui.navigation.NavAnimations.LEFT
@@ -55,15 +57,30 @@ fun AppRoute(
 	) { innerPadding ->
 		AnimatedNavHost(
 			navController = navController,
-			startDestination = AppRoute.MediaScreen.route,
+			startDestination = AppRoute.LibraryScreen.route,
 			modifier = Modifier.padding(innerPadding)
 		) {
+			composable(AppRoute.LibraryScreen.route) {
+				LibraryScreen(
+					songs = mediaViewModel.recentSongs,
+					currentSongUri = mediaViewModel.currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+					playSong = { uri, index ->
+						mediaViewModel.apply {
+							resetPlaylist(recentSongs)
+							playAudio(uri, index)
+						}
+						navActions.navigateToNowPlayingScreen()
+					},
+					navigateToMediaScreen = navActions::navigateToMediaScreen
+				)
+			}
 			composable(AppRoute.MediaScreen.route) {
 				MediaScreen(
 					songsTab = { SongsTab(mediaViewModel, navActions) },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
 					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
-					navigateToSearch = { navActions.navigateToSearch() }
+					navigateToSearch = { navActions.navigateToSearch() },
+					navigateUp = { navController.navigateUp() }
 				)
 			}
 			composable(

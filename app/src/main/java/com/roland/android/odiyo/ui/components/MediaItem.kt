@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,6 +24,55 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@UnstableApi
+@Composable
+fun RecentSongItem(
+	itemIndex: Int,
+	song: Music,
+	currentSongUri: MediaItem,
+	playSong: (Uri, Int) -> Unit
+) {
+	val context = LocalContext.current
+	val imageSize = LocalConfiguration.current.screenWidthDp / 2.5
+	val isPlaying = song.uri.toMediaItem == currentSongUri
+	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+
+	Column(
+		modifier = Modifier
+			.width(imageSize.dp + 16.dp)
+			.clip(MaterialTheme.shapes.large)
+			.clickable { playSong(song.uri, itemIndex) }
+			.padding(8.dp),
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.Center
+	) {
+		MediaImage(
+			artwork = song.getBitmap(context),
+			modifier = Modifier.size(imageSize.dp)
+		)
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(vertical = 10.dp)
+		) {
+			Text(
+				text = song.title,
+				color = color,
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false
+			)
+			Text(
+				text = song.artist,
+				color = color,
+				modifier = Modifier.alpha(0.5f),
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false
+			)
+		}
+	}
+}
 
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)

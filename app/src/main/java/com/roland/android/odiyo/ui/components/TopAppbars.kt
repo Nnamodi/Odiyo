@@ -26,7 +26,7 @@ import com.roland.android.odiyo.ui.navigation.ALBUMS
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainAppBar(navigateToSearch: () -> Unit) {
+fun MainAppBar() {
 	TopAppBar(
 		title = {
 			Text(
@@ -34,6 +34,19 @@ fun MainAppBar(navigateToSearch: () -> Unit) {
 				fontStyle = FontStyle.Italic,
 				fontWeight = FontWeight.Bold
 			)
+		}
+	)
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
+	TopAppBar(
+		title = {},
+		navigationIcon = {
+			IconButton(onClick = navigateUp) {
+				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
+			}
 		},
 		actions = {
 			IconButton(onClick = navigateToSearch) {

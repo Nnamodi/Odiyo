@@ -16,7 +16,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.ui.components.MainAppBar
+import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import kotlinx.coroutines.launch
@@ -29,11 +29,12 @@ fun MediaScreen(
 	songsTab: @Composable () -> Unit,
 	albumsTab: @Composable () -> Unit,
 	artistsTab: @Composable () -> Unit,
-	navigateToSearch: () -> Unit
+	navigateToSearch: () -> Unit,
+	navigateUp: () -> Unit
 ) {
 	Scaffold(
 		topBar = {
-			MainAppBar(navigateToSearch)
+			AppBar(navigateUp, navigateToSearch)
 		}
 	) {
 		Column(
@@ -94,7 +95,8 @@ fun MediaScreenPreview() {
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen(previewArtist) {} },
-			navigateToSearch = {}
+			navigateToSearch = {},
+			navigateUp = {}
 		)
 	}
 }

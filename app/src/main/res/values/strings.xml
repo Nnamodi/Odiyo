@@ -56,7 +56,7 @@
     <string name="recent">Recent</string>
     <string name="playlists">Playlists</string>
     <string name="favorites">Favorites</string>
-    <string name="most_played">Most played</string>
+    <string name="recently_added">Recently Added</string>
     <string name="added_to_queue">Added to queue</string>
     <string name="deleted">Deleted</string>
     <string name="renamed">Renamed</string>
