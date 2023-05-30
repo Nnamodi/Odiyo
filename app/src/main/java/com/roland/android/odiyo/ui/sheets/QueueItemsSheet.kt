@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.BottomSheetDefaults.ContainerColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,8 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
+import com.roland.android.odiyo.ui.theme.color.light_onBackground
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.launch
@@ -39,7 +42,7 @@ fun QueueItemsSheet(
 	songs: List<Music>,
 	currentSongIndex: Int,
 	scaffoldState: SheetState,
-	containerColor: Color = BottomSheetDefaults.ContainerColor,
+	containerColor: Color = ContainerColor,
 	openBottomSheet: (Boolean) -> Unit,
 	queueAction: (QueueItemActions) -> Unit
 ) {
@@ -47,6 +50,7 @@ fun QueueItemsSheet(
 	val sheetHeight = (LocalConfiguration.current.screenHeightDp / 2).dp
 	val scrollState = rememberLazyListState()
 	val addToQueue = remember { mutableStateOf(false) }
+	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else light_onBackground
 
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
@@ -63,6 +67,7 @@ fun QueueItemsSheet(
 				Text(
 					text = stringResource(R.string.queue_sheet_title, songs.size),
 					style = MaterialTheme.typography.titleLarge,
+					color = componentColor,
 					modifier = Modifier.padding(vertical = 12.dp)
 				)
 				Spacer(Modifier.weight(1f))
@@ -89,6 +94,7 @@ fun QueueItemsSheet(
 						currentSongIndex = currentSongIndex,
 						addToQueue = addToQueue.value,
 						itemIsLast = index == songs.size,
+						componentColor = componentColor,
 						action = { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					)
 				}
@@ -110,10 +116,11 @@ fun QueueItem(
 	currentSongIndex: Int,
 	addToQueue: Boolean,
 	itemIsLast: Boolean,
+	componentColor: Color,
 	action: (QueueItemActions) -> Unit
 ) {
 	val isPlaying = itemIndex == currentSongIndex
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+	val color = if (isPlaying) MaterialTheme.colorScheme.primary else componentColor
 
 	Column(
 		modifier = Modifier.fillMaxWidth()
@@ -166,7 +173,7 @@ fun QueueItem(
 				Icon(
 					imageVector = if (addToQueue) Icons.Rounded.Add else Icons.Rounded.Clear,
 					contentDescription = if (addToQueue) stringResource(R.string.add_to_queue) else stringResource(R.string.remove_from_queue),
-					tint = LocalContentColor.current.copy(alpha = 0.7f)
+					tint = componentColor.copy(alpha = 0.7f)
 				)
 			}
 		}

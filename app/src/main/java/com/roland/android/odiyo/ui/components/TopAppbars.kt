@@ -53,7 +53,7 @@ fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
 				Icon(
 					imageVector = Icons.Rounded.Search,
 					contentDescription = stringResource(R.string.search_icon_desc),
-					tint = LocalContentColor.current.copy(alpha = 1f)
+					tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
 				)
 			}
 		}
@@ -105,13 +105,19 @@ fun SearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun NowPlayingTopAppBar(
 	song: Music?,
+	componentColor: Color,
 	goToCollection: (String, String) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	CenterAlignedTopAppBar(
 		navigationIcon = {
 			IconButton(onClick = navigateUp) {
-				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc), Modifier.rotate(-90f))
+				Icon(
+					imageVector = Icons.Rounded.ArrowBackIosNew,
+					contentDescription = stringResource(R.string.back_icon_desc),
+					modifier = Modifier.rotate(-90f),
+					tint = componentColor
+				)
 			}
 		},
 		title = {
@@ -127,11 +133,13 @@ fun NowPlayingTopAppBar(
 				) {
 					Text(
 						text = stringResource(R.string.playing_from_album),
+						color = componentColor,
 						modifier = Modifier.alpha(0.8f),
 						style = MaterialTheme.typography.titleSmall
 					)
 					Text(
 						text = song.album,
+						color = componentColor,
 						overflow = TextOverflow.Ellipsis,
 						softWrap = false,
 						style = MaterialTheme.typography.titleMedium
@@ -161,7 +169,11 @@ fun MediaItemsAppBar(
 		actions = {
 			if (songsNotEmpty) {
 				IconButton(onClick = openMenu) {
-					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+					Icon(
+						imageVector = Icons.Rounded.MoreVert,
+						contentDescription = stringResource(R.string.more_options),
+						tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
+					)
 				}
 			}
 		}

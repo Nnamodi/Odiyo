@@ -67,8 +67,8 @@ fun MediaItemSheet(
 					AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(listOf(song))); openBottomSheet(false) }
 					Rename -> openRenameDialog.value = true
 					Share -> menuAction(MediaMenuActions.ShareSong(song))
-					GoToAlbum -> goToCollection(song.album, ALBUMS)
-					GoToArtist -> goToCollection(song.artist, ARTISTS)
+					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
+					GoToArtist -> { goToCollection(song.artist, ARTISTS); openBottomSheet(false) }
 					Details -> openDetailsDialog.value = true
 					Delete -> openDeleteDialog.value = true
 				} }

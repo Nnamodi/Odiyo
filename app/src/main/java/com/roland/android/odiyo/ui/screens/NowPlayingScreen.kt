@@ -13,12 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
@@ -31,6 +33,7 @@ import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.MediaControls
@@ -63,12 +66,13 @@ fun NowPlayingScreen(
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val screenLaunched = remember { mutableStateOf(false) }
 	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val componentColor = componentColor(generatedColor)
 	val scope = rememberCoroutineScope()
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
-			NowPlayingTopAppBar(song, goToCollection, navigateUp)
+			NowPlayingTopAppBar(song, componentColor, goToCollection, navigateUp)
 		}
 	) {
 		Column(
@@ -77,7 +81,13 @@ fun NowPlayingScreen(
 				.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			MediaDescription(song, artwork, goToCollection)
+			MediaDescription(
+				song = song,
+				artwork = artwork,
+				componentColor = componentColor,
+				onFavorite = mediaControl,
+				goToCollection = goToCollection
+			)
 
 			MediaControls(
 				song = song,
@@ -85,6 +95,7 @@ fun NowPlayingScreen(
 				shuffleState = shuffleState,
 				progress = progress,
 				timeElapsed = timeElapsed,
+				componentColor = componentColor,
 				mediaControl = mediaControl,
 				showMusicQueue = { openMusicQueue.value = it },
 			)
@@ -94,6 +105,7 @@ fun NowPlayingScreen(
 			MediaUtilActions(
 				song = song,
 				deviceMuted = deviceMuted,
+				componentColor = componentColor,
 				mediaControl = mediaControl,
 				openDetailsDialog = { openDetailsDialog.value = it }
 			)
@@ -116,15 +128,16 @@ fun NowPlayingScreen(
 	}
 
 	val systemUiController = rememberSystemUiController()
-	val useDarkIcons = isSystemInDarkTheme()
+	val useDarkIcons = !isSystemInDarkTheme()
 	val color = MaterialTheme.colorScheme.background
 
 	DisposableEffect(systemUiController, useDarkIcons, generatedColor) {
+		val isLight = ColorUtils.calculateLuminance(generatedColor.hashCode()) > 0.1
 		scope.launch {
 			if (!screenLaunched.value) delay(700)
 			systemUiController.setSystemBarsColor(
 				color = generatedColor,
-				darkIcons = useDarkIcons
+				darkIcons = isLight
 			)
 			screenLaunched.value = true
 		}
@@ -183,6 +196,7 @@ private fun MediaControls(
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
+	componentColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	showMusicQueue: (Boolean) -> Unit
 ) {
@@ -201,12 +215,12 @@ private fun MediaControls(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(top = 20.dp),
-		colors = sliderColor()
+		colors = sliderColor(componentColor)
 	)
 	Row {
-		Text(timeElapsed)
+		Text(timeElapsed, color = componentColor)
 		Spacer(Modifier.weight(1f))
-		Text(song?.duration ?: "00:00")
+		Text(song?.duration() ?: "00:00", color = componentColor)
 	}
 	Row(
 		modifier = Modifier
@@ -225,7 +239,7 @@ private fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (shuffleState) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+				tint = if (shuffleState) MaterialTheme.colorScheme.primary else componentColor
 			)
 		}
 		IconButton(
@@ -237,7 +251,8 @@ private fun MediaControls(
 			Icon(
 				imageVector = Icons.Rounded.SkipPrevious,
 				contentDescription = stringResource(R.string.seek_to_previous),
-				modifier = Modifier.fillMaxSize(0.75f)
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = componentColor,
 			)
 		}
 		IconButton(
@@ -249,7 +264,8 @@ private fun MediaControls(
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleFilled else Icons.Rounded.PlayCircleFilled,
 				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
-				modifier = Modifier.fillMaxSize()
+				modifier = Modifier.fillMaxSize(),
+				tint = componentColor
 			)
 		}
 		IconButton(
@@ -261,7 +277,8 @@ private fun MediaControls(
 			Icon(
 				imageVector = Icons.Rounded.SkipNext,
 				contentDescription = stringResource(R.string.seek_to_next),
-				modifier = Modifier.fillMaxSize(0.75f)
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = componentColor
 			)
 		}
 		IconButton(
@@ -273,7 +290,8 @@ private fun MediaControls(
 			Icon(
 				imageVector = Icons.Rounded.QueueMusic,
 				contentDescription = stringResource(R.string.music_queue),
-				modifier = Modifier.fillMaxSize(0.75f)
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = componentColor
 			)
 		}
 	}
@@ -283,6 +301,7 @@ private fun MediaControls(
 fun MediaUtilActions(
 	song: Music?,
 	deviceMuted: Boolean,
+	componentColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
 ) {
@@ -300,7 +319,8 @@ fun MediaUtilActions(
 			Icon(
 				imageVector = Icons.Rounded.Share,
 				contentDescription = stringResource(R.string.share),
-				modifier = Modifier.fillMaxSize(0.75f)
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = componentColor
 			)
 		}
 		IconButton(
@@ -312,7 +332,8 @@ fun MediaUtilActions(
 			Icon(
 				imageVector = Icons.Rounded.Info,
 				contentDescription = stringResource(R.string.details),
-				modifier = Modifier.fillMaxSize(0.75f)
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = componentColor
 			)
 		}
 		IconButton(
@@ -325,7 +346,7 @@ fun MediaUtilActions(
 				imageVector = Icons.Rounded.VolumeOff,
 				contentDescription = stringResource(R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else componentColor
 			)
 		}
 	}

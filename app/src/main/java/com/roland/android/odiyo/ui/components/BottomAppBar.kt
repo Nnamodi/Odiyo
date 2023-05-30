@@ -33,6 +33,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.util.QueueItemActions
 
@@ -91,12 +92,15 @@ fun NowPlayingMinimizedView(
 	showMusicQueue: (Boolean) -> Unit,
 	moveToNowPlayingScreen: () -> Unit
 ) {
+	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val componentColor = componentColor(generatedColor)
+
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(10.dp)
 			.clip(MaterialTheme.shapes.large)
-			.background(nowPlayingBackgroundColor(artwork))
+			.background(generatedColor)
 			.clickable { moveToNowPlayingScreen() },
 		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
@@ -109,6 +113,7 @@ fun NowPlayingMinimizedView(
 		)
 		Text(
 			text = song?.title ?: stringResource(R.string.nothing_to_play),
+			color = componentColor,
 			overflow = TextOverflow.Ellipsis,
 			modifier = Modifier.weight(1.0f),
 			softWrap = false
@@ -122,6 +127,7 @@ fun NowPlayingMinimizedView(
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
 				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
+				tint = componentColor,
 				modifier = Modifier.fillMaxSize()
 			)
 		}
@@ -134,6 +140,7 @@ fun NowPlayingMinimizedView(
 			Icon(
 				imageVector = Icons.Rounded.QueueMusic,
 				contentDescription = stringResource(R.string.music_queue),
+				tint = componentColor,
 				modifier = Modifier.fillMaxSize()
 			)
 		}
