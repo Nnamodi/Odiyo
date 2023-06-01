@@ -67,9 +67,7 @@ class MediaSource(
 					id
 				)
 
-				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
-
-				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album, path)
+				val music = Music(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
 				media.value += music
 			}
 		}
@@ -109,9 +107,7 @@ class MediaSource(
 					id
 				)
 
-				// val thumbnail: Bitmap? = contentUri.toBitmap(resolver)
-
-				val music = Music(id, contentUri, name, title, artist, duration, null, size, addedOn, album, path)
+				val music = Music(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
 				mediaFromCollection.value += music
 			}
 		}

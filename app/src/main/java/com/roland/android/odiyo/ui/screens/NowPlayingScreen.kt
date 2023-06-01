@@ -157,9 +157,12 @@ fun NowPlayingScreen(
 private fun MediaDescription(
 	song: Music?,
 	artwork: Any?,
+	componentColor: Color,
+	onFavorite: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit
 ) {
 	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
+	val songIsFavorite = song?.favorite == true
 
 	MediaImage(
 		modifier = Modifier
@@ -167,24 +170,46 @@ private fun MediaDescription(
 			.padding(top = 20.dp, bottom = 10.dp),
 		artwork = artwork
 	)
-	Column(Modifier.fillMaxWidth()) {
-		Text(
-			text = song?.title ?: stringResource(R.string.unknown),
-			modifier = Modifier.basicMarquee(),
-			style = MaterialTheme.typography.headlineMedium,
-			overflow = TextOverflow.Ellipsis,
-			softWrap = false
-		)
-		Text(
-			text = song?.artist ?: stringResource(R.string.unknown),
-			modifier = Modifier
-				.clip(MaterialTheme.shapes.small)
-				.clickable(song != null) { goToCollection(song!!.artist, ARTISTS) }
-				.padding(4.dp),
-			style = MaterialTheme.typography.titleMedium,
-			overflow = TextOverflow.Ellipsis,
-			softWrap = false
-		)
+	Row(
+		modifier = Modifier.fillMaxWidth(),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Column(Modifier.weight(1f)) {
+			Text(
+				text = song?.title ?: stringResource(R.string.unknown),
+				color = componentColor,
+				modifier = Modifier.basicMarquee(),
+				style = MaterialTheme.typography.headlineMedium,
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false
+			)
+			Text(
+				text = song?.artist ?: stringResource(R.string.unknown),
+				color = componentColor,
+				modifier = Modifier
+					.clip(MaterialTheme.shapes.small)
+					.clickable(song != null) { goToCollection(song!!.artist, ARTISTS) }
+					.padding(4.dp),
+				style = MaterialTheme.typography.titleMedium,
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false
+			)
+		}
+		if (song != null) {
+			IconButton(
+				onClick = { onFavorite(MediaControls.Favorite(song)) },
+				modifier = Modifier
+					.size(50.dp)
+					.padding(start = 4.dp)
+			) {
+				Icon(
+					imageVector = if (songIsFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+					contentDescription = if (songIsFavorite) stringResource(R.string.remove_from_favorite) else stringResource(R.string.add_to_favorite),
+					modifier = Modifier.fillMaxSize(0.75f),
+					tint = if (songIsFavorite) MaterialTheme.colorScheme.primary else componentColor
+				)
+			}
+		}
 	}
 }
 

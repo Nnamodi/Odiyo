@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.AlbumsSource
 import com.roland.android.odiyo.mediaSource.ArtistsSource
 import com.roland.android.odiyo.mediaSource.MediaAccessingObject
@@ -22,7 +23,7 @@ class MediaRepository(
 	artistsSource: ArtistsSource,
 	private val mediaAccessingObject: MediaAccessingObject
 ) {
-	val getAllSongs: MutableStateFlow<MutableList<Music>> = mediaSource.media()
+	val getSongsFromSystem: MutableStateFlow<MutableList<Music>> = mediaSource.media()
 
 	val getAlbums: Flow<List<Album>> = albumsSource.albums()
 
@@ -34,7 +35,14 @@ class MediaRepository(
 	val getSongsFromArtist: (Array<String>) -> MutableStateFlow<MutableList<Music>> =
 		{ mediaSource.mediaFromArtist(selectionArgs = it) }
 
-	fun updateSong(songDetails: SongDetails) {
+	fun updateSongInSystem(songDetails: SongDetails) {
+		val renamedSong = getSongsFromSystem.value.find { it.id == songDetails.id }
+		renamedSong?.let {
+			val inAlbum = getSongsFromAlbum(arrayOf(it.album)).value
+			val inArtist = getSongsFromArtist(arrayOf(it.artist)).value
+			getSongsFromAlbum(arrayOf(it.album)).value[inAlbum.indexOf(it)] = it
+			getSongsFromArtist(arrayOf(it.artist)).value[inArtist.indexOf(it)] = it
+		}
 		mediaAccessingObject.updateSong(songDetails)
 	}
 
@@ -43,14 +51,13 @@ class MediaRepository(
 			setDataAndType(song.uri, "audio/*")
 			putExtra(Intent.EXTRA_STREAM, song.uri)
 		}.also { intent ->
-			val chooserIntent = Intent.createChooser(intent, "Send '${song.name}'")
+			val chooserIntent = Intent.createChooser(intent, context.getString(R.string.send_audio_file, song.name))
 			context.startActivity(chooserIntent)
 		}
 	}
 
-	fun deleteSong(songDetails: SongDetails) {
-		val songToDelete = getAllSongs.value.find { it.id == songDetails.id }
-		getAllSongs.value.remove(songToDelete)
+	fun deleteSongFromSystem(songDetails: SongDetails) {
+		val songToDelete = getSongsFromSystem.value.find { it.id == songDetails.id }
 		songToDelete?.let {
 			getSongsFromAlbum(arrayOf(it.album)).value.remove(it)
 			getSongsFromArtist(arrayOf(it.artist)).value.remove(it)

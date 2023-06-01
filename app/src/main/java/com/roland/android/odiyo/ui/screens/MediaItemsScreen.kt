@@ -82,7 +82,7 @@ fun MediaItemsScreen(
 				}
 				itemsIndexed(
 					items = songs,
-					key = { _, song -> song.uri }
+					key = { _, song -> song.id }
 				) { index, song ->
 					MediaItem(
 						itemIndex = index,
@@ -102,7 +102,7 @@ fun MediaItemsScreen(
 					openBottomSheet = { openBottomSheet.value = it },
 					menuAction = {
 						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState)
+						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 					}
 				)
 			}
@@ -112,7 +112,7 @@ fun MediaItemsScreen(
 					songs = songs,
 					menuAction = {
 						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState)
+						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 					}
 				) { openMenu.value = it }
 			}

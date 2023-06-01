@@ -10,6 +10,7 @@ import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
+import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
@@ -18,8 +19,9 @@ import kotlinx.coroutines.launch
 @UnstableApi
 class MediaViewModel(
 	appDataStore: AppDataStore,
-	private val repository: MediaRepository
-) : BaseMediaViewModel(appDataStore, repository) {
+	musicRepository: MusicRepository,
+	private val mediaRepository: MediaRepository
+) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository) {
 	var albumList by mutableStateOf<List<Album>>(emptyList()); private set
 	var artistList by mutableStateOf<List<Artist>>(emptyList()); private set
 
@@ -27,12 +29,12 @@ class MediaViewModel(
 
 	init {
 		viewModelScope.launch {
-			repository.getAlbums.collect {
+			mediaRepository.getAlbums.collect {
 				albumList = it
 			}
 		}
 		viewModelScope.launch {
-			repository.getArtists.collect {
+			mediaRepository.getArtists.collect {
 				artistList = it
 			}
 		}
@@ -45,7 +47,7 @@ class MediaViewModel(
 	fun songsFromAlbum(albumName: String): List<Music> {
 		var songsFromAlbum by mutableStateOf<List<Music>>(emptyList())
 		viewModelScope.launch {
-			repository.getSongsFromAlbum(
+			mediaRepository.getSongsFromAlbum(
 				arrayOf(albumName)
 			).collect { songs ->
 				songsFromAlbum = songs
@@ -57,7 +59,7 @@ class MediaViewModel(
 	fun songsFromArtist(artistName: String): List<Music> {
 		var songsFromArtist by mutableStateOf<List<Music>>(emptyList())
 		viewModelScope.launch {
-			repository.getSongsFromArtist(
+			mediaRepository.getSongsFromArtist(
 				arrayOf(artistName)
 			).collect { songs ->
 				songsFromArtist = songs

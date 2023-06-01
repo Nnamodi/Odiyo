@@ -53,11 +53,16 @@
     <string name="playing_from_album">Playing from album:</string>
     <string name="go_to_album">Go to album</string>
     <string name="go_to_artist">Go to artist</string>
-    <string name="recent">Recent</string>
+    <string name="last_played">Last played</string>
     <string name="playlists">Playlists</string>
     <string name="favorites">Favorites</string>
     <string name="recently_added">Recently Added</string>
     <string name="added_to_queue">Added to queue</string>
     <string name="deleted">Deleted</string>
     <string name="renamed">Renamed</string>
+    <string name="add_to_favorite">Add to favorite</string>
+    <string name="remove_from_favorite">Remove from favorite</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="send_audio_file">Send \'%s\'</string>
 </resources>

@@ -126,7 +126,7 @@ fun MediaItem(
 						.weight(1f)
 				)
 				Text(
-					song.duration,
+					song.duration(),
 					color = color,
 					style = MaterialTheme.typography.bodySmall,
 					modifier = Modifier

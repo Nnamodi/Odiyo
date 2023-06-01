@@ -15,6 +15,7 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
+import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
@@ -29,19 +30,22 @@ import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import com.roland.android.odiyo.util.SongDetails
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 open class BaseMediaViewModel(
 	private val appDataStore: AppDataStore,
-	private val repository: MediaRepository
+	private val mediaRepository: MediaRepository,
+	private val musicRepository: MusicRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
+	var favoriteSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
-	var musicQueue by mutableStateOf<List<Music>>(emptyList())
-	var currentMediaItemImage by mutableStateOf<Any?>(null)
+	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
 
+	var currentMediaItemImage by mutableStateOf<Any?>(null)
 	var currentSong by mutableStateOf<Music?>(null); private set
 	var currentSongIndex by mutableStateOf(0); private set
 	var isPlaying by mutableStateOf(false); private set
@@ -62,9 +66,16 @@ open class BaseMediaViewModel(
 				}
 			}
 		}
+		viewModelScope.launch(Dispatchers.IO) {
+			mediaRepository.getSongsFromSystem.collectLatest {
+				val allSongs = musicRepository.getCachedSongs(it)
+				musicRepository.cacheSongs(allSongs)
+			}
+		}
 		viewModelScope.launch {
-			repository.getAllSongs.collect { songList ->
+			musicRepository.getCachedSongs().collect { songList ->
 				songs = songList.filter { it.name.endsWith(".mp3") }
+				favoriteSongs = songs.filter { it.favorite }
 				recentSongs = songs
 					.sortedByDescending { it.addedOn }
 					.take(45)
@@ -131,7 +142,8 @@ open class BaseMediaViewModel(
 		when (action) {
 			is MediaMenuActions.PlayNext -> playNext(action.songs)
 			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
-			is MediaMenuActions.RenameSong -> updateSong(action.details)
+			is MediaMenuActions.RenameSong -> renameSong(action.details)
+			is MediaMenuActions.Favorite -> favoriteSong(action.song)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
 		}
@@ -168,19 +180,38 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	private fun updateSong(songDetails: SongDetails) {
-		repository.updateSong(songDetails)
+	private fun renameSong(songDetails: SongDetails) {
+		mediaRepository.updateSongInSystem(songDetails)
+		viewModelScope.launch(Dispatchers.IO) {
+			val song = songs.find { it.id == songDetails.id }
+			song?.let {
+				songDetails.title?.let { song.title = it }
+				songDetails.artist?.let { song.artist = it }
+				musicRepository.updateSongInCache(song)
+			}
+		}
+	}
+
+	fun favoriteSong(song: Music) {
+		viewModelScope.launch(Dispatchers.IO) {
+			song.apply { favorite = !favorite }
+			musicRepository.updateSongInCache(song)
+		}
 	}
 
 	fun shareSong(context: Context, song: Music) {
-		repository.shareSong(context, song)
+		mediaRepository.shareSong(context, song)
 	}
 
 	private fun deleteSong(songDetails: SongDetails) {
 		val songToDelete = songs.find { it.id == songDetails.id }
-		repository.deleteSong(songDetails)
+		mediaRepository.deleteSongFromSystem(songDetails)
 		if (musicQueue.contains(songToDelete)) {
 			mediaItems.value.removeAll { it == songToDelete?.uri?.toMediaItem }
+		}
+		viewModelScope.launch(Dispatchers.IO) {
+			val song = songs.find { it.id == songDetails.id }
+			song?.let { musicRepository.deleteSongFromCache(song) }
 		}
 	}
 

@@ -15,8 +15,7 @@ val previewData = listOf(
 		name = "",
 		title = "He is the same",
 		artist = "John Bellion",
-		time = 198963,
-		thumbnail = null
+		time = 198963
 	),
 	Music(
 		id = 1,
@@ -24,8 +23,7 @@ val previewData = listOf(
 		name = "",
 		title = "Jantamanta",
 		artist = "MAVINS",
-		time = 615976,
-		thumbnail = null
+		time = 615976
 	),
 	Music(
 		id = 2,
@@ -33,8 +31,7 @@ val previewData = listOf(
 		name = "",
 		title = "Duke and the spear for old times' sake",
 		artist = "James Hadley-chase",
-		time = 542155,
-		thumbnail = null
+		time = 542155
 	),
 	Music(
 		id = 3,
@@ -42,8 +39,7 @@ val previewData = listOf(
 		name = "",
 		title = "I'm real",
 		artist = "Ja Rule",
-		time = 947149,
-		thumbnail = null
+		time = 947149
 	),
 	Music(
 		id = 4,
@@ -52,7 +48,6 @@ val previewData = listOf(
 		title = "My president is black",
 		artist = "Lil Wayne",
 		time = 259464,
-		thumbnail = null,
 		bytes = 6849581,
 		addedOn = 1597243262,
 		album = "Indiana",
@@ -64,8 +59,7 @@ val previewData = listOf(
 		name = "",
 		title = "Yellow",
 		artist = "Coldplay",
-		time = 345698,
-		thumbnail = null
+		time = 345698
 	),
 	Music(
 		id = 6,
@@ -73,8 +67,7 @@ val previewData = listOf(
 		name = "",
 		title = "Caribbean time to time",
 		artist = "High Sea Crew",
-		time = 202056,
-		thumbnail = null
+		time = 202056
 	),
 	Music(
 		id = 7,
@@ -82,8 +75,7 @@ val previewData = listOf(
 		name = "",
 		title = "Country road",
 		artist = "Afleck Sam",
-		time = 641208,
-		thumbnail = null
+		time = 641208
 	),
 	Music(
 		id = 8,
@@ -91,8 +83,7 @@ val previewData = listOf(
 		name = "",
 		title = "All time low",
 		artist = "John Bellion",
-		time = 118946,
-		thumbnail = null
+		time = 118946
 	),
 	Music(
 		id = 9,
@@ -100,8 +91,7 @@ val previewData = listOf(
 		name = "",
 		title = "Cold heart",
 		artist = "Elton John",
-		time = 858963,
-		thumbnail = null
+		time = 858963
 	)
 )
 

@@ -88,7 +88,7 @@ fun SearchScreen(
 				}
 				itemsIndexed(
 					items = searchResult,
-					key = { _, song -> song.uri }
+					key = { _, song -> song.id }
 				) { index, song ->
 					MediaItem(
 						itemIndex = index,
@@ -109,7 +109,7 @@ fun SearchScreen(
 				openBottomSheet = { openBottomSheet.value = it },
 				menuAction = {
 					menuAction(it)
-					showSnackbar(it, context, scope, snackbarHostState)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 				}
 			)
 		}
@@ -119,7 +119,7 @@ fun SearchScreen(
 				songs = searchResult,
 				menuAction = {
 					menuAction(it)
-					showSnackbar(it, context, scope, snackbarHostState)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 				},
 				yOffset = yOffset,
 			) { openMenu.value = it }

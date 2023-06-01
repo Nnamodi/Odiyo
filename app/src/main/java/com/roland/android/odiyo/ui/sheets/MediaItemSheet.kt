@@ -66,13 +66,17 @@ fun MediaItemSheet(
 					PlayNext -> { menuAction(MediaMenuActions.PlayNext(listOf(song))); openBottomSheet(false) }
 					AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(listOf(song))); openBottomSheet(false) }
 					Rename -> openRenameDialog.value = true
+					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
 					Share -> menuAction(MediaMenuActions.ShareSong(song))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
 					GoToArtist -> { goToCollection(song.artist, ARTISTS); openBottomSheet(false) }
 					Details -> openDetailsDialog.value = true
 					Delete -> openDeleteDialog.value = true
 				} }
-				SheetItem(menu.icon, stringResource(menu.menuText)) { action() }
+				val text = if (menu == AddToFavorite) {
+					if (song.favorite) R.string.remove_from_favorite else R.string.add_to_favorite
+				} else { menu.menuText }
+				SheetItem(menu.icon, stringResource(text)) { action() }
 			}
 		}
 	}
@@ -133,6 +137,7 @@ enum class MenuItems(
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
 	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue),
 	Rename(Icons.Rounded.Edit, R.string.rename),
+	AddToFavorite(Icons.Rounded.Favorite, R.string.add_to_favorite),
 	Share(Icons.Rounded.Share, R.string.share),
 	GoToAlbum(Icons.Rounded.Album, R.string.go_to_album),
 	GoToArtist(Icons.Rounded.Person, R.string.go_to_artist),

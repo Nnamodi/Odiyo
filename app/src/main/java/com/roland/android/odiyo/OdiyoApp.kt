@@ -7,12 +7,15 @@ import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.room.Room
 import com.roland.android.odiyo.data.AppDataStore
+import com.roland.android.odiyo.database.MusicDatabase
 import com.roland.android.odiyo.mediaSource.AlbumsSource
 import com.roland.android.odiyo.mediaSource.ArtistsSource
 import com.roland.android.odiyo.mediaSource.MediaAccessingObject
 import com.roland.android.odiyo.mediaSource.MediaSource
 import com.roland.android.odiyo.repository.MediaRepository
+import com.roland.android.odiyo.repository.MusicRepository
 
 class OdiyoApp : Application() {
 	private val Context.datastore: DataStore<Preferences> by preferencesDataStore("app_preferences")
@@ -27,10 +30,17 @@ class OdiyoApp : Application() {
 			artistsSource = ArtistsSource(contentResolver),
 			mediaAccessingObject = MediaAccessingObject(contentResolver)
 		)
+		val db = Room.databaseBuilder(
+			applicationContext,
+			MusicDatabase::class.java,
+			"music_database"
+		).build()
+		musicRepository = MusicRepository(db.musicDao())
 	}
 
 	companion object {
 		lateinit var appDataStore: AppDataStore
 		lateinit var mediaRepository: MediaRepository
+		lateinit var musicRepository: MusicRepository
 	}
 }

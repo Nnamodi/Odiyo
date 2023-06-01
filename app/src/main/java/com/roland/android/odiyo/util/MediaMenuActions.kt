@@ -7,6 +7,7 @@ sealed interface MediaMenuActions {
 	data class PlayNext(val songs: List<Music>) : MediaMenuActions
 	data class AddToQueue(val songs: List<Music>) : MediaMenuActions
 	data class RenameSong(val details: SongDetails): MediaMenuActions
+	data class Favorite(val song: Music): MediaMenuActions
 	data class ShareSong(val details: Music): MediaMenuActions
 	data class DeleteSong(val details: SongDetails): MediaMenuActions
 }

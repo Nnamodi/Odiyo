@@ -48,9 +48,9 @@ fun SongDetailsDialog(
 				Row { SongDetailText(song.name, Modifier.padding(vertical = 12.dp)) }
 				Row { Text(stringResource(R.string.title_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.title) }
 				Row { Text(stringResource(R.string.artist_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.artist) }
-				Row { Text(stringResource(R.string.duration_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.duration) }
-				Row { Text(stringResource(R.string.size_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.size) }
-				Row { Text(stringResource(R.string.date_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.dateAdded) }
+				Row { Text(stringResource(R.string.duration_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.duration()) }
+				Row { Text(stringResource(R.string.size_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.size()) }
+				Row { Text(stringResource(R.string.date_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.dateAdded()) }
 				Row { Text(stringResource(R.string.album_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.album) }
 				Row { Text(stringResource(R.string.path_column)); Spacer(Modifier.width(16.dp)); SongDetailText(song.path) }
 			}

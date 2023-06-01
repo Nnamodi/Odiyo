@@ -35,6 +35,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.MainAppBar
 import com.roland.android.odiyo.ui.components.RecentSongItem
+import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.screens.Menus.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
@@ -45,7 +46,8 @@ fun LibraryScreen(
 	songs: List<Music>,
 	currentSongUri: MediaItem,
 	playSong: (Uri, Int) -> Unit,
-	navigateToMediaScreen: () -> Unit
+	navigateToMediaScreen: () -> Unit,
+	navigateToMediaItemScreen: (String, String) -> Unit
 ) {
 	Scaffold(
 		topBar = { MainAppBar() }
@@ -55,30 +57,33 @@ fun LibraryScreen(
 				.padding(it)
 				.verticalScroll(rememberScrollState())
 		) {
-			val menus = values()
+			val menus = Menus.values()
+			val collectionName = stringResource(R.string.favorites)
 
 			menus.forEach { menu ->
 				val action = { when (menu) {
-					Recent -> {}
+					LastPlayed -> {}
 					Playlist -> {}
-					Favorites -> {}
+					Favorites -> { navigateToMediaItemScreen(collectionName, FAVORITES) }
 					Songs -> navigateToMediaScreen()
 				} }
 				MenuItem(menu.icon, menu.text, action)
 			}
 
-			Spacer(Modifier.height(16.dp))
-			Text(
-				text = stringResource(R.string.recently_added),
-				modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
-				style = MaterialTheme.typography.titleLarge
-			)
-			LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
-				itemsIndexed(
-					items = songs,
-					key = { _, song -> song.id }
-				) { index, song ->
-					RecentSongItem(index, song, currentSongUri, playSong)
+			if (songs.isNotEmpty()) {
+				Spacer(Modifier.height(16.dp))
+				Text(
+					text = stringResource(R.string.recently_added),
+					modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
+					style = MaterialTheme.typography.titleLarge
+				)
+				LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
+					itemsIndexed(
+						items = songs,
+						key = { _, song -> song.id }
+					) { index, song ->
+						RecentSongItem(index, song, currentSongUri, playSong)
+					}
 				}
 			}
 		}
@@ -108,7 +113,7 @@ fun MenuItem(icon: ImageVector?, text: Int, action: () -> Unit) {
 }
 
 private enum class Menus(val icon: ImageVector?, val text: Int) {
-	Recent(Icons.Rounded.History, R.string.recent),
+	LastPlayed(Icons.Rounded.History, R.string.last_played),
 	Playlist(Icons.Rounded.QueueMusic, R.string.playlists),
 	Favorites(Icons.Rounded.Favorite, R.string.favorites),
 	Songs(Icons.Rounded.LibraryMusic, R.string.songs)
@@ -125,6 +130,6 @@ fun LibraryScreenPreview() {
 			currentSongUri = previewData[4].uri.toMediaItem,
 			playSong = { _, _ -> },
 			navigateToMediaScreen = {}
-		)
+		) { _, _ -> }
 	}
 }

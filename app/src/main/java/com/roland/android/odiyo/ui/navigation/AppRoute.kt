@@ -71,7 +71,10 @@ fun AppRoute(
 						}
 						navActions.navigateToNowPlayingScreen()
 					},
-					navigateToMediaScreen = navActions::navigateToMediaScreen
+					navigateToMediaScreen = navActions::navigateToMediaScreen,
+					navigateToMediaItemScreen = { collectionName, collectionType ->
+						navActions.navigateToMediaItemScreen(collectionName, collectionType)
+					}
 				)
 			}
 			composable(AppRoute.MediaScreen.route) {
@@ -123,6 +126,7 @@ fun AppRoute(
 				val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
 					ALBUMS -> mediaViewModel.songsFromAlbum(collectionName)
 					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
+					FAVORITES -> mediaViewModel.favoriteSongs
 					else -> emptyList()
 				}
 

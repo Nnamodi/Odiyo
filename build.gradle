@@ -12,6 +12,7 @@ buildscript {
         material3_version = '1.1.0'
         nav_version = '2.5.3'
         palette_version = '1.0.0'
+        room_version = '2.5.1'
         expresso_version = '3.5.1'
         ext_junit_version = '1.1.5'
         junit_version = '4.13.2'
