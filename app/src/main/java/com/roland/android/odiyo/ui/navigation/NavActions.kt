@@ -42,3 +42,4 @@ sealed class AppRoute(val route: String) {
 const val ALBUMS = "albums"
 const val ARTISTS = "artists"
 const val FAVORITES = "favorites"
+const val LAST_PLAYED = "last_played"

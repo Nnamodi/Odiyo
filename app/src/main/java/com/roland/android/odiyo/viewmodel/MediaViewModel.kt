@@ -50,7 +50,8 @@ class MediaViewModel(
 			mediaRepository.getSongsFromAlbum(
 				arrayOf(albumName)
 			).collect { songs ->
-				songsFromAlbum = songs
+				val songList = songs.map { Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path) }
+				songsFromAlbum = songList
 			}
 		}
 		return songsFromAlbum
@@ -62,7 +63,8 @@ class MediaViewModel(
 			mediaRepository.getSongsFromArtist(
 				arrayOf(artistName)
 			).collect { songs ->
-				songsFromArtist = songs
+				val songList = songs.map { Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path) }
+				songsFromArtist = songList
 			}
 		}
 		return songsFromArtist

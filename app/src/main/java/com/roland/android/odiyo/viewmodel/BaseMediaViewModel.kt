@@ -32,6 +32,7 @@ import com.roland.android.odiyo.util.SongDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -41,15 +42,16 @@ open class BaseMediaViewModel(
 	private val musicRepository: MusicRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
+	var lastPlayedSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var favoriteSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
+	private var songsFetched by mutableStateOf(false)
 
 	var currentMediaItemImage by mutableStateOf<Any?>(null)
 	var currentSong by mutableStateOf<Music?>(null); private set
 	var currentSongIndex by mutableStateOf(0); private set
 	var isPlaying by mutableStateOf(false); private set
-	private var nowPlayingMetaData by mutableStateOf<MediaMetadata?>(null)
 
 	init {
 		viewModelScope.launch {
@@ -66,19 +68,19 @@ open class BaseMediaViewModel(
 				}
 			}
 		}
-		viewModelScope.launch(Dispatchers.IO) {
-			mediaRepository.getSongsFromSystem.collectLatest {
-				val allSongs = musicRepository.getCachedSongs(it)
-				musicRepository.cacheSongs(allSongs)
-			}
-		}
 		viewModelScope.launch {
-			musicRepository.getCachedSongs().collect { songList ->
-				songs = songList.filter { it.name.endsWith(".mp3") }
+			musicRepository.getCachedSongs.collectLatest { musicList ->
+				songs = musicList.filter { it.name.endsWith(".mp3") }
+				lastPlayedSongs = songs
+					.filter { it.lastPlayed != Date(0) }
+					.sortedByDescending { it.lastPlayed }
+					.take(100)
 				favoriteSongs = songs.filter { it.favorite }
 				recentSongs = songs
 					.sortedByDescending { it.addedOn }
 					.take(45)
+				Log.i("DataInfo", "Cached songs: ${songs.size} | Songs fetched: $songsFetched")
+				if (!songsFetched) fetchSongs()
 			}
 		}
 		viewModelScope.launch {
@@ -87,8 +89,9 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
-			nowPlaying.collect {
-				currentSong = musicItem(it)
+			nowPlaying.collect { item ->
+				currentSong = musicItem(item)
+				currentSong?.let { saveStreamDate(it) }
 			}
 		}
 		viewModelScope.launch {
@@ -103,15 +106,44 @@ open class BaseMediaViewModel(
 		}
 		viewModelScope.launch {
 			nowPlayingMetadata.collect {
-				nowPlayingMetaData = it
+				if (!songsFetched) return@collect
+				if (currentSong !in songs) currentSong = musicItem(it)
 				updateMusicQueue(queueEdited = false)
 			}
 		}
 	}
 
+	private fun fetchSongs() {
+		if (songsFetched) return
+		viewModelScope.launch(Dispatchers.IO) {
+			songsFetched = true
+			mediaRepository.getSongsFromSystem.collect { musicFromSystems ->
+				val musicList = musicFromSystems.map {
+					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path)
+				}
+				val allSongs = musicRepository.getCachedSongs(musicList, songs)
+				musicRepository.apply {
+					clear(); cacheSongs(allSongs)
+				}
+				Log.i("DataInfo", "All songs: ${allSongs.size} | Songs fetched: $songsFetched")
+			}
+		}
+	}
+
 	private fun musicItem(mediaItem: MediaItem?): Music? {
-		val currentSong = mediaItem?.localConfiguration?.uri
-		return songs.find { it.uri == currentSong }
+		val currentSongUri = mediaItem?.localConfiguration?.uri
+		return songs.find { it.uri == currentSongUri }
+	}
+
+	private fun musicItem(metadata: MediaMetadata?): Music {
+		val musicItem = mediaSession?.player
+		return Music(
+			id = 0, uri = "".toUri(), name = "",
+			title = (metadata?.title ?: "Unknown") as String,
+			artist = (metadata?.artist ?: "Unknown") as String,
+			time = musicItem?.duration ?: 0, bytes = 0,
+			addedOn = 0, album = "Unknown", path = "Unknown"
+		)
 	}
 
 	private fun preparePlaylist() {
@@ -130,10 +162,7 @@ open class BaseMediaViewModel(
 				preparePlaylist()
 				seekTo(it, 0)
 			}
-			val sameSong = currentMediaItem == uri.toMediaItem
-			if (sameSong) {
-				if (isPlaying) pause() else { prepare(); play() }
-			}
+			if (isPlaying) pause() else play()
 			Log.d("ViewModelInfo", "playAudio: $index\n${musicItem(uri.toMediaItem)}")
 		}
 	}
@@ -195,6 +224,13 @@ open class BaseMediaViewModel(
 	fun favoriteSong(song: Music) {
 		viewModelScope.launch(Dispatchers.IO) {
 			song.apply { favorite = !favorite }
+			musicRepository.updateSongInCache(song)
+		}
+	}
+
+	private fun saveStreamDate(song: Music) {
+		viewModelScope.launch(Dispatchers.IO) {
+			song.lastPlayed = Calendar.getInstance().time
 			musicRepository.updateSongInCache(song)
 		}
 	}

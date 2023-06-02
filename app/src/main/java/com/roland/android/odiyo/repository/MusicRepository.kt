@@ -1,23 +1,22 @@
 package com.roland.android.odiyo.repository
 
+import android.util.Log
 import com.roland.android.odiyo.database.MusicDao
 import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.flow.Flow
 
 class MusicRepository(private val musicDao: MusicDao) {
-	fun getCachedSongs(): Flow<List<Music>> = musicDao.getAllSongs()
+	val getCachedSongs: Flow<List<Music>> = musicDao.getAllSongs()
 
-	suspend fun getCachedSongs(songsFromSystem: List<Music>): List<Music> {
-		var allSongs: List<Music> = emptyList()
-		musicDao.getAllSongs().collect { musicList ->
-			val songsFromDatabase = musicList.takeWhile { music ->
-				songsFromSystem.map { it.id }.contains(music.id)
-			}
-			val newSongs = songsFromSystem.takeWhile { song ->
-				!songsFromDatabase.map { it.id }.contains(song.id)
-			}
-			allSongs = songsFromDatabase.plus(newSongs)
+	fun getCachedSongs(songsFromSystem: List<Music>, cachedSongs: List<Music>): List<Music> {
+		val songsFromDatabase = cachedSongs.takeWhile { music ->
+			songsFromSystem.map { it.id }.contains(music.id)
 		}
+		val newSongs = songsFromSystem.takeWhile { song ->
+			!songsFromDatabase.map { it.id }.contains(song.id)
+		}
+		val allSongs = songsFromDatabase.plus(newSongs)
+		Log.i("DataInfo", "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size}")
 		return allSongs
 	}
 
@@ -31,5 +30,9 @@ class MusicRepository(private val musicDao: MusicDao) {
 
 	suspend fun deleteSongFromCache(song: Music) {
 		musicDao.deleteSong(song)
+	}
+
+	suspend fun clear() {
+		musicDao.clearDatabase()
 	}
 }

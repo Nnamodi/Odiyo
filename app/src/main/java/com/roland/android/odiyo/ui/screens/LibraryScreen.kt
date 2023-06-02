@@ -36,6 +36,7 @@ import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.MainAppBar
 import com.roland.android.odiyo.ui.components.RecentSongItem
 import com.roland.android.odiyo.ui.navigation.FAVORITES
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.screens.Menus.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
@@ -58,11 +59,13 @@ fun LibraryScreen(
 				.verticalScroll(rememberScrollState())
 		) {
 			val menus = Menus.values()
-			val collectionName = stringResource(R.string.favorites)
 
 			menus.forEach { menu ->
+				val collectionName = stringResource(
+					if (menu == Favorites) R.string.favorites else R.string.last_played
+				)
 				val action = { when (menu) {
-					LastPlayed -> {}
+					LastPlayed -> { navigateToMediaItemScreen(collectionName, LAST_PLAYED) }
 					Playlist -> {}
 					Favorites -> { navigateToMediaItemScreen(collectionName, FAVORITES) }
 					Songs -> navigateToMediaScreen()

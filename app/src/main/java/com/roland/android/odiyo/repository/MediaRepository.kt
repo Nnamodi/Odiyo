@@ -2,8 +2,6 @@ package com.roland.android.odiyo.repository
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.AlbumsSource
 import com.roland.android.odiyo.mediaSource.ArtistsSource
@@ -12,27 +10,27 @@ import com.roland.android.odiyo.mediaSource.MediaSource
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.MusicFromSystem
 import com.roland.android.odiyo.util.SongDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-@RequiresApi(Build.VERSION_CODES.Q)
 class MediaRepository(
 	mediaSource: MediaSource,
 	albumsSource: AlbumsSource,
 	artistsSource: ArtistsSource,
 	private val mediaAccessingObject: MediaAccessingObject
 ) {
-	val getSongsFromSystem: MutableStateFlow<MutableList<Music>> = mediaSource.media()
+	val getSongsFromSystem: MutableStateFlow<MutableList<MusicFromSystem>> = mediaSource.media()
 
 	val getAlbums: Flow<List<Album>> = albumsSource.albums()
 
-	val getSongsFromAlbum: (Array<String>) -> MutableStateFlow<MutableList<Music>> =
+	val getSongsFromAlbum: (Array<String>) -> MutableStateFlow<MutableList<MusicFromSystem>> =
 		{ mediaSource.mediaFromAlbum(selectionArgs = it) }
 
 	val getArtists: Flow<List<Artist>> = artistsSource.artists()
 
-	val getSongsFromArtist: (Array<String>) -> MutableStateFlow<MutableList<Music>> =
+	val getSongsFromArtist: (Array<String>) -> MutableStateFlow<MutableList<MusicFromSystem>> =
 		{ mediaSource.mediaFromArtist(selectionArgs = it) }
 
 	fun updateSongInSystem(songDetails: SongDetails) {

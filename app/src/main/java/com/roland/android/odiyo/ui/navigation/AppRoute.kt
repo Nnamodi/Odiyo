@@ -127,6 +127,7 @@ fun AppRoute(
 					ALBUMS -> mediaViewModel.songsFromAlbum(collectionName)
 					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
 					FAVORITES -> mediaViewModel.favoriteSongs
+					LAST_PLAYED -> mediaViewModel.lastPlayedSongs
 					else -> emptyList()
 				}
 

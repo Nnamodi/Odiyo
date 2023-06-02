@@ -17,4 +17,7 @@ interface MusicDao {
 
 	@Delete
 	suspend fun deleteSong(music: Music)
+
+	@Query("DELETE FROM music")
+	suspend fun clearDatabase()
 }

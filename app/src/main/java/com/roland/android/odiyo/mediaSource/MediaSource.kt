@@ -4,16 +4,14 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
-import androidx.annotation.RequiresApi
+import android.util.Log
 import com.roland.android.odiyo.mediaSource.MediaDetails.albumSelection
 import com.roland.android.odiyo.mediaSource.MediaDetails.artistSelection
-import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.MusicFromSystem
 import kotlinx.coroutines.flow.MutableStateFlow
 import okio.use
 
-@RequiresApi(Build.VERSION_CODES.Q)
 class MediaSource(
 	private val resolver: ContentResolver
 ) {
@@ -35,11 +33,11 @@ class MediaSource(
 		)
 	}
 
-	private val media = MutableStateFlow<MutableList<Music>>(mutableListOf())
+	private val media = MutableStateFlow<MutableList<MusicFromSystem>>(mutableListOf())
 
-	private val mediaFromCollection = MutableStateFlow<MutableList<Music>>(mutableListOf())
+	private val mediaFromCollection = MutableStateFlow<MutableList<MusicFromSystem>>(mutableListOf())
 
-	fun media(): MutableStateFlow<MutableList<Music>> {
+	fun media(): MutableStateFlow<MutableList<MusicFromSystem>> {
 		query?.use { cursor ->
 			val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
 			val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
@@ -67,9 +65,10 @@ class MediaSource(
 					id
 				)
 
-				val music = Music(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
+				val music = MusicFromSystem(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
 				media.value += music
 			}
+			Log.i("DataInfo", "Just fetched: ${media.value.size}")
 		}
 		return media
 	}
@@ -77,7 +76,7 @@ class MediaSource(
 	private fun mediaFromCollection(
 		selection: String,
 		selectionArgs: Array<String>
-	): MutableStateFlow<MutableList<Music>> {
+	): MutableStateFlow<MutableList<MusicFromSystem>> {
 		// empty list of songs previously fetched and re-fetch
 		mediaFromCollection.value = mutableListOf()
 		collectionMediaQuery(selection, selectionArgs)?.use { cursor ->
@@ -107,23 +106,24 @@ class MediaSource(
 					id
 				)
 
-				val music = Music(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
+				val music = MusicFromSystem(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
 				mediaFromCollection.value += music
 			}
+			Log.i("DataInfo", "Just fetched from collection: ${media.value.size}")
 		}
 		return mediaFromCollection
 	}
 
 	fun mediaFromAlbum(
 		selectionArgs: Array<String>
-	): MutableStateFlow<MutableList<Music>> {
+	): MutableStateFlow<MutableList<MusicFromSystem>> {
 		mediaFromCollection(albumSelection, selectionArgs)
 		return mediaFromCollection
 	}
 
 	fun mediaFromArtist(
 		selectionArgs: Array<String>
-	): MutableStateFlow<MutableList<Music>> {
+	): MutableStateFlow<MutableList<MusicFromSystem>> {
 		mediaFromCollection(artistSelection, selectionArgs)
 		return mediaFromCollection
 	}

@@ -47,7 +47,9 @@ fun QueueItemsSheet(
 	queueAction: (QueueItemActions) -> Unit
 ) {
 	val scope = rememberCoroutineScope()
-	val sheetHeight = (LocalConfiguration.current.screenHeightDp / 2).dp
+	val maxSheetHeight = (LocalConfiguration.current.screenHeightDp / 2)
+	val emptySheetHeight = 28 + (12 * 2)
+	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else maxSheetHeight
 	val scrollState = rememberLazyListState()
 	val addToQueue = remember { mutableStateOf(false) }
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else light_onBackground
@@ -57,7 +59,7 @@ fun QueueItemsSheet(
 		sheetState = scaffoldState,
 		containerColor = containerColor
 	) {
-		Column(Modifier.height(sheetHeight)) {
+		Column(Modifier.height(sheetHeight.dp)) {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
