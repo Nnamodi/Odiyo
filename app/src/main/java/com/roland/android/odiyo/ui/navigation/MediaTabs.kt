@@ -21,6 +21,7 @@ fun SongsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	SongsScreen(
 		songs = viewModel.songs,
 		currentSong = viewModel.currentSong,
+		sortOption = viewModel.sortOrder,
 		playAudio = { uri, index ->
 			viewModel.apply {
 				resetPlaylist(songs)

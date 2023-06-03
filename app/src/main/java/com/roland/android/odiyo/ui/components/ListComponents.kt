@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayCircleFilled
+import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -34,8 +35,10 @@ fun EmptyListText(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun SongListHeader(
 	songs: List<Music>,
+	showSortAction: Boolean = false,
 	songsFromSearch: Boolean = false,
 	playAllSongs: (Uri, Int) -> Unit,
+	openSortDialog: () -> Unit = {},
 	openMenu: () -> Unit = {}
 ) {
 	Row(
@@ -59,6 +62,12 @@ fun SongListHeader(
 			}) {
 				Icon(Icons.Rounded.PlayCircleFilled, null)
 				Text(stringResource(R.string.play_all_songs, songs.size), Modifier.padding(start = 4.dp))
+			}
+			if (showSortAction) {
+				Spacer(Modifier.weight(1f))
+				IconButton(onClick = openSortDialog) {
+					Icon(Icons.Rounded.Sort, stringResource(R.string.sort_by))
+				}
 			}
 		}
 	}

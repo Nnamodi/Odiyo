@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.Queue
+import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -17,15 +18,16 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.ui.menu.SongListMenu.AddToQueue
-import com.roland.android.odiyo.ui.menu.SongListMenu.PlayNext
+import com.roland.android.odiyo.ui.menu.SongListMenu.*
 import com.roland.android.odiyo.util.MediaMenuActions
 
 @Composable
 fun SongListMenu(
 	songs: List<Music>,
 	menuAction: (MediaMenuActions) -> Unit,
+	showSortAction: Boolean = false,
 	yOffset: Int = 0,
+	openSortDialog: (Boolean) -> Unit = {},
 	openMenu: (Boolean) -> Unit
 ) {
 	val positionX = LocalConfiguration.current.screenWidthDp
@@ -37,17 +39,19 @@ fun SongListMenu(
 		onDismissRequest = { openMenu(false) },
 		modifier = Modifier.fillMaxWidth(0.5f)
 	) {
-		val menuItems = SongListMenu.values()
+		val menuItems = values().toMutableList()
+		if (!showSortAction) menuItems.remove(SortBy)
 
 		menuItems.forEach { menu ->
-			val action = when (menu) {
-				PlayNext -> MediaMenuActions.PlayNext(songs)
-				AddToQueue -> MediaMenuActions.AddToQueue(songs)
-			}
+			val action = { when (menu) {
+				PlayNext -> menuAction(MediaMenuActions.PlayNext(songs))
+				AddToQueue -> menuAction(MediaMenuActions.AddToQueue(songs))
+				SortBy -> openSortDialog(true)
+			} }
 
 			DropdownMenuItem(
 				text = { Text(stringResource(menu.menuText)) },
-				onClick = { menuAction(action); openMenu(false) },
+				onClick = { action(); openMenu(false) },
 				leadingIcon = { Icon(menu.icon, null) }
 			)
 		}
@@ -56,5 +60,6 @@ fun SongListMenu(
 
 enum class SongListMenu(val icon: ImageVector, val menuText: Int) {
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue)
+	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue),
+	SortBy(Icons.Rounded.Sort, R.string.sort_by)
 }

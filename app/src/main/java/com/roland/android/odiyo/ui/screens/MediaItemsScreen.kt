@@ -24,7 +24,12 @@ import com.roland.android.odiyo.ui.components.EmptyListText
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.MediaItemsAppBar
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.dialog.SortDialog
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.menu.SongListMenu
+import com.roland.android.odiyo.ui.navigation.ALBUMS
+import com.roland.android.odiyo.ui.navigation.FAVORITES
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -37,7 +42,9 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 fun MediaItemsScreen(
 	songs: List<Music>,
 	collectionName: String,
+	collectionType: String,
 	currentSong: Music?,
+	sortOption: SortOptions,
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
@@ -46,6 +53,7 @@ fun MediaItemsScreen(
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = rememberSaveable { mutableStateOf(false) }
 	val openMenu = rememberSaveable { mutableStateOf(false) }
+	val openSortDialog = rememberSaveable { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -113,8 +121,17 @@ fun MediaItemsScreen(
 					menuAction = {
 						menuAction(it)
 						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
-					}
+					},
+					showSortAction = collectionType !in listOf(FAVORITES, LAST_PLAYED),
+					openSortDialog = { openSortDialog.value = it }
 				) { openMenu.value = it }
+			}
+
+			if (openSortDialog.value) {
+				SortDialog(
+					selectedOption = sortOption,
+					onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
+				) { openSortDialog.value = it }
 			}
 		}
 	}
@@ -129,11 +146,12 @@ fun MediaItemsScreenPreview() {
 		MediaItemsScreen(
 			songs = previewData.takeLast(5),
 			collectionName = "Does it have to be me?",
+			collectionType = ALBUMS,
 			currentSong = previewData[5],
+			sortOption = SortOptions.NameAZ,
 			playAudio = { _, _ -> },
 			goToCollection = { _, _ -> },
-			menuAction = {},
-			navigateUp = {}
-		)
+			menuAction = {}
+		) {}
 	}
 }

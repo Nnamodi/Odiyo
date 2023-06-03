@@ -19,6 +19,9 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.dialog.SortDialog
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -31,12 +34,14 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 fun SongsScreen(
 	songs: List<Music>,
 	currentSong: Music?,
+	sortOption: SortOptions,
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = rememberSaveable { mutableStateOf(false) }
+	val openSortDialog = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -52,6 +57,14 @@ fun SongsScreen(
 		}
 	) {
 		LazyColumn {
+			item {
+				SongListHeader(
+					songs = songs,
+					showSortAction = true,
+					playAllSongs = playAudio,
+					openSortDialog = { openSortDialog.value = true }
+				)
+			}
 			itemsIndexed(
 				items = songs,
 				key = { _, song -> song.id }
@@ -65,6 +78,7 @@ fun SongsScreen(
 				)
 			}
 		}
+
 		if (openBottomSheet.value && songClicked != null) {
 			MediaItemSheet(
 				song = songClicked!!,
@@ -76,6 +90,14 @@ fun SongsScreen(
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 				}
 			)
+
+		}
+
+		if (openSortDialog.value) {
+			SortDialog(
+				selectedOption = sortOption,
+				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
+			) { openSortDialog.value = it }
 		}
 	}
 }
@@ -95,6 +117,7 @@ fun SongsScreenPreview() {
 			SongsScreen(
 				songs = previewData,
 				currentSong = currentSong,
+				sortOption = SortOptions.NameAZ,
 				playAudio = { _, _ -> },
 				goToCollection = { _, _ -> },
 				menuAction = {}

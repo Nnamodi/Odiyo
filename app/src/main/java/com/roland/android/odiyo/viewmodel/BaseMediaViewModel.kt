@@ -25,6 +25,7 @@ import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.songsOnQueue
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
@@ -48,6 +49,8 @@ open class BaseMediaViewModel(
 	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
 	private var songsFetched by mutableStateOf(false)
 
+	var sortOrder by mutableStateOf(SortOptions.NameAZ)
+
 	var currentMediaItemImage by mutableStateOf<Any?>(null)
 	var currentSong by mutableStateOf<Music?>(null); private set
 	var currentSongIndex by mutableStateOf(0); private set
@@ -70,7 +73,9 @@ open class BaseMediaViewModel(
 		}
 		viewModelScope.launch {
 			musicRepository.getCachedSongs.collectLatest { musicList ->
-				songs = musicList.filter { it.name.endsWith(".mp3") }
+				songs = musicList
+					.filter { it.name.endsWith(".mp3") }
+					.sortList()
 				lastPlayedSongs = songs
 					.filter { it.lastPlayed != Date(0) }
 					.sortedByDescending { it.lastPlayed }
@@ -111,6 +116,13 @@ open class BaseMediaViewModel(
 				updateMusicQueue(queueEdited = false)
 			}
 		}
+		viewModelScope.launch {
+			appDataStore.getSortPreference().collectLatest {
+				sortOrder = it
+				songs = songs.sortList()
+
+			}
+		}
 	}
 
 	private fun fetchSongs() {
@@ -130,18 +142,27 @@ open class BaseMediaViewModel(
 		}
 	}
 
+	fun List<Music>.sortList(): List<Music> {
+		return when (sortOrder) {
+			SortOptions.NameAZ -> sortedBy { it.title }
+			SortOptions.NameZA -> sortedByDescending { it.title }
+			SortOptions.NewestFirst -> sortedByDescending { it.addedOn }
+			SortOptions.OldestFirst -> sortedBy { it.addedOn }
+		}
+	}
+
 	private fun musicItem(mediaItem: MediaItem?): Music? {
 		val currentSongUri = mediaItem?.localConfiguration?.uri
 		return songs.find { it.uri == currentSongUri }
 	}
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
-		val musicItem = mediaSession?.player
+		val time = mediaSession?.player?.duration ?: 0
 		return Music(
 			id = 0, uri = "".toUri(), name = "",
 			title = (metadata?.title ?: "Unknown") as String,
 			artist = (metadata?.artist ?: "Unknown") as String,
-			time = musicItem?.duration ?: 0, bytes = 0,
+			time = if (time < 0) 0 else time, bytes = 0,
 			addedOn = 0, album = "Unknown", path = "Unknown"
 		)
 	}
@@ -174,6 +195,7 @@ open class BaseMediaViewModel(
 			is MediaMenuActions.RenameSong -> renameSong(action.details)
 			is MediaMenuActions.Favorite -> favoriteSong(action.song)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
+			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
 		}
 		updateMusicQueue()
@@ -237,6 +259,12 @@ open class BaseMediaViewModel(
 
 	fun shareSong(context: Context, song: Music) {
 		mediaRepository.shareSong(context, song)
+	}
+
+	private fun sortSongs(sortOption: SortOptions) {
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveSortPreference(sortOption)
+		}
 	}
 
 	private fun deleteSong(songDetails: SongDetails) {

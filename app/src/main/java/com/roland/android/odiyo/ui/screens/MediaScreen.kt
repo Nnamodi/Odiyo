@@ -17,6 +17,7 @@ import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import kotlinx.coroutines.launch
@@ -88,10 +89,10 @@ fun MediaScreenPreview() {
 				SongsScreen(
 					songs = previewData,
 					currentSong = previewData[5],
+					sortOption = SortOptions.NameAZ,
 					playAudio = { _, _ -> },
-					goToCollection = { _, _ -> },
-					menuAction = {}
-				)
+					goToCollection = { _, _ -> }
+				) {}
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen(previewArtist) {} },

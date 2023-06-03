@@ -3,7 +3,6 @@ package com.roland.android.odiyo.ui.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -19,10 +18,7 @@ import com.google.accompanist.navigation.animation.composable
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.*
-import com.roland.android.odiyo.ui.navigation.NavAnimations.DOWN
-import com.roland.android.odiyo.ui.navigation.NavAnimations.LEFT
-import com.roland.android.odiyo.ui.navigation.NavAnimations.RIGHT
-import com.roland.android.odiyo.ui.navigation.NavAnimations.UP
+import com.roland.android.odiyo.ui.components.BottomAppBar
 import com.roland.android.odiyo.ui.screens.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
@@ -123,7 +119,8 @@ fun AppRoute(
 				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName")!!
-				val songs = when (backStackEntry.arguments?.getString("collectionType")!!) {
+				val collectionType = backStackEntry.arguments?.getString("collectionType")!!
+				val songs = when (collectionType) {
 					ALBUMS -> mediaViewModel.songsFromAlbum(collectionName)
 					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
 					FAVORITES -> mediaViewModel.favoriteSongs
@@ -134,7 +131,9 @@ fun AppRoute(
 				MediaItemsScreen(
 					songs = songs,
 					collectionName = collectionName,
+					collectionType = collectionType,
 					currentSong = mediaViewModel.currentSong,
+					sortOption = mediaViewModel.sortOrder,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(songs)
@@ -143,9 +142,8 @@ fun AppRoute(
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
-					menuAction = { mediaViewModel.menuAction(context, it) },
-					navigateUp = { navController.navigateUp() }
-				)
+					menuAction = { mediaViewModel.menuAction(context, it) }
+				) { navController.navigateUp() }
 			}
 			composable(
 				AppRoute.NowPlayingScreen.route,

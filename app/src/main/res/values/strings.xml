@@ -65,4 +65,11 @@
     <string name="added_to_favorites">Added to favorites</string>
     <string name="removed_from_favorites">Removed from favorites</string>
     <string name="send_audio_file">Send \'%s\'</string>
+    <string name="sort_by">Sort by</string>
+    <string name="close">Close</string>
+    <string name="newest_first">Newest date first</string>
+    <string name="oldest_first">Oldest date first</string>
+    <string name="name_a_z">Name A - Z</string>
+    <string name="name_z_a">Name Z - A</string>
+    <string name="sort_option_selected">%s selected</string>
 </resources>

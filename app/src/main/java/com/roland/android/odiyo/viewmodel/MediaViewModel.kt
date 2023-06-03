@@ -52,6 +52,8 @@ class MediaViewModel(
 			).collect { songs ->
 				val songList = songs.map { Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path) }
 				songsFromAlbum = songList
+					.filter { it.name.endsWith(".mp3") }
+					.sortList()
 			}
 		}
 		return songsFromAlbum
@@ -65,6 +67,8 @@ class MediaViewModel(
 			).collect { songs ->
 				val songList = songs.map { Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path) }
 				songsFromArtist = songList
+					.filter { it.name.endsWith(".mp3") }
+					.sortList()
 			}
 		}
 		return songsFromArtist
