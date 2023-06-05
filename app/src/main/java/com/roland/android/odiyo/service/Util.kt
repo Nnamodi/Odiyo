@@ -91,6 +91,11 @@ object Util {
 		return localConfiguration?.uri?.getMediaArt(context) ?: defaultArt
 	}
 
+	fun Uri.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+		return getMediaArt(context) ?: defaultArt
+	}
+
 	fun Music.getBitmap(context: Context): Bitmap {
 		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 		return uri.getMediaArt(context) ?: defaultArt

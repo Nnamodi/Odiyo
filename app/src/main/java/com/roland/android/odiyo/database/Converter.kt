@@ -17,4 +17,14 @@ class Converter {
 
 	@TypeConverter
 	fun toDate(milliSec: Long?): Date? = milliSec?.let { Date(it) }
+
+	@TypeConverter
+	fun fromListOfSongs(songs: List<Uri>): String {
+		return songs.map { it.toString() }.joinToString { "|" }
+	}
+
+	@TypeConverter
+	fun toListOfSongs(songs: String): List<Uri> {
+		return songs.split("|").map { it.toUri() }
+	}
 }

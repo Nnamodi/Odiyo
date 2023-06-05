@@ -15,6 +15,7 @@ import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
+import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.playingState
@@ -30,8 +31,9 @@ import kotlinx.coroutines.launch
 class NowPlayingViewModel(
 	appDataStore: AppDataStore,
 	mediaRepository: MediaRepository,
-	musicRepository: MusicRepository
-) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository) {
+	musicRepository: MusicRepository,
+	playlistRepository: PlaylistRepository
+) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
 	var isDeviceMuted by mutableStateOf(false); private set
 	var shuffleState by mutableStateOf(false); private set
 	private var initialDeviceVolume by mutableStateOf(0)

@@ -46,7 +46,7 @@ fun AppRoute(
 				musicQueue = mediaViewModel.musicQueue,
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
-				moveToNowPlayingScreen = { navActions.navigateToNowPlayingScreen() },
+				moveToNowPlayingScreen = navActions::navigateToNowPlayingScreen,
 				concealBottomBar = concealMinimizedView(navController)
 			)
 		}
@@ -68,9 +68,8 @@ fun AppRoute(
 						navActions.navigateToNowPlayingScreen()
 					},
 					navigateToMediaScreen = navActions::navigateToMediaScreen,
-					navigateToMediaItemScreen = { collectionName, collectionType ->
-						navActions.navigateToMediaItemScreen(collectionName, collectionType)
-					}
+					navigateToMediaItemScreen = navActions::navigateToMediaItemScreen,
+					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen
 				)
 			}
 			composable(AppRoute.MediaScreen.route) {
@@ -78,8 +77,15 @@ fun AppRoute(
 					songsTab = { SongsTab(mediaViewModel, navActions) },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
 					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
-					navigateToSearch = { navActions.navigateToSearch() },
-					navigateUp = { navController.navigateUp() }
+					navigateToSearch = navActions::navigateToSearch,
+					navigateUp = navController::navigateUp
+				)
+			}
+			composable(AppRoute.PlaylistsScreen.route) {
+				PlaylistsScreen(
+					playlists = mediaViewModel.playlists,
+					prepareAndViewSongs = {},
+					navigateUp = navController::navigateUp
 				)
 			}
 			composable(
@@ -104,7 +110,7 @@ fun AppRoute(
 					menuAction = { mediaViewModel.menuAction(context, it) },
 					goToCollection = navActions::navigateToMediaItemScreen,
 					clearSearchQuery = { mediaViewModel.searchQuery = "" },
-					closeSearchScreen = { navController.navigateUp() }
+					closeSearchScreen = navController::navigateUp
 				)
 			}
 			composable(
@@ -129,11 +135,8 @@ fun AppRoute(
 				}
 
 				MediaItemsScreen(
-					songs = songs,
-					collectionName = collectionName,
-					collectionType = collectionType,
-					currentSong = mediaViewModel.currentSong,
-					sortOption = mediaViewModel.sortOrder,
+					songs = songs, collectionName = collectionName, collectionType = collectionType,
+					currentSong = mediaViewModel.currentSong, sortOption = mediaViewModel.sortOrder,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(songs)
@@ -142,8 +145,9 @@ fun AppRoute(
 						index?.let { navActions.navigateToNowPlayingScreen() }
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
-					menuAction = { mediaViewModel.menuAction(context, it) }
-				) { navController.navigateUp() }
+					menuAction = { mediaViewModel.menuAction(context, it) },
+					navigateUp = navController::navigateUp
+				)
 			}
 			composable(
 				AppRoute.NowPlayingScreen.route,
@@ -165,7 +169,7 @@ fun AppRoute(
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
 					goToCollection = navActions::navigateToMediaItemScreen,
-					navigateUp = { navController.navigateUp() }
+					navigateUp = navController::navigateUp
 				)
 			}
 		}

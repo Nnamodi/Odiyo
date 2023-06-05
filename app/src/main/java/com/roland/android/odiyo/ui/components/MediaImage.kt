@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.components
 
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -14,7 +15,7 @@ import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 @Composable
 fun MediaImage(
 	modifier: Modifier = Modifier,

@@ -11,6 +11,7 @@ import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
+import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.toMediaItem
 import kotlinx.coroutines.launch
@@ -20,8 +21,9 @@ import kotlinx.coroutines.launch
 class MediaViewModel(
 	appDataStore: AppDataStore,
 	musicRepository: MusicRepository,
-	private val mediaRepository: MediaRepository
-) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository) {
+	private val mediaRepository: MediaRepository,
+	playlistRepository: PlaylistRepository
+) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
 	var albumList by mutableStateOf<List<Album>>(emptyList()); private set
 	var artistList by mutableStateOf<List<Artist>>(emptyList()); private set
 

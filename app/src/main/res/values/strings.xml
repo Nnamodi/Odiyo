@@ -72,4 +72,9 @@
     <string name="name_a_z">Name A - Z</string>
     <string name="name_z_a">Name Z - A</string>
     <string name="sort_option_selected">%s selected</string>
+    <string name="playlist_art_desc">playlist thumbnail</string>
+    <string name="number_of_songs">%d songs</string>
+    <string name="create_playlist">Create new playlist</string>
+    <string name="create">Create</string>
+    <string name="playlist">Playlist</string>
 </resources>

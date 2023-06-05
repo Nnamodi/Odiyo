@@ -9,14 +9,14 @@ class MusicRepository(private val musicDao: MusicDao) {
 	val getCachedSongs: Flow<List<Music>> = musicDao.getAllSongs()
 
 	fun getCachedSongs(songsFromSystem: List<Music>, cachedSongs: List<Music>): List<Music> {
-		val songsFromDatabase = cachedSongs.takeWhile { music ->
+		val songsFromDatabase = cachedSongs.filter { music ->
 			songsFromSystem.map { it.id }.contains(music.id)
 		}
-		val newSongs = songsFromSystem.takeWhile { song ->
-			!songsFromDatabase.map { it.id }.contains(song.id)
+		val newSongs = songsFromSystem.filterNot { song ->
+			songsFromDatabase.map { it.id }.contains(song.id)
 		}
 		val allSongs = songsFromDatabase.plus(newSongs)
-		Log.i("DataInfo", "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size}")
+		Log.i("DataInfo", "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}")
 		return allSongs
 	}
 

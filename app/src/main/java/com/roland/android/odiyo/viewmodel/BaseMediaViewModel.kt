@@ -14,8 +14,10 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
+import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
@@ -40,7 +42,8 @@ import java.util.*
 open class BaseMediaViewModel(
 	private val appDataStore: AppDataStore,
 	private val mediaRepository: MediaRepository,
-	private val musicRepository: MusicRepository
+	private val musicRepository: MusicRepository,
+	private val playlistRepository: PlaylistRepository
 ) : ViewModel() {
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
 	var lastPlayedSongs by mutableStateOf<List<Music>>(emptyList()); private set
@@ -48,6 +51,8 @@ open class BaseMediaViewModel(
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
 	private var songsFetched by mutableStateOf(false)
+
+	var playlists by mutableStateOf<List<Playlist>>(emptyList()); private set
 
 	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
@@ -57,6 +62,11 @@ open class BaseMediaViewModel(
 	var isPlaying by mutableStateOf(false); private set
 
 	init {
+		viewModelScope.launch {
+			playlistRepository.getPlaylists.collectLatest {
+				playlists = it
+			}
+		}
 		viewModelScope.launch {
 			appDataStore.getCurrentPlaylist().collect {
 				if (mediaItems.value.isEmpty()) {
@@ -119,8 +129,6 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			appDataStore.getSortPreference().collectLatest {
 				sortOrder = it
-				songs = songs.sortList()
-
 			}
 		}
 	}

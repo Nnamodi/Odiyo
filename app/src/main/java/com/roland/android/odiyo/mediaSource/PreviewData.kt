@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 
 @RequiresApi(Build.VERSION_CODES.Q)
 val previewData = listOf(
@@ -199,4 +200,33 @@ val previewArtist = listOf(
 		numTracks = "2",
 		artist = "David Mcklin"
 	),
+)
+
+@RequiresApi(Build.VERSION_CODES.Q)
+val previewPlaylist = listOf(
+	Playlist(
+		id = 0,
+		name = "Hit jams",
+		songs = previewData.plus(previewData).map { it.uri }.take(15)
+	),
+	Playlist(
+		id = 1,
+		name = "Original songs",
+		songs = previewData.plus(previewData).map { it.uri }.take(21)
+	),
+	Playlist(
+		id = 2,
+		name = "Music for the soul",
+		songs = previewData.map { it.uri }.take(5)
+	),
+	Playlist(
+		id = 3,
+		name = "Cool music",
+		songs = previewData.map { it.uri }.drop(2)
+	),
+	Playlist(
+		id = 4,
+		name = "Gbedu",
+		songs = previewData.map { it.uri }
+	)
 )

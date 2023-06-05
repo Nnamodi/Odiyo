@@ -48,7 +48,8 @@ fun LibraryScreen(
 	currentSongUri: MediaItem,
 	playSong: (Uri, Int) -> Unit,
 	navigateToMediaScreen: () -> Unit,
-	navigateToMediaItemScreen: (String, String) -> Unit
+	navigateToMediaItemScreen: (String, String) -> Unit,
+	navigateToPlaylistsScreen: () -> Unit
 ) {
 	Scaffold(
 		topBar = { MainAppBar() }
@@ -66,7 +67,7 @@ fun LibraryScreen(
 				)
 				val action = { when (menu) {
 					LastPlayed -> { navigateToMediaItemScreen(collectionName, LAST_PLAYED) }
-					Playlist -> {}
+					Playlist -> { navigateToPlaylistsScreen() }
 					Favorites -> { navigateToMediaItemScreen(collectionName, FAVORITES) }
 					Songs -> navigateToMediaScreen()
 				} }
@@ -132,7 +133,8 @@ fun LibraryScreenPreview() {
 			songs = previewData.shuffled(),
 			currentSongUri = previewData[4].uri.toMediaItem,
 			playSong = { _, _ -> },
-			navigateToMediaScreen = {}
-		) { _, _ -> }
+			navigateToMediaScreen = {},
+			navigateToMediaItemScreen = { _, _ -> }
+		) {}
 	}
 }

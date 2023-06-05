@@ -8,6 +8,9 @@ class NavActions(private val navController: NavHostController) {
 	fun navigateToMediaScreen() {
 		navController.navigate(AppRoute.MediaScreen.route)
 	}
+	fun navigateToPlaylistScreen() {
+		navController.navigate(AppRoute.PlaylistsScreen.route)
+	}
 	fun navigateToNowPlayingScreen() {
 		navController.navigate(AppRoute.NowPlayingScreen.route)
 	}
@@ -31,6 +34,7 @@ fun concealMinimizedView(navController: NavHostController): Boolean {
 sealed class AppRoute(val route: String) {
 	object LibraryScreen: AppRoute("library_screen")
 	object MediaScreen: AppRoute("media_screen")
+	object PlaylistsScreen: AppRoute("playlists_screen")
 	object NowPlayingScreen: AppRoute("now_playing_screen")
 	object SearchScreen: AppRoute("search_screen")
 	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {

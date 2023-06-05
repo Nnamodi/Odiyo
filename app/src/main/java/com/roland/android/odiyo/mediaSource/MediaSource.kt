@@ -109,7 +109,7 @@ class MediaSource(
 				val music = MusicFromSystem(id, contentUri, name, title, artist, duration, size, addedOn, album, path)
 				mediaFromCollection.value += music
 			}
-			Log.i("DataInfo", "Just fetched from collection: ${media.value.size}")
+			Log.i("DataInfo", "Just fetched from collection: ${mediaFromCollection.value.size}")
 		}
 		return mediaFromCollection
 	}
