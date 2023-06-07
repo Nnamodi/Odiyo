@@ -47,7 +47,7 @@
     <string name="remove">Remove</string>
     <string name="add_to_queue">Add to queue</string>
     <string name="remove_from_queue">Remove from queue</string>
-    <string name="delete_dialog_text">You will not be able to recover this song again</string>
+    <string name="delete_dialog_text">You will not be able to recover this %s again</string>
     <string name="nothing_here">Nothing here</string>
     <string name="play_all_songs">Play all (%d)</string>
     <string name="playing_from_album">Playing from album:</string>
@@ -77,4 +77,9 @@
     <string name="create_playlist">Create new playlist</string>
     <string name="create">Create</string>
     <string name="playlist">Playlist</string>
+    <string name="empty_playlist_text">No songs in this playlist</string>
+    <string name="add_songs">Add songs</string>
+    <string name="song">song</string>
+    <string name="rename_playlist">Rename playlist</string>
+    <string name="no_songs_text">No songs found in your local storage</string>
 </resources>

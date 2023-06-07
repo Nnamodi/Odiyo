@@ -16,14 +16,30 @@ object SnackbarUtils {
 		snackbarHostState: SnackbarHostState,
 		song: Music
 	) {
-		val text: String = when (menuAction) {
-			is MediaMenuActions.AddToQueue -> context.getString(R.string.added_to_queue)
-			is MediaMenuActions.DeleteSong -> context.getString(R.string.deleted)
-			is MediaMenuActions.Favorite -> context.getString(if (song.favorite) R.string.added_to_favorites else R.string.removed_from_favorites)
-			is MediaMenuActions.PlayNext -> context.getString(R.string.added_to_queue)
-			is MediaMenuActions.RenameSong -> context.getString(R.string.renamed)
-			else -> ""
+		val text: Int? = when (menuAction) {
+			is MediaMenuActions.AddToQueue -> R.string.added_to_queue
+			is MediaMenuActions.DeleteSong -> R.string.deleted
+			is MediaMenuActions.Favorite -> if (song.favorite) R.string.added_to_favorites else R.string.removed_from_favorites
+			is MediaMenuActions.PlayNext -> R.string.added_to_queue
+			is MediaMenuActions.RenameSong -> R.string.renamed
+			else -> null
 		}
-		if (text.isNotBlank()) { scope.launch { snackbarHostState.showSnackbar(text) } }
+		text?.let { scope.launch { snackbarHostState.showSnackbar(context.getString(it)) } }
+	}
+
+	fun showSnackbar(
+		playlistAction: PlaylistMenuActions,
+		context: Context,
+		scope: CoroutineScope,
+		snackbarHostState: SnackbarHostState
+	) {
+		val text: Int? = when (playlistAction) {
+			is PlaylistMenuActions.AddToQueue -> R.string.added_to_queue
+			is PlaylistMenuActions.DeletePlaylist -> R.string.deleted
+			is PlaylistMenuActions.PlayNext -> R.string.added_to_queue
+			is PlaylistMenuActions.RenamePlaylist -> R.string.renamed
+			else -> null
+		}
+		text?.let { scope.launch { snackbarHostState.showSnackbar(context.getString(it)) } }
 	}
 }

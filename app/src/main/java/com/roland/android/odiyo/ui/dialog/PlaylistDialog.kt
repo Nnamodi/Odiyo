@@ -13,26 +13,35 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.mediaSource.previewPlaylist
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.ui.components.CustomInputText
 import com.roland.android.odiyo.ui.components.DialogButtonText
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.PlaylistMenuActions
 
 @Composable
-fun CreatePlaylistDialog(
-	createPlaylist: (String) -> Unit,
+fun PlaylistDialog(
+	playlist: Playlist?,
+	openPlaylist: (String, String) -> Unit,
+	dialogAction: (PlaylistMenuActions) -> Unit,
 	openDialog: (Boolean) -> Unit
 ) {
-	var playlistName by remember { mutableStateOf("") }
+	var playlistName by remember { mutableStateOf(playlist?.name ?: "") }
 
 	AlertDialog(
 		onDismissRequest = {},
 		title = {
 			Column {
-				Text(stringResource(R.string.create_playlist))
+				Text(
+					text = stringResource(if (playlist == null) R.string.create_playlist else R.string.rename_playlist),
+					modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 				OutlinedTextField(
 					modifier = Modifier
 						.fillMaxWidth()
@@ -48,13 +57,20 @@ fun CreatePlaylistDialog(
 		},
 		confirmButton = {
 			Button(
-				enabled = playlistName.isNotEmpty(),
+				enabled = playlistName.isNotEmpty() && playlistName != playlist?.name,
 				onClick = {
-					createPlaylist(playlistName)
+					if (playlist == null) {
+						val createdPlaylist = Playlist(name = playlistName, songs = emptyList())
+						dialogAction(PlaylistMenuActions.CreatePlaylist(createdPlaylist))
+						openPlaylist(createdPlaylist.name, PLAYLISTS)
+					} else {
+						playlist.name = playlistName
+						dialogAction(PlaylistMenuActions.RenamePlaylist(playlist))
+					}
 					openDialog(false)
 				}
 			) {
-				DialogButtonText(stringResource(R.string.create))
+				DialogButtonText(stringResource(if (playlist == null) R.string.create else R.string.rename))
 			}
 		},
 		dismissButton = {
@@ -78,10 +94,11 @@ fun CreatePlaylistDialogPreview() {
 				.clickable { openDialog.value = true }
 		) {
 			if (openDialog.value) {
-				CreatePlaylistDialog(
-					createPlaylist = {},
-					openDialog = { openDialog.value = it }
-				)
+				PlaylistDialog(
+					playlist = previewPlaylist[2],
+					openPlaylist = { _, _ -> },
+					dialogAction = {}
+				) { openDialog.value = it }
 			}
 		}
 	}

@@ -29,6 +29,14 @@ class ViewModelFactory : ViewModelProvider.Factory {
 				playlistRepository = OdiyoApp.playlistRepository
 			) as T
 		}
+		if (modelClass.isAssignableFrom(PlaylistViewModel::class.java)) {
+			return PlaylistViewModel(
+				appDataStore = OdiyoApp.appDataStore,
+				mediaRepository = OdiyoApp.mediaRepository,
+				musicRepository = OdiyoApp.musicRepository,
+				playlistRepository = OdiyoApp.playlistRepository
+			) as T
+		}
 		throw IllegalArgumentException("Unknown ViewModel class")
 	}
 }

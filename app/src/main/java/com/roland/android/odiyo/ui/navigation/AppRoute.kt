@@ -22,6 +22,7 @@ import com.roland.android.odiyo.ui.components.BottomAppBar
 import com.roland.android.odiyo.ui.screens.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
+import com.roland.android.odiyo.viewmodel.PlaylistViewModel
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ fun AppRoute(
 	navController: NavHostController,
 	mediaViewModel: MediaViewModel,
 	nowPlayingViewModel: NowPlayingViewModel,
+	playlistViewModel: PlaylistViewModel
 ) {
 	val context = LocalContext.current
 
@@ -84,7 +86,8 @@ fun AppRoute(
 			composable(AppRoute.PlaylistsScreen.route) {
 				PlaylistsScreen(
 					playlists = mediaViewModel.playlists,
-					prepareAndViewSongs = {},
+					playlistAction = playlistViewModel::playlistActions,
+					prepareAndViewSongs = navActions::navigateToMediaItemScreen,
 					navigateUp = navController::navigateUp
 				)
 			}
@@ -131,6 +134,7 @@ fun AppRoute(
 					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
 					FAVORITES -> mediaViewModel.favoriteSongs
 					LAST_PLAYED -> mediaViewModel.lastPlayedSongs
+					PLAYLISTS -> mediaViewModel.songsFromPlaylist(collectionName)
 					else -> emptyList()
 				}
 

@@ -20,7 +20,7 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.components.EmptyListText
+import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.MediaItemsAppBar
 import com.roland.android.odiyo.ui.components.SongListHeader
@@ -30,6 +30,7 @@ import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -76,9 +77,10 @@ fun MediaItemsScreen(
 		}
 	) { innerPadding ->
 		if (songs.isEmpty()) {
-			EmptyListText(
+			EmptyListScreen(
 				text = stringResource(R.string.nothing_here),
-				modifier = Modifier.padding(innerPadding)
+				modifier = Modifier.padding(innerPadding),
+				playlistCollection = collectionType == PLAYLISTS
 			)
 		} else {
 			LazyColumn(Modifier.padding(innerPadding)) {

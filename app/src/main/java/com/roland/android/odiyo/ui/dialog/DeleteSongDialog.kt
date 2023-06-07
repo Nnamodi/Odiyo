@@ -12,15 +12,21 @@ import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @Composable
-fun DeleteSongDialog(deleteSong: () -> Unit, openDialog: (Boolean) -> Unit) {
+fun DeleteDialog(
+	delete: () -> Unit,
+	openDialog: (Boolean) -> Unit,
+	itemIsPlaylist: Boolean = false
+) {
+	val itemToDelete = stringResource(if (itemIsPlaylist) R.string.playlist else R.string.song)
+
 	AlertDialog(
 		onDismissRequest = { openDialog(false) },
 		title = { Text(stringResource(R.string.delete)) },
-		text = { Text(stringResource(R.string.delete_dialog_text)) },
+		text = { Text(stringResource(R.string.delete_dialog_text, itemToDelete)) },
 		confirmButton = {
 			TextButton(
 				colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-				onClick = { deleteSong(); openDialog(false) }
+				onClick = { delete(); openDialog(false) }
 			) {
 				DialogButtonText(stringResource(R.string.delete))
 			}
@@ -35,13 +41,13 @@ fun DeleteSongDialog(deleteSong: () -> Unit, openDialog: (Boolean) -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun DeleteSongDialogPreview() {
+fun DeleteDialogPreview() {
 	OdiyoTheme {
 		Column(
 			modifier = Modifier.fillMaxSize()
 		) {
-			DeleteSongDialog(
-				deleteSong = {},
+			DeleteDialog(
+				delete = {},
 				openDialog = {}
 			)
 		}

@@ -129,12 +129,14 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			appDataStore.getSortPreference().collectLatest {
 				sortOrder = it
+				songs = songs.sortList()
 			}
 		}
 	}
 
 	private fun fetchSongs() {
 		if (songsFetched) return
+		Log.i("DataInfo", "Call to fetch songs")
 		viewModelScope.launch(Dispatchers.IO) {
 			songsFetched = true
 			mediaRepository.getSongsFromSystem.collect { musicFromSystems ->

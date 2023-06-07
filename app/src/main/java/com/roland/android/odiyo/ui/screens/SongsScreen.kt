@@ -11,13 +11,16 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.SongListHeader
 import com.roland.android.odiyo.ui.dialog.SortDialog
@@ -56,26 +59,30 @@ fun SongsScreen(
 			}
 		}
 	) {
-		LazyColumn {
-			item {
-				SongListHeader(
-					songs = songs,
-					showSortAction = true,
-					playAllSongs = playAudio,
-					openSortDialog = { openSortDialog.value = true }
-				)
-			}
-			itemsIndexed(
-				items = songs,
-				key = { _, song -> song.id }
-			) { index, song ->
-				MediaItem(
-					itemIndex = index,
-					song = song,
-					currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
-					playAudio = playAudio,
-					openMenuSheet = { songClicked = it; openBottomSheet.value = true }
-				)
+		if (songs.isEmpty()) {
+			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+		} else {
+			LazyColumn {
+				item {
+					SongListHeader(
+						songs = songs,
+						showSortAction = true,
+						playAllSongs = playAudio,
+						openSortDialog = { openSortDialog.value = true }
+					)
+				}
+				itemsIndexed(
+					items = songs,
+					key = { _, song -> song.id }
+				) { index, song ->
+					MediaItem(
+						itemIndex = index,
+						song = song,
+						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						playAudio = playAudio,
+						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+					)
+				}
 			}
 		}
 
@@ -115,7 +122,7 @@ fun SongsScreenPreview() {
 		) {
 			val currentSong = previewData[2]
 			SongsScreen(
-				songs = previewData,
+				songs = previewData.take(0),
 				currentSong = currentSong,
 				sortOption = SortOptions.NameAZ,
 				playAudio = { _, _ -> },

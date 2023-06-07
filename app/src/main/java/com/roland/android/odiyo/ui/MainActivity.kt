@@ -43,6 +43,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.Permissions.storagePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
+import com.roland.android.odiyo.viewmodel.PlaylistViewModel
 import com.roland.android.odiyo.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 
@@ -89,6 +90,7 @@ class MainActivity : ComponentActivity() {
 					if (permissionGranted) {
 						val mediaViewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
 						val nowPlayingViewModel: NowPlayingViewModel = viewModel(factory = ViewModelFactory())
+						val playlistViewModel: PlaylistViewModel = viewModel(factory = ViewModelFactory())
 						val navController = rememberAnimatedNavController()
 						val navActions = NavActions(navController)
 
@@ -96,7 +98,8 @@ class MainActivity : ComponentActivity() {
 							navActions = navActions,
 							navController = navController,
 							mediaViewModel = mediaViewModel,
-							nowPlayingViewModel = nowPlayingViewModel
+							nowPlayingViewModel = nowPlayingViewModel,
+							playlistViewModel = playlistViewModel
 						)
 
 						LaunchedEffect(true) {

@@ -20,7 +20,7 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.components.EmptyListText
+import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.SearchBar
 import com.roland.android.odiyo.ui.components.SongListHeader
@@ -72,7 +72,7 @@ fun SearchScreen(
 		}
 	) { paddingValues ->
 		if (searchQuery.isEmpty()) {
-			EmptyListText(
+			EmptyListScreen(
 				text = stringResource(R.string.type_to_search),
 				modifier = Modifier.padding(paddingValues)
 			)

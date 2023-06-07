@@ -207,26 +207,31 @@ val previewPlaylist = listOf(
 	Playlist(
 		id = 0,
 		name = "Hit jams",
-		songs = previewData.plus(previewData).map { it.uri }.take(15)
+		songs = previewData.map { it.uri },
+		numSongs = 15
 	),
 	Playlist(
 		id = 1,
 		name = "Original songs",
-		songs = previewData.plus(previewData).map { it.uri }.take(21)
+		songs = previewData.map { it.uri },
+		numSongs = 21
 	),
 	Playlist(
 		id = 2,
 		name = "Music for the soul",
-		songs = previewData.map { it.uri }.take(5)
+		songs = previewData.map { it.uri },
+		numSongs = 5
 	),
 	Playlist(
 		id = 3,
 		name = "Cool music",
-		songs = previewData.map { it.uri }.drop(2)
+		songs = previewData.map { it.uri },
+		numSongs = 2
 	),
 	Playlist(
 		id = 4,
 		name = "Gbedu",
-		songs = previewData.map { it.uri }
+		songs = previewData.map { it.uri },
+		numSongs = 10
 	)
 )

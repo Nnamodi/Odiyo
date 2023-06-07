@@ -3,6 +3,7 @@ package com.roland.android.odiyo.viewmodel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
+import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
@@ -58,7 +59,11 @@ class MediaViewModel(
 					.sortList()
 			}
 		}
-		return songsFromAlbum
+		return songsFromAlbum.filter { song ->
+			song.id in songs.map { it.id }
+		}.map { song ->
+			songs.find { it.id == song.id }!!
+		}
 	}
 
 	fun songsFromArtist(artistName: String): List<Music> {
@@ -73,7 +78,11 @@ class MediaViewModel(
 					.sortList()
 			}
 		}
-		return songsFromArtist
+		return songsFromArtist.filter { song ->
+			song.id in songs.map { it.id }
+		}.map { song ->
+			songs.find { it.id == song.id }!!
+		}
 	}
 
 	fun songsFromSearch(): List<Music> {
@@ -88,5 +97,10 @@ class MediaViewModel(
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}
 		return result
+	}
+
+	fun songsFromPlaylist(urisString: String): List<Music> {
+		val uris = urisString.split("|").map { it.toUri() }
+		return songs.filter { uris.contains(it.uri) }
 	}
 }

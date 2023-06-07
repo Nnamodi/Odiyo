@@ -6,21 +6,46 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material.icons.rounded.Sort
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 
 @Composable
-fun EmptyListText(text: String, modifier: Modifier = Modifier) {
+fun EmptyListScreen(
+	text: String,
+	modifier: Modifier = Modifier,
+	playlistCollection: Boolean = false,
+	isSongsScreen: Boolean = false
+) = if (playlistCollection || isSongsScreen) {
+	Column(
+		modifier = Modifier.fillMaxSize(),
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.Center
+	) {
+		Text(
+			text = if (isSongsScreen) text else stringResource(R.string.empty_playlist_text),
+			fontStyle = FontStyle.Italic,
+			modifier = Modifier
+				.padding(horizontal = 40.dp, vertical = 14.dp)
+				.alpha(0.7f),
+			style = MaterialTheme.typography.headlineMedium,
+			textAlign = TextAlign.Center
+		)
+		if (!isSongsScreen) {
+			Button(onClick = {}) {
+				Text(stringResource(R.string.add_songs))
+			}
+		}
+	}
+} else {
 	Column(modifier = modifier) {
 		Text(
 			text = text,

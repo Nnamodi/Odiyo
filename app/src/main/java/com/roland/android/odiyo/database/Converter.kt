@@ -20,7 +20,7 @@ class Converter {
 
 	@TypeConverter
 	fun fromListOfSongs(songs: List<Uri>): String {
-		return songs.map { it.toString() }.joinToString { "|" }
+		return songs.joinToString("|")
 	}
 
 	@TypeConverter

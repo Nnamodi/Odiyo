@@ -12,8 +12,8 @@ import com.roland.android.odiyo.model.Playlist
 @RequiresApi(Build.VERSION_CODES.Q)
 @Database(
 	entities = [Music::class, Playlist::class],
-	version = 2,
-	autoMigrations = [AutoMigration(from = 1, to = 2)]
+	version = 3,
+	autoMigrations = [AutoMigration(from = 2, to = 3)]
 )
 @TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {

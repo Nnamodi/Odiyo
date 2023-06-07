@@ -24,7 +24,7 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.ui.dialog.DeleteSongDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ALBUMS
@@ -101,8 +101,8 @@ fun MediaItemSheet(
 	}
 
 	if (openDeleteDialog.value) {
-		DeleteSongDialog(
-			deleteSong = {
+		DeleteDialog(
+			delete = {
 				menuAction(
 					MediaMenuActions.DeleteSong(
 						SongDetails(song.id, song.uri)
