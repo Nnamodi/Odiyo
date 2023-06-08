@@ -3,7 +3,6 @@ package com.roland.android.odiyo.viewmodel
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
-import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
@@ -97,10 +96,5 @@ class MediaViewModel(
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}
 		return result
-	}
-
-	fun songsFromPlaylist(urisString: String): List<Music> {
-		val uris = urisString.split("|").map { it.toUri() }
-		return songs.filter { uris.contains(it.uri) }
 	}
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -17,12 +16,15 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
@@ -37,13 +39,15 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 fun SongsScreen(
 	songs: List<Music>,
 	currentSong: Music?,
+	playlists: List<Playlist>,
 	sortOption: SortOptions,
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
-	val openBottomSheet = rememberSaveable { mutableStateOf(false) }
+	val openBottomSheet = remember { mutableStateOf(false) }
+	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val openSortDialog = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
@@ -92,12 +96,12 @@ fun SongsScreen(
 				scaffoldState = sheetState,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 				}
 			)
-
 		}
 
 		if (openSortDialog.value) {
@@ -105,6 +109,18 @@ fun SongsScreen(
 				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
 			) { openSortDialog.value = it }
+		}
+
+		if (openAddToPlaylistDialog.value) {
+			AddToPlaylistDialog(
+				song = songClicked!!,
+				playlists = playlists,
+				addSongToPlaylist = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+				},
+				openDialog = { openAddToPlaylistDialog.value = it }
+			)
 		}
 	}
 }
@@ -124,11 +140,11 @@ fun SongsScreenPreview() {
 			SongsScreen(
 				songs = previewData.take(0),
 				currentSong = currentSong,
+				playlists = previewPlaylist,
 				sortOption = SortOptions.NameAZ,
 				playAudio = { _, _ -> },
-				goToCollection = { _, _ -> },
-				menuAction = {}
-			)
+				goToCollection = { _, _ -> }
+			) {}
 		}
 	}
 }

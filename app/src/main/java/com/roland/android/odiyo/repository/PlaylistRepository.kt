@@ -3,6 +3,7 @@ package com.roland.android.odiyo.repository
 import com.roland.android.odiyo.database.PlaylistDao
 import com.roland.android.odiyo.model.Playlist
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 class PlaylistRepository(private val playlistDao: PlaylistDao) {
 	val getPlaylists: Flow<List<Playlist>> = playlistDao.getAllPlaylists()
@@ -12,6 +13,7 @@ class PlaylistRepository(private val playlistDao: PlaylistDao) {
 	}
 
 	suspend fun updatePlaylist(playlist: Playlist) {
+		playlist.dateModified = Calendar.getInstance().time
 		playlistDao.updatePlaylist(playlist)
 	}
 

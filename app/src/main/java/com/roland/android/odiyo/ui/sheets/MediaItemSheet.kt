@@ -41,9 +41,12 @@ import com.roland.android.odiyo.util.SongDetails
 fun MediaItemSheet(
 	song: Music,
 	scaffoldState: SheetState,
+	collectionIsPlaylist: Boolean = false,
 	goToCollection: (String, String) -> Unit,
 	openBottomSheet: (Boolean) -> Unit,
-	menuAction: (MediaMenuActions) -> Unit
+	openAddToPlaylistDialog: (Music) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
+	removeFromPlaylist: (Music) -> Unit = {}
 ) {
 	val screenHeight = LocalConfiguration.current.screenHeightDp / 2
 	val openRenameDialog = remember { mutableStateOf(false) }
@@ -67,15 +70,20 @@ fun MediaItemSheet(
 					AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(listOf(song))); openBottomSheet(false) }
 					Rename -> openRenameDialog.value = true
 					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
+					AddToPlaylist -> { openAddToPlaylistDialog(song) }
 					Share -> menuAction(MediaMenuActions.ShareSong(song))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
 					GoToArtist -> { goToCollection(song.artist, ARTISTS); openBottomSheet(false) }
 					Details -> openDetailsDialog.value = true
-					Delete -> openDeleteDialog.value = true
+					Delete -> if (collectionIsPlaylist) {
+						removeFromPlaylist(song); openBottomSheet(false)
+					} else { openDeleteDialog.value = true }
 				} }
-				val text = if (menu == AddToFavorite) {
-					if (song.favorite) R.string.remove_from_favorite else R.string.add_to_favorite
-				} else { menu.menuText }
+				val text = when (menu) {
+					AddToFavorite -> if (song.favorite) R.string.remove_from_favorite else menu.menuText
+					Delete -> if (collectionIsPlaylist) R.string.remove else menu.menuText
+					else -> { menu.menuText }
+				}
 				SheetItem(menu.icon, stringResource(text)) { action() }
 			}
 		}
@@ -135,9 +143,10 @@ enum class MenuItems(
 	val menuText: Int
 ) {
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue),
+	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
 	Rename(Icons.Rounded.Edit, R.string.rename),
 	AddToFavorite(Icons.Rounded.Favorite, R.string.add_to_favorite),
+	AddToPlaylist(Icons.Rounded.PlaylistAdd, R.string.add_to_playlist),
 	Share(Icons.Rounded.Share, R.string.share),
 	GoToAlbum(Icons.Rounded.Album, R.string.go_to_album),
 	GoToArtist(Icons.Rounded.Person, R.string.go_to_artist),
@@ -166,6 +175,7 @@ fun SheetPreview() {
 					scaffoldState = sheetState,
 					goToCollection = { _, _ -> },
 					openBottomSheet = { openBottomSheet.value = it },
+					openAddToPlaylistDialog = {},
 					menuAction = {}
 				)
 			}

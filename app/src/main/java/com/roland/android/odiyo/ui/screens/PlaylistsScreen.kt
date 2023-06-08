@@ -27,7 +27,7 @@ import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.MediaItemsAppBar
-import com.roland.android.odiyo.ui.dialog.PlaylistDialog
+import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.sheets.PlaylistItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -76,7 +76,7 @@ fun PlaylistsScreen(
 				) { _, playlist ->
 					PlaylistItem(
 						playlist = playlist,
-						prepareAndViewSongs = prepareAndViewSongs,
+						onItemClick = prepareAndViewSongs,
 						openMenuSheet = {
 							clickedPlaylist = it
 							openMenuSheet.value = true
@@ -88,7 +88,7 @@ fun PlaylistsScreen(
 	}
 
 	if (openPlaylistDialog.value) {
-		PlaylistDialog(
+		CreateOrRenamePlaylistDialog(
 			playlist = null,
 			openPlaylist = prepareAndViewSongs,
 			dialogAction = {
@@ -113,7 +113,7 @@ fun PlaylistsScreen(
 }
 
 @Composable
-private fun CreatePlaylistButton(openDialog: () -> Unit) {
+fun CreatePlaylistButton(openDialog: () -> Unit) {
 	TextButton(
 		modifier = Modifier.padding(4.dp),
 		shape = MaterialTheme.shapes.small,
@@ -142,17 +142,17 @@ private fun CreatePlaylistButton(openDialog: () -> Unit) {
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(UnstableApi::class)
 @Composable
-private fun PlaylistItem(
+fun PlaylistItem(
 	playlist: Playlist,
-	prepareAndViewSongs: (String, String) -> Unit,
+	onItemClick: (String, String) -> Unit,
+	parentContentIsDialog: Boolean = false,
 	openMenuSheet: (Playlist) -> Unit
 ) {
 	val context = LocalContext.current
-	val artwork: Any = if (playlist.numSongs > 0) playlist.songs.last().getBitmap(context) else R.drawable.default_playlist_art
 
 	Row(
 		modifier = Modifier
-			.clickable { prepareAndViewSongs(playlist.name, PLAYLISTS) }
+			.clickable { onItemClick(playlist.name, PLAYLISTS) }
 			.fillMaxWidth()
 			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
 		verticalAlignment = Alignment.CenterVertically
@@ -161,7 +161,7 @@ private fun PlaylistItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = artwork,
+			artwork = playlist.getBitmap(context),
 			descriptionRes = R.string.playlist_art_desc,
 			placeholderRes = R.drawable.default_playlist_art
 		)
@@ -181,8 +181,10 @@ private fun PlaylistItem(
 				modifier = Modifier.alpha(0.5f)
 			)
 		}
-		IconButton(onClick = { openMenuSheet(playlist) }) {
-			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more_options))
+		if (!parentContentIsDialog) {
+			IconButton(onClick = { openMenuSheet(playlist) }) {
+				Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+			}
 		}
 	}
 }

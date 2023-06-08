@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.viewmodel
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
@@ -25,12 +26,24 @@ class PlaylistViewModel(
 
 	fun playlistActions(action: PlaylistMenuActions) {
 		when (action) {
-			is PlaylistMenuActions.AddToQueue -> {}
+			is PlaylistMenuActions.AddToQueue -> addToQueue(action.playlist.name)
 			is PlaylistMenuActions.CreatePlaylist -> createPlaylist(action.playlist)
 			is PlaylistMenuActions.DeletePlaylist -> deletePlaylist(action.playlist)
-			is PlaylistMenuActions.PlayNext -> {}
+			is PlaylistMenuActions.PlayNext -> playNext(action.playlist.name)
 			is PlaylistMenuActions.RenamePlaylist -> updatePlaylist(action.playlist)
 		}
+		updateMusicQueue()
+		Log.d("ViewModelInfo", "playlistAction: $action")
+	}
+
+	private fun playNext(playlistName: String) {
+		fetchPlaylistSongs(playlistName)
+		playNext(songsFromPlaylist)
+	}
+
+	private fun addToQueue(playlistName: String) {
+		fetchPlaylistSongs(playlistName)
+		addToQueue(songsFromPlaylist)
 	}
 
 	private fun createPlaylist(playlist: Playlist) {

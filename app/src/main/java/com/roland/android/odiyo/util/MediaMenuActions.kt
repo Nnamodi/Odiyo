@@ -2,6 +2,7 @@ package com.roland.android.odiyo.util
 
 import android.net.Uri
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.ui.dialog.SortOptions
 
 sealed interface MediaMenuActions {
@@ -9,6 +10,8 @@ sealed interface MediaMenuActions {
 	data class AddToQueue(val songs: List<Music>) : MediaMenuActions
 	data class RenameSong(val details: SongDetails): MediaMenuActions
 	data class Favorite(val song: Music): MediaMenuActions
+	data class AddToPlaylist(val song: Music?, val playlist: Playlist): MediaMenuActions
+	data class RemoveFromPlaylist(val song: Music, val playlistName: String): MediaMenuActions
 	data class ShareSong(val details: Music): MediaMenuActions
 	data class SortSongs(val sortOptions: SortOptions): MediaMenuActions
 	data class DeleteSong(val details: SongDetails): MediaMenuActions

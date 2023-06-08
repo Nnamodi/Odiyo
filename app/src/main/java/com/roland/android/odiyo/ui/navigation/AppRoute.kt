@@ -101,6 +101,7 @@ fun AppRoute(
 				SearchScreen(
 					searchQuery = mediaViewModel.searchQuery,
 					searchResult = mediaViewModel.songsFromSearch(),
+					playlists = mediaViewModel.playlists,
 					onTextChange = { mediaViewModel.searchQuery = it },
 					currentSong = mediaViewModel.currentSong,
 					playAudio = { uri, index ->
@@ -134,13 +135,14 @@ fun AppRoute(
 					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
 					FAVORITES -> mediaViewModel.favoriteSongs
 					LAST_PLAYED -> mediaViewModel.lastPlayedSongs
-					PLAYLISTS -> mediaViewModel.songsFromPlaylist(collectionName)
+					PLAYLISTS -> { mediaViewModel.fetchPlaylistSongs(collectionName); mediaViewModel.songsFromPlaylist }
 					else -> emptyList()
 				}
 
 				MediaItemsScreen(
 					songs = songs, collectionName = collectionName, collectionType = collectionType,
-					currentSong = mediaViewModel.currentSong, sortOption = mediaViewModel.sortOrder,
+					currentSong = mediaViewModel.currentSong, playlists = mediaViewModel.playlists,
+					sortOption = mediaViewModel.sortOrder,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(songs)

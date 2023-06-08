@@ -23,7 +23,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
-import com.roland.android.odiyo.ui.dialog.PlaylistDialog
+import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
 import com.roland.android.odiyo.ui.sheets.PlaylistMenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
@@ -66,7 +66,7 @@ fun PlaylistItemSheet(
 	}
 
 	if (openPlaylistDialog.value) {
-		PlaylistDialog(
+		CreateOrRenamePlaylistDialog(
 			playlist = playlist,
 			openPlaylist = openPlaylist,
 			dialogAction = {
@@ -105,7 +105,7 @@ fun PlaylistSheetItem(icon: ImageVector, menuText: String, action: () -> Unit) {
 
 enum class PlaylistMenuItems(val icon: ImageVector, val menuText: Int) {
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue),
+	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
 	Rename(Icons.Rounded.Edit, R.string.rename),
 	Delete(Icons.Rounded.Delete, R.string.delete)
 }

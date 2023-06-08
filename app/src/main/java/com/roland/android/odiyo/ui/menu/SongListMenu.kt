@@ -2,7 +2,7 @@ package com.roland.android.odiyo.ui.menu
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PlaylistAdd
+import androidx.compose.material.icons.rounded.AddToQueue
 import androidx.compose.material.icons.rounded.Queue
 import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material3.DropdownMenu
@@ -60,6 +60,6 @@ fun SongListMenu(
 
 enum class SongListMenu(val icon: ImageVector, val menuText: Int) {
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.PlaylistAdd, R.string.add_to_queue),
+	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
 	SortBy(Icons.Rounded.Sort, R.string.sort_by)
 }

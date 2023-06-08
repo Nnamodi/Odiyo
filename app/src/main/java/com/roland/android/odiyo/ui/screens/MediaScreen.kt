@@ -16,6 +16,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
@@ -89,6 +90,7 @@ fun MediaScreenPreview() {
 				SongsScreen(
 					songs = previewData,
 					currentSong = previewData[5],
+					playlists = previewPlaylist,
 					sortOption = SortOptions.NameAZ,
 					playAudio = { _, _ -> },
 					goToCollection = { _, _ -> }

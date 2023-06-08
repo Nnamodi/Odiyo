@@ -45,6 +45,7 @@ open class BaseMediaViewModel(
 	private val musicRepository: MusicRepository,
 	private val playlistRepository: PlaylistRepository
 ) : ViewModel() {
+	private var cachedSongs by mutableStateOf<List<Music>>(emptyList())
 	var songs by mutableStateOf<List<Music>>(emptyList()); private set
 	var lastPlayedSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var favoriteSongs by mutableStateOf<List<Music>>(emptyList()); private set
@@ -53,6 +54,7 @@ open class BaseMediaViewModel(
 	private var songsFetched by mutableStateOf(false)
 
 	var playlists by mutableStateOf<List<Playlist>>(emptyList()); private set
+	var songsFromPlaylist by mutableStateOf<List<Music>>(emptyList()); private set
 
 	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
@@ -83,6 +85,11 @@ open class BaseMediaViewModel(
 		}
 		viewModelScope.launch {
 			musicRepository.getCachedSongs.collectLatest { musicList ->
+				cachedSongs = musicList
+				if (!songsFetched) {
+					fetchSongs()
+					return@collectLatest
+				}
 				songs = musicList
 					.filter { it.name.endsWith(".mp3") }
 					.sortList()
@@ -95,7 +102,6 @@ open class BaseMediaViewModel(
 					.sortedByDescending { it.addedOn }
 					.take(45)
 				Log.i("DataInfo", "Cached songs: ${songs.size} | Songs fetched: $songsFetched")
-				if (!songsFetched) fetchSongs()
 			}
 		}
 		viewModelScope.launch {
@@ -143,7 +149,10 @@ open class BaseMediaViewModel(
 				val musicList = musicFromSystems.map {
 					Music(it.id, it.uri, it.name, it.title, it.artist, it.time, it.bytes, it.addedOn, it.album, it.path)
 				}
-				val allSongs = musicRepository.getCachedSongs(musicList, songs)
+				// return cachedSongs to default sort order before sending up for processing to avoid duplicate songs in the database.
+				cachedSongs.filter { it.name.endsWith(".mp3") }.sortedBy { it.title }
+
+				val allSongs = musicRepository.getCachedSongs(musicList, cachedSongs)
 				musicRepository.apply {
 					clear(); cacheSongs(allSongs)
 				}
@@ -163,7 +172,7 @@ open class BaseMediaViewModel(
 
 	private fun musicItem(mediaItem: MediaItem?): Music? {
 		val currentSongUri = mediaItem?.localConfiguration?.uri
-		return songs.find { it.uri == currentSongUri }
+		return cachedSongs.find { it.uri == currentSongUri }
 	}
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
@@ -204,6 +213,8 @@ open class BaseMediaViewModel(
 			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
 			is MediaMenuActions.RenameSong -> renameSong(action.details)
 			is MediaMenuActions.Favorite -> favoriteSong(action.song)
+			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.song, action.playlist)
+			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.song, action.playlistName)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
 			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
 			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
@@ -212,7 +223,7 @@ open class BaseMediaViewModel(
 		Log.d("ViewModelInfo", "menuAction: $action")
 	}
 
-	private fun playNext(song: List<Music>) {
+	fun playNext(song: List<Music>) {
 		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
 			if (musicQueue.isNotEmpty()) {
@@ -227,7 +238,7 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	private fun addToQueue(song: List<Music>) {
+	fun addToQueue(song: List<Music>) {
 		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
 			if (musicQueue.isNotEmpty()) {
@@ -260,10 +271,36 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	private fun saveStreamDate(song: Music) {
+	private fun addSongsToPlaylist(song: Music?, playlist: Playlist) {
 		viewModelScope.launch(Dispatchers.IO) {
-			song.lastPlayed = Calendar.getInstance().time
-			musicRepository.updateSongInCache(song)
+			if (song != null) {
+				val uriList = playlist.songs.toMutableList()
+				uriList.add(0, song.uri)
+				playlist.apply {
+					songs = uriList
+					numSongs = numSongs.inc()
+				}
+				playlistRepository.updatePlaylist(playlist)
+				fetchPlaylistSongs(playlist.name)
+				Log.d("ViewModelInfo", "Song added: ${playlist.songs}")
+			} else {
+				playlistRepository.createPlaylist(playlist)
+			}
+		}
+	}
+
+	private fun removeFromPlaylist(song: Music, playlistName: String) {
+		viewModelScope.launch(Dispatchers.IO) {
+			val playlist = playlists.find { it.name == playlistName }
+			playlist?.let {
+				val updatedSongs = it.songs
+				updatedSongs.toMutableList().remove(song.uri)
+				it.songs = updatedSongs
+				it.numSongs = it.numSongs.dec()
+				playlistRepository.updatePlaylist(it)
+				fetchPlaylistSongs(playlistName)
+				Log.d("ViewModelInfo", "Song removed: ${it.songs}")
+			}
 		}
 	}
 
@@ -289,7 +326,21 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	private fun updateMusicQueue(queueEdited: Boolean = true) {
+	private fun saveStreamDate(song: Music) {
+		viewModelScope.launch(Dispatchers.IO) {
+			song.lastPlayed = Calendar.getInstance().time
+			musicRepository.updateSongInCache(song)
+		}
+	}
+
+	fun fetchPlaylistSongs(playlistName: String) {
+		val playlist = playlists.find { it.name == playlistName }
+		val uris = playlist?.songs
+		songsFromPlaylist = songs.filter { uris?.contains(it.uri) == true }
+		Log.d("ViewModelInfo", "Songs from playlist: $songsFromPlaylist")
+	}
+
+	fun updateMusicQueue(queueEdited: Boolean = true) {
 		songsOnQueue.value = try {
 			mediaItems.value.map { musicItem(it)!! }.toMutableList()
 		} catch (e: Exception) {

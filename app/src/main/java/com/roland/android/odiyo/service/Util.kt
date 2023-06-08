@@ -22,10 +22,12 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Constants.DATE
 import com.roland.android.odiyo.service.Constants.MB_DIVISOR
 import com.roland.android.odiyo.service.Constants.MB_FORMAT
 import com.roland.android.odiyo.service.Constants.TIME
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.DecimalFormat
@@ -91,11 +93,6 @@ object Util {
 		return localConfiguration?.uri?.getMediaArt(context) ?: defaultArt
 	}
 
-	fun Uri.getBitmap(context: Context): Bitmap {
-		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-		return getMediaArt(context) ?: defaultArt
-	}
-
 	fun Music.getBitmap(context: Context): Bitmap {
 		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 		return uri.getMediaArt(context) ?: defaultArt
@@ -109,6 +106,13 @@ object Util {
 	fun Artist.getBitmap(context: Context): Bitmap {
 		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_artist_art)
 		return uri.getMediaArt(context) ?: defaultArt
+	}
+
+	fun Playlist.getBitmap(context: Context): Bitmap {
+		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_playlist_art)
+		return if (numSongs > 0) {
+			songs[numSongs - 1].getMediaArt(context) ?: defaultArt
+		} else defaultArt
 	}
 
 	private fun Uri.getMediaArt(context: Context): Bitmap? {

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -17,13 +16,16 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.components.SearchBar
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -37,6 +39,7 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 fun SearchScreen(
 	searchQuery: String,
 	searchResult: List<Music>,
+	playlists: List<Playlist>,
 	onTextChange: (String) -> Unit,
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
@@ -46,8 +49,9 @@ fun SearchScreen(
 	closeSearchScreen: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
-	val openBottomSheet = rememberSaveable { mutableStateOf(false) }
-	val openMenu = rememberSaveable { mutableStateOf(false) }
+	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
+	val openMenu = remember { mutableStateOf(false) }
+	val openBottomSheet = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val yOffset by remember { mutableStateOf(160) }
 	val context = LocalContext.current
@@ -107,6 +111,7 @@ fun SearchScreen(
 				scaffoldState = sheetState,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
@@ -124,6 +129,18 @@ fun SearchScreen(
 				yOffset = yOffset,
 			) { openMenu.value = it }
 		}
+
+		if (openAddToPlaylistDialog.value) {
+			AddToPlaylistDialog(
+				song = songClicked!!,
+				playlists = playlists,
+				addSongToPlaylist = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+				},
+				openDialog = { openAddToPlaylistDialog.value = it }
+			)
+		}
 	}
 }
 
@@ -136,13 +153,13 @@ fun SearchScreenPreview() {
 		SearchScreen(
 			searchQuery = "a",
 			searchResult = previewData.shuffled(),
+			playlists = previewPlaylist,
 			onTextChange = {},
 			currentSong = previewData[3],
 			playAudio = { _, _ -> },
 			menuAction = {},
 			goToCollection = { _, _ -> },
-			clearSearchQuery = {},
-			closeSearchScreen = {}
-		)
+			clearSearchQuery = {}
+		) {}
 	}
 }

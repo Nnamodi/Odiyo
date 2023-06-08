@@ -27,7 +27,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
 
 @Composable
-fun PlaylistDialog(
+fun CreateOrRenamePlaylistDialog(
 	playlist: Playlist?,
 	openPlaylist: (String, String) -> Unit,
 	dialogAction: (PlaylistMenuActions) -> Unit,
@@ -84,7 +84,7 @@ fun PlaylistDialog(
 @RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
-fun CreatePlaylistDialogPreview() {
+fun CreateOrRenamePlaylistDialogPreview() {
 	OdiyoTheme {
 		val openDialog = remember { mutableStateOf(true) }
 
@@ -94,7 +94,7 @@ fun CreatePlaylistDialogPreview() {
 				.clickable { openDialog.value = true }
 		) {
 			if (openDialog.value) {
-				PlaylistDialog(
+				CreateOrRenamePlaylistDialog(
 					playlist = previewPlaylist[2],
 					openPlaylist = { _, _ -> },
 					dialogAction = {}
