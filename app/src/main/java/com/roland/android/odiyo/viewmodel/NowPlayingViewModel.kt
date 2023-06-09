@@ -24,11 +24,14 @@ import com.roland.android.odiyo.service.Util.shuffleModeState
 import com.roland.android.odiyo.service.Util.time
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.util.MediaControls
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
-class NowPlayingViewModel(
+class NowPlayingViewModel @Inject constructor(
 	appDataStore: AppDataStore,
 	mediaRepository: MediaRepository,
 	musicRepository: MusicRepository,

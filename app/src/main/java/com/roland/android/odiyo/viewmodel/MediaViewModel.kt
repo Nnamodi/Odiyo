@@ -14,11 +14,14 @@ import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.toMediaItem
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
-class MediaViewModel(
+class MediaViewModel @Inject constructor(
 	appDataStore: AppDataStore,
 	musicRepository: MusicRepository,
 	private val mediaRepository: MediaRepository,

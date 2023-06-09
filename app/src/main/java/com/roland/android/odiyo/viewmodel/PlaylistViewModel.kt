@@ -12,12 +12,15 @@ import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.util.PlaylistMenuActions
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
-class PlaylistViewModel(
+class PlaylistViewModel @Inject constructor(
 	appDataStore: AppDataStore,
 	musicRepository: MusicRepository,
 	mediaRepository: MediaRepository,

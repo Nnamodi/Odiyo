@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.sheets.PlaylistMenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
@@ -46,7 +46,7 @@ fun PlaylistItemSheet(
 		sheetState = scaffoldState,
 	) {
 		val menuItems = PlaylistMenuItems.values().toMutableList()
-		if (playlist.numSongs == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue))
+		if (playlist.numSongs == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue).toSet())
 
 		Column(
 			modifier = Modifier

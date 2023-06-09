@@ -19,10 +19,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -40,13 +39,13 @@ import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.Permissions.storagePermission
+import com.roland.android.odiyo.util.Permissions.StoragePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
-import com.roland.android.odiyo.viewmodel.PlaylistViewModel
-import com.roland.android.odiyo.viewmodel.ViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
+@AndroidEntryPoint
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -75,8 +74,11 @@ class MainActivity : ComponentActivity() {
 		}
 
 		setContent {
-			var permissionGranted by rememberSaveable { mutableStateOf(false) }
 			val context = LocalContext.current
+			val mediaViewModel: MediaViewModel = hiltViewModel()
+			val nowPlayingViewModel: NowPlayingViewModel = hiltViewModel()
+			val navController = rememberAnimatedNavController()
+			val navActions = NavActions(navController)
 
 			storagePermission(requestPermissionLauncher) {
 				permissionGranted = it
@@ -87,29 +89,21 @@ class MainActivity : ComponentActivity() {
 					modifier = Modifier.fillMaxSize(),
 					color = MaterialTheme.colorScheme.background
 				) {
-					if (permissionGranted) {
-						val mediaViewModel: MediaViewModel = viewModel(factory = ViewModelFactory())
-						val nowPlayingViewModel: NowPlayingViewModel = viewModel(factory = ViewModelFactory())
-						val playlistViewModel: PlaylistViewModel = viewModel(factory = ViewModelFactory())
-						val navController = rememberAnimatedNavController()
-						val navActions = NavActions(navController)
+					AppRoute(
+						navActions = navActions,
+						navController = navController,
+						mediaViewModel = mediaViewModel,
+						nowPlayingViewModel = nowPlayingViewModel,
+						playlistViewModel = hiltViewModel()
+					)
 
-						AppRoute(
-							navActions = navActions,
-							navController = navController,
-							mediaViewModel = mediaViewModel,
-							nowPlayingViewModel = nowPlayingViewModel,
-							playlistViewModel = playlistViewModel
-						)
+					LaunchedEffect(true) {
+						nowPlaying.collectLatest {
+							val mediaArt: Bitmap = it?.getBitmap(context) ?:
+							BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 
-						LaunchedEffect(true) {
-							nowPlaying.collectLatest {
-								val mediaArt: Bitmap = it?.getBitmap(context) ?:
-								BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-
-								mediaViewModel.currentMediaItemImage = mediaArt
-								nowPlayingViewModel.currentMediaItemImage = mediaArt
-							}
+							mediaViewModel.currentMediaItemImage = mediaArt
+							nowPlayingViewModel.currentMediaItemImage = mediaArt
 						}
 					}
 				}
