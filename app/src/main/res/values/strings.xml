@@ -86,4 +86,6 @@
     <string name="choose_playlist">Choose playlist</string>
     <string name="added_to_playlist">Added to playlist</string>
     <string name="removed">Removed</string>
+    <string name="continue_button">Continue</string>
+    <string name="storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
 </resources>

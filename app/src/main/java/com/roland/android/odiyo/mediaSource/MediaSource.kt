@@ -15,7 +15,7 @@ import okio.use
 class MediaSource(
 	private val resolver: ContentResolver
 ) {
-	private val query = resolver.query(
+	private fun query(): Cursor? = resolver.query(
 		MediaDetails.libraryCollection,
 		MediaDetails.libraryProjection,
 		null,
@@ -38,7 +38,9 @@ class MediaSource(
 	private val mediaFromCollection = MutableStateFlow<MutableList<MusicFromSystem>>(mutableListOf())
 
 	fun media(): MutableStateFlow<MutableList<MusicFromSystem>> {
-		query?.use { cursor ->
+		// empty list of songs previously fetched and re-fetch
+		media.value = mutableListOf()
+		query()?.use { cursor ->
 			val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
 			val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
 			val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)

@@ -3,15 +3,14 @@ package com.roland.android.odiyo.util
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
-import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 object Permissions {
 	private fun Activity.permissionRequest(
-		requestPermissionLauncher: ActivityResultLauncher<String>,
 		permission: String,
 		permissionGranted: (Boolean) -> Unit,
+		showRational: (String) -> Unit
 	) {
 		when {
 			ContextCompat.checkSelfPermission(
@@ -24,28 +23,20 @@ object Permissions {
 			ActivityCompat.shouldShowRequestPermissionRationale(
 				this,
 				permission
-			) -> {
-				requestPermissionLauncher.launch(
-					permission
-				)
-			}
+			) -> showRational(permission)
 
-			else -> {
-				requestPermissionLauncher.launch(
-					permission
-				)
-			}
+			else -> showRational(permission)
 		}
 	}
 
 	fun Activity.storagePermission(
-		requestPermissionLauncher: ActivityResultLauncher<String>,
+		permission: (String) -> Unit,
 		permissionGranted: (Boolean) -> Unit,
 	) {
 		permissionRequest(
-			requestPermissionLauncher,
-			Manifest.permission.READ_EXTERNAL_STORAGE,
-			permissionGranted
+			permission = Manifest.permission.READ_EXTERNAL_STORAGE,
+			permissionGranted = permissionGranted,
+			showRational = permission
 		)
 	}
 }

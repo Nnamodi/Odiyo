@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
@@ -36,10 +37,12 @@ import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
+import com.roland.android.odiyo.service.Util.storagePermissionGranted
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.Permissions.StoragePermission
+import com.roland.android.odiyo.util.Permissions.storagePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +73,8 @@ class MainActivity : ComponentActivity() {
 		val requestPermissionLauncher = registerForActivityResult(
 			ActivityResultContracts.RequestPermission()
 		) { isGranted: Boolean ->
-			Log.i("MainActivity", "Permission granted: $isGranted")
+			storagePermissionGranted.value = isGranted
+			Log.i("PermissionInfo", "Permission granted: $isGranted")
 		}
 
 		setContent {
@@ -78,10 +82,18 @@ class MainActivity : ComponentActivity() {
 			val mediaViewModel: MediaViewModel = hiltViewModel()
 			val nowPlayingViewModel: NowPlayingViewModel = hiltViewModel()
 			val navController = rememberAnimatedNavController()
-			val navActions = NavActions(navController)
+			val openPermissionDialog = remember { mutableStateOf(!mediaViewModel.canAccessStorage) }
+			var permission by remember { mutableStateOf("") }
+			val navActions = NavActions(
+				navController = navController,
+				storagePermissionGranted = mediaViewModel.canAccessStorage,
+				requestPermission = { openPermissionDialog.value = true }
+			)
 
-			storagePermission(requestPermissionLauncher) {
-				permissionGranted = it
+			storagePermission(permission = { permission = it }) { isGranted ->
+				openPermissionDialog.value = !isGranted
+				storagePermissionGranted.value = isGranted
+				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
 			OdiyoTheme {
@@ -96,6 +108,14 @@ class MainActivity : ComponentActivity() {
 						nowPlayingViewModel = nowPlayingViewModel,
 						playlistViewModel = hiltViewModel()
 					)
+
+					if (openPermissionDialog.value) {
+						PermissionDialog(
+							permissionMessage = stringResource(R.string.storage_permission_message),
+							requestPermission = { requestPermissionLauncher.launch(permission) },
+							openDialog = { openPermissionDialog.value = it }
+						)
+					}
 
 					LaunchedEffect(true) {
 						nowPlaying.collectLatest {

@@ -21,6 +21,7 @@ class MusicRepository(private val musicDao: MusicDao) {
 	}
 
 	suspend fun cacheSongs(songs: List<Music>) {
+		musicDao.clearDatabase()
 		musicDao.addSongs(songs)
 	}
 
@@ -30,9 +31,5 @@ class MusicRepository(private val musicDao: MusicDao) {
 
 	suspend fun deleteSongFromCache(song: Music) {
 		musicDao.deleteSong(song)
-	}
-
-	suspend fun clear() {
-		musicDao.clearDatabase()
 	}
 }

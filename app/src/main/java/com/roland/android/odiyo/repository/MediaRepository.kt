@@ -16,25 +16,25 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MediaRepository(
-	mediaSource: MediaSource,
-	albumsSource: AlbumsSource,
-	artistsSource: ArtistsSource,
+	private val mediaSource: MediaSource,
+	private val albumsSource: AlbumsSource,
+	private val artistsSource: ArtistsSource,
 	private val mediaAccessingObject: MediaAccessingObject
 ) {
-	val getSongsFromSystem: MutableStateFlow<MutableList<MusicFromSystem>> = mediaSource.media()
+	fun getSongsFromSystem(): MutableStateFlow<MutableList<MusicFromSystem>> = mediaSource.media()
 
-	val getAlbums: Flow<List<Album>> = albumsSource.albums()
+	fun getAlbums(): Flow<List<Album>> = albumsSource.albums()
 
 	val getSongsFromAlbum: (Array<String>) -> MutableStateFlow<MutableList<MusicFromSystem>> =
 		{ mediaSource.mediaFromAlbum(selectionArgs = it) }
 
-	val getArtists: Flow<List<Artist>> = artistsSource.artists()
+	fun getArtists(): Flow<List<Artist>> = artistsSource.artists()
 
 	val getSongsFromArtist: (Array<String>) -> MutableStateFlow<MutableList<MusicFromSystem>> =
 		{ mediaSource.mediaFromArtist(selectionArgs = it) }
 
 	fun updateSongInSystem(songDetails: SongDetails) {
-		val renamedSong = getSongsFromSystem.value.find { it.id == songDetails.id }
+		val renamedSong = getSongsFromSystem().value.find { it.id == songDetails.id }
 		renamedSong?.let {
 			val inAlbum = getSongsFromAlbum(arrayOf(it.album)).value
 			val inArtist = getSongsFromArtist(arrayOf(it.artist)).value
@@ -55,7 +55,7 @@ class MediaRepository(
 	}
 
 	fun deleteSongFromSystem(songDetails: SongDetails) {
-		val songToDelete = getSongsFromSystem.value.find { it.id == songDetails.id }
+		val songToDelete = getSongsFromSystem().value.find { it.id == songDetails.id }
 		songToDelete?.let {
 			getSongsFromAlbum(arrayOf(it.album)).value.remove(it)
 			getSongsFromArtist(arrayOf(it.artist)).value.remove(it)

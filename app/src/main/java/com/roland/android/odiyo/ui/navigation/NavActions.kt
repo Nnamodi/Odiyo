@@ -4,11 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-class NavActions(private val navController: NavHostController) {
+class NavActions(
+	private val navController: NavHostController,
+	private val storagePermissionGranted: Boolean = false,
+	private val requestPermission: (Boolean) -> Unit
+) {
 	fun navigateToMediaScreen() {
+		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(AppRoute.MediaScreen.route)
 	}
 	fun navigateToPlaylistScreen() {
+		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(AppRoute.PlaylistsScreen.route)
 	}
 	fun navigateToNowPlayingScreen() {
@@ -18,6 +24,7 @@ class NavActions(private val navController: NavHostController) {
 		navController.navigate(AppRoute.SearchScreen.route)
 	}
 	fun navigateToMediaItemScreen(collectionName: String, collectionType: String) {
+		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(
 			AppRoute.MediaItemsScreen.routeWithName(collectionName, collectionType)
 		)

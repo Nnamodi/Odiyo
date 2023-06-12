@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
@@ -32,12 +34,16 @@ fun AlbumsScreen(
 	albums: List<Album>,
 	prepareAndViewSongs: (String) -> Unit,
 ) {
-	LazyColumn {
-		itemsIndexed(
-			items = albums,
-			key = { _, album -> album.uri }
-		) { _, album ->
-			AlbumItem(album, prepareAndViewSongs)
+	if (albums.isEmpty()) {
+		EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+	} else {
+		LazyColumn {
+			itemsIndexed(
+				items = albums,
+				key = { _, album -> album.uri }
+			) { _, album ->
+				AlbumItem(album, prepareAndViewSongs)
+			}
 		}
 	}
 }

@@ -27,7 +27,6 @@ import com.roland.android.odiyo.service.Constants.DATE
 import com.roland.android.odiyo.service.Constants.MB_DIVISOR
 import com.roland.android.odiyo.service.Constants.MB_FORMAT
 import com.roland.android.odiyo.service.Constants.TIME
-import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.DecimalFormat
@@ -61,6 +60,8 @@ object Util {
 	val progress = MutableStateFlow(0L)
 
 	val currentMediaIndex = MutableStateFlow(0)
+
+	val storagePermissionGranted = MutableStateFlow(false)
 
 	// mutable list of MediaItems for populating the Player
 	val mediaItems = MutableStateFlow<MutableList<MediaItem>>(mutableListOf())

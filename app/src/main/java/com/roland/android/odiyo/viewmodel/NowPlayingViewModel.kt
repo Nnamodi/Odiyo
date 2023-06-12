@@ -9,10 +9,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
-import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
@@ -67,11 +65,6 @@ class NowPlayingViewModel @Inject constructor(
 				seekProgress = it.toFloat()
 			}
 		}
-	}
-
-	private fun musicItem(mediaItem: MediaItem?): Music? {
-		val currentSong = mediaItem?.localConfiguration?.uri
-		return songs.find { it.uri == currentSong }
 	}
 
 	private fun updateProgress(): Boolean {
