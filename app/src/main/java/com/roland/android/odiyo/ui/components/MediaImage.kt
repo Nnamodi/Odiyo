@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
@@ -20,12 +19,11 @@ import com.roland.android.odiyo.R
 fun MediaImage(
 	modifier: Modifier = Modifier,
 	artwork: Any?,
-	descriptionRes: Int = R.string.music_art_desc,
 	placeholderRes: Int = R.drawable.default_art
 ) {
 	AsyncImage(
 		model = artwork,
-		contentDescription = stringResource(descriptionRes),
+		contentDescription = null,
 		contentScale = ContentScale.Crop,
 		placeholder = painterResource(placeholderRes),
 		modifier = modifier

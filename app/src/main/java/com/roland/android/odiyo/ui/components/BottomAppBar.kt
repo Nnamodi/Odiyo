@@ -39,7 +39,7 @@ import com.roland.android.odiyo.util.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun BottomAppBar(
 	song: Music?,
@@ -50,13 +50,14 @@ fun BottomAppBar(
 	playPause: (Uri, Int?) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	moveToNowPlayingScreen: () -> Unit,
-	concealBottomBar: Boolean
+	concealBottomBar: Boolean,
+	inSelectionMode: Boolean
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
 
 	AnimatedVisibility(
-		visible = concealBottomBar,
+		visible = concealBottomBar || inSelectionMode,
 		enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(delayMillis = 750)),
 		exit = slideOutVertically(targetOffsetY = { it })
 	) {
@@ -69,6 +70,8 @@ fun BottomAppBar(
 			moveToNowPlayingScreen = moveToNowPlayingScreen
 		)
 	}
+
+	SelectionModeBottomBar(inSelectionMode) {}
 
 	if (openMusicQueue.value) {
 		QueueItemsSheet(
@@ -168,12 +171,13 @@ fun BottomAppBarPreview() {
 				song = currentSong,
 				artwork = currentSong.getBitmap(context),
 				isPlaying = playPause.value,
-				musicQueue = previewData,
 				currentSongIndex = 3,
+				musicQueue = previewData,
 				playPause = { _, _ -> playPause.value = !playPause.value },
 				queueAction = {},
 				moveToNowPlayingScreen = {},
-				concealBottomBar = concealBottomBar.value
+				concealBottomBar = concealBottomBar.value,
+				inSelectionMode = false
 			)
 		}
 	}

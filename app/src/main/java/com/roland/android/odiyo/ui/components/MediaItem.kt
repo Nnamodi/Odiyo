@@ -2,15 +2,22 @@ package com.roland.android.odiyo.ui.components
 
 import android.net.Uri
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
@@ -26,7 +33,7 @@ import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 @Composable
 fun RecentSongItem(
 	itemIndex: Int,
@@ -49,8 +56,8 @@ fun RecentSongItem(
 		verticalArrangement = Arrangement.Center
 	) {
 		MediaImage(
-			artwork = song.getBitmap(context),
-			modifier = Modifier.size(imageSize.dp)
+			modifier = Modifier.size(imageSize.dp),
+			artwork = song.getBitmap(context)
 		)
 		Column(
 			modifier = Modifier
@@ -74,33 +81,34 @@ fun RecentSongItem(
 	}
 }
 
-@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 @Composable
 fun MediaItem(
-	itemIndex: Int,
+	modifier: Modifier = Modifier,
 	song: Music,
 	currentSongUri: MediaItem,
-	playAudio: (Uri, Int?) -> Unit,
+	inSelectionMode: Boolean = false,
+	selected: Boolean = false,
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
 	val isPlaying = song.uri.toMediaItem == currentSongUri
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+	val textColor = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+	val itemColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.background
 
 	Row(
-		modifier = Modifier
-			.clickable { playAudio(song.uri, itemIndex) }
+		modifier = modifier
 			.fillMaxWidth()
+			.background(itemColor)
 			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		MediaImage(
-			artwork = song.getBitmap(context),
 			modifier = Modifier
 				.padding(end = 8.dp)
-				.size(50.dp)
+				.size(50.dp),
+			artwork = song.getBitmap(context)
 		)
 		Column(
 			modifier = Modifier.weight(1f),
@@ -110,7 +118,7 @@ fun MediaItem(
 				text = song.title,
 				overflow = TextOverflow.Ellipsis,
 				maxLines = 2,
-				color = color
+				color = textColor
 			)
 			Row(
 				modifier = Modifier.fillMaxWidth(),
@@ -120,14 +128,14 @@ fun MediaItem(
 					text = song.artist,
 					overflow = TextOverflow.Ellipsis,
 					softWrap = false,
-					color = color,
+					color = textColor,
 					modifier = Modifier
 						.alpha(0.5f)
 						.weight(1f)
 				)
 				Text(
 					song.duration(),
-					color = color,
+					color = textColor,
 					style = MaterialTheme.typography.bodySmall,
 					modifier = Modifier
 						.alpha(0.5f)
@@ -135,8 +143,52 @@ fun MediaItem(
 				)
 			}
 		}
-		IconButton(onClick = { openMenuSheet(song) }) {
-			Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.more_options))
+		if (inSelectionMode) {
+			CheckIcon(selected)
+		} else {
+			IconButton(onClick = { openMenuSheet(song) }) {
+				Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+			}
 		}
 	}
+}
+
+@Composable
+fun CheckIcon(selected: Boolean) {
+	if (selected) {
+		Icon(
+			imageVector = Icons.Rounded.CheckCircle,
+			contentDescription = null,
+			tint = MaterialTheme.colorScheme.primary,
+			modifier = Modifier.padding(12.dp)
+		)
+	} else {
+		Icon(
+			imageVector = Icons.Rounded.RadioButtonUnchecked,
+			contentDescription = null,
+			tint = MaterialTheme.colorScheme.primary,
+			modifier = Modifier.padding(12.dp)
+		)
+	}
+}
+
+@kotlin.OptIn(ExperimentalFoundationApi::class)
+fun Modifier.selectSemantics(
+	inSelectionMode: Boolean,
+	selected: Boolean,
+	onClick: () -> Unit,
+	onLongClick: () -> Unit,
+	toggleSelection: (Boolean) -> Unit
+): Modifier = composed {
+	combinedClickable(
+		onClick = onClick,
+		onLongClick = onLongClick
+	).then(if (inSelectionMode) {
+		toggleable(
+			value = selected,
+			interactionSource = remember { MutableInteractionSource() },
+			indication = LocalIndication.current,
+			onValueChange = toggleSelection
+		)
+	} else this)
 }

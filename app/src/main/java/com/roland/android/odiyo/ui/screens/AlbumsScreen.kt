@@ -69,7 +69,6 @@ fun AlbumItem(
 				.padding(end = 8.dp)
 				.size(50.dp),
 			artwork = album.getBitmap(context),
-			descriptionRes = R.string.album_art_desc,
 			placeholderRes = R.drawable.default_album_art
 		)
 		Column(

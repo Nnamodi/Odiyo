@@ -3,10 +3,7 @@ package com.roland.android.odiyo.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -175,6 +172,26 @@ fun MediaItemsAppBar(
 						tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
 					)
 				}
+			}
+		}
+	)
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun SelectionModeTopBar(
+	numOfSelectedSongs: Int,
+	closeSelectionMode: () -> Unit
+) {
+	TopAppBar(
+		title = { Text(
+			text = stringResource(R.string.selected_songs, numOfSelectedSongs),
+			overflow = TextOverflow.Ellipsis,
+			softWrap = false
+		) },
+		navigationIcon = {
+			IconButton(onClick = closeSelectionMode) {
+				Icon(Icons.Rounded.Close, stringResource(R.string.close))
 			}
 		}
 	)

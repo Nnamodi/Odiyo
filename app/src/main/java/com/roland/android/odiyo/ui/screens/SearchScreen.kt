@@ -95,10 +95,8 @@ fun SearchScreen(
 					key = { _, song -> song.id }
 				) { index, song ->
 					MediaItem(
-						itemIndex = index,
 						song = song,
 						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
-						playAudio = playAudio,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 					)
 				}

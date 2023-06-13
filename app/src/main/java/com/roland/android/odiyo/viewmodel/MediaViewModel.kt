@@ -36,7 +36,6 @@ class MediaViewModel @Inject constructor(
 	private val playlistRepository: PlaylistRepository
 ) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
 	var searchQuery by mutableStateOf("")
-	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
 	init {
 		viewModelScope.launch {
@@ -194,14 +193,5 @@ class MediaViewModel @Inject constructor(
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}
 		return result
-	}
-
-	private fun List<Music>.sortList(): List<Music> {
-		return when (sortOrder) {
-			SortOptions.NameAZ -> sortedBy { it.title }
-			SortOptions.NameZA -> sortedByDescending { it.title }
-			SortOptions.NewestFirst -> sortedByDescending { it.addedOn }
-			SortOptions.OldestFirst -> sortedBy { it.addedOn }
-		}
 	}
 }

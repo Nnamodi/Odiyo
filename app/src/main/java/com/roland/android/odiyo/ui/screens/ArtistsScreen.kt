@@ -69,7 +69,6 @@ fun ArtistItem(
 				.padding(end = 8.dp)
 				.size(50.dp),
 			artwork = artist.getBitmap(context),
-			descriptionRes = R.string.artist_art_desc,
 			placeholderRes = R.drawable.default_artist_art
 		)
 		Column(

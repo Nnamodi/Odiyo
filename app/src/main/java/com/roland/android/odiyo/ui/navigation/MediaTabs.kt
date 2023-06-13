@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.ui.screens.AlbumsScreen
@@ -15,7 +16,12 @@ import com.roland.android.odiyo.viewmodel.MediaViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 @Composable
-fun SongsTab(viewModel: MediaViewModel, navActions: NavActions) {
+fun SongsTab(
+	viewModel: MediaViewModel,
+	navActions: NavActions,
+	selectedSongs: MutableState<Set<Long>>,
+	inSelectionMode: (Set<Long>) -> Unit
+) {
 	val context = LocalContext.current
 
 	SongsScreen(
@@ -31,8 +37,9 @@ fun SongsTab(viewModel: MediaViewModel, navActions: NavActions) {
 			index?.let { navActions.navigateToNowPlayingScreen() }
 		},
 		goToCollection = navActions::navigateToMediaItemScreen,
-		menuAction = { viewModel.menuAction(context, it) }
-	)
+		menuAction = { viewModel.menuAction(context, it) },
+		selectedSongs = selectedSongs,
+	) { inSelectionMode(it) }
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)

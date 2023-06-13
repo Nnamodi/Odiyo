@@ -29,6 +29,7 @@ import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.songsOnQueue
 import com.roland.android.odiyo.service.Util.storagePermissionGranted
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +55,7 @@ open class BaseMediaViewModel(
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
 	private var songsFetched by mutableStateOf(false)
+	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
 	var canAccessStorage by mutableStateOf(false)
 
@@ -105,7 +107,9 @@ open class BaseMediaViewModel(
 					fetchAndSyncSongs()
 					return@collectLatest
 				}
-				songs = musicList.filter { it.name.endsWith(".mp3") }
+				songs = musicList
+					.filter { it.name.endsWith(".mp3") }
+					.sortList()
 				lastPlayedSongs = songs
 					.filter { it.lastPlayed != Date(0) }
 					.sortedByDescending { it.lastPlayed }
@@ -310,6 +314,15 @@ open class BaseMediaViewModel(
 	private fun cacheSongs(songs: List<Music>) {
 		viewModelScope.launch(Dispatchers.IO) {
 			musicRepository.cacheSongs(songs)
+		}
+	}
+
+	fun List<Music>.sortList(): List<Music> {
+		return when (sortOrder) {
+			SortOptions.NameAZ -> sortedBy { it.title }
+			SortOptions.NameZA -> sortedByDescending { it.title }
+			SortOptions.NewestFirst -> sortedByDescending { it.addedOn }
+			SortOptions.OldestFirst -> sortedBy { it.addedOn }
 		}
 	}
 

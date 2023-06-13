@@ -18,6 +18,7 @@ import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.components.SelectionModeTopBar
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -31,12 +32,18 @@ fun MediaScreen(
 	songsTab: @Composable () -> Unit,
 	albumsTab: @Composable () -> Unit,
 	artistsTab: @Composable () -> Unit,
+	selectedSongs: Int,
+	closeSelectionMode: () -> Unit,
 	navigateToSearch: () -> Unit,
 	navigateUp: () -> Unit
 ) {
 	Scaffold(
 		topBar = {
-			AppBar(navigateUp, navigateToSearch)
+			if (selectedSongs == 0) {
+				AppBar(navigateUp, navigateToSearch)
+			} else {
+				SelectionModeTopBar(selectedSongs, closeSelectionMode)
+			}
 		}
 	) {
 		Column(
@@ -53,13 +60,15 @@ fun MediaScreen(
 						selected = pagerState.currentPage == index,
 						onClick = {
 							scope.launch { pagerState.animateScrollToPage(index) }
-						}
+						},
+						enabled = selectedSongs == 0
 					)
 				}
 			}
 			HorizontalPager(
 				state = pagerState,
-				pageCount = tabTitles.size
+				pageCount = tabTitles.size,
+				userScrollEnabled = selectedSongs == 0
 			) { page ->
 				when (page) {
 					0 -> songsTab()
@@ -93,11 +102,14 @@ fun MediaScreenPreview() {
 					playlists = previewPlaylist,
 					sortOption = SortOptions.NameAZ,
 					playAudio = { _, _ -> },
-					goToCollection = { _, _ -> }
+					goToCollection = { _, _ -> },
+					menuAction = {}
 				) {}
 			},
 			albumsTab = { AlbumsScreen(previewAlbum) {} },
 			artistsTab = { ArtistsScreen(previewArtist) {} },
+			selectedSongs = 0,
+			closeSelectionMode = {},
 			navigateToSearch = {},
 			navigateUp = {}
 		)

@@ -162,7 +162,6 @@ fun PlaylistItem(
 				.padding(end = 8.dp)
 				.size(50.dp),
 			artwork = playlist.getBitmap(context),
-			descriptionRes = R.string.playlist_art_desc,
 			placeholderRes = R.drawable.default_playlist_art
 		)
 		Column(

@@ -1,12 +1,13 @@
 package com.roland.android.odiyo.ui.navigation
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.media3.common.util.UnstableApi
@@ -24,10 +25,9 @@ import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.PlaylistViewModel
 
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
+@androidx.annotation.OptIn(UnstableApi::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Composable
 fun AppRoute(
 	navActions: NavActions,
@@ -37,6 +37,8 @@ fun AppRoute(
 	playlistViewModel: PlaylistViewModel
 ) {
 	val context = LocalContext.current
+	val selectedSongs = remember { mutableStateOf(emptySet<Long>()) }
+	val inSelectionMode = remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
 
 	Scaffold(
 		bottomBar = {
@@ -49,7 +51,8 @@ fun AppRoute(
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
 				moveToNowPlayingScreen = navActions::navigateToNowPlayingScreen,
-				concealBottomBar = concealMinimizedView(navController)
+				concealBottomBar = concealMinimizedView(navController),
+				inSelectionMode = inSelectionMode.value
 			)
 		}
 	) { innerPadding ->
@@ -76,9 +79,11 @@ fun AppRoute(
 			}
 			composable(AppRoute.MediaScreen.route) {
 				MediaScreen(
-					songsTab = { SongsTab(mediaViewModel, navActions) },
+					songsTab = { SongsTab(mediaViewModel, navActions, selectedSongs) { selectedSongs.value = it } },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
 					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
+					selectedSongs = selectedSongs.value.size,
+					closeSelectionMode = { selectedSongs.value = emptySet() },
 					navigateToSearch = navActions::navigateToSearch,
 					navigateUp = navController::navigateUp
 				)
@@ -179,5 +184,9 @@ fun AppRoute(
 				)
 			}
 		}
+	}
+
+	if (inSelectionMode.value) {
+		BackHandler { selectedSongs.value = emptySet() }
 	}
 }
