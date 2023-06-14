@@ -1,7 +1,6 @@
 package com.roland.android.odiyo.ui.navigation
 
 import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
@@ -37,8 +36,7 @@ fun AppRoute(
 	playlistViewModel: PlaylistViewModel
 ) {
 	val context = LocalContext.current
-	val selectedSongs = remember { mutableStateOf(emptySet<Long>()) }
-	val inSelectionMode = remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
+	var selectionModeClosed by remember { mutableStateOf(true) } // determines whether items in a LazyColumn are being selected.
 
 	Scaffold(
 		bottomBar = {
@@ -52,7 +50,7 @@ fun AppRoute(
 				queueAction = mediaViewModel::queueAction,
 				moveToNowPlayingScreen = navActions::navigateToNowPlayingScreen,
 				concealBottomBar = concealMinimizedView(navController),
-				inSelectionMode = inSelectionMode.value
+				inSelectionMode = !selectionModeClosed
 			)
 		}
 	) { innerPadding ->
@@ -79,11 +77,10 @@ fun AppRoute(
 			}
 			composable(AppRoute.MediaScreen.route) {
 				MediaScreen(
-					songsTab = { SongsTab(mediaViewModel, navActions, selectedSongs) { selectedSongs.value = it } },
+					songsTab = { SongsTab(mediaViewModel, navActions) { selectionModeClosed = it } },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
 					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
-					selectedSongs = selectedSongs.value.size,
-					closeSelectionMode = { selectedSongs.value = emptySet() },
+					inSelectMode = !selectionModeClosed,
 					navigateToSearch = navActions::navigateToSearch,
 					navigateUp = navController::navigateUp
 				)
@@ -117,6 +114,7 @@ fun AppRoute(
 						navActions.navigateToNowPlayingScreen()
 					},
 					menuAction = { mediaViewModel.menuAction(context, it) },
+					inSelectionMode = { selectionModeClosed = it },
 					goToCollection = navActions::navigateToMediaItemScreen,
 					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = navController::navigateUp
@@ -157,6 +155,7 @@ fun AppRoute(
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
 					menuAction = { mediaViewModel.menuAction(context, it) },
+					inSelectionMode = { selectionModeClosed = it },
 					navigateUp = navController::navigateUp
 				)
 			}
@@ -184,9 +183,5 @@ fun AppRoute(
 				)
 			}
 		}
-	}
-
-	if (inSelectionMode.value) {
-		BackHandler { selectedSongs.value = emptySet() }
 	}
 }

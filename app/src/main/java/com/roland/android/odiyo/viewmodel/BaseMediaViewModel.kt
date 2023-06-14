@@ -33,6 +33,7 @@ import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -179,7 +180,10 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			nowPlaying.collect { item ->
 				currentSong = musicItem(item)
+				delay(3000) // delay allow songs to completely load from device before further action
+				if (currentSong == null || currentSong !in songs) currentSong = musicItem(item)
 				currentSong?.let { saveStreamDate(it) }
+				updateMusicQueue(queueEdited = false)
 			}
 		}
 	}
@@ -189,7 +193,6 @@ open class BaseMediaViewModel(
 			nowPlayingMetadata.collect {
 				if (!songsFetched) return@collect
 				if (currentSong !in songs) currentSong = musicItem(it)
-				updateMusicQueue(queueEdited = false)
 			}
 		}
 	}

@@ -88,8 +88,8 @@ fun MediaItem(
 	modifier: Modifier = Modifier,
 	song: Music,
 	currentSongUri: MediaItem,
-	inSelectionMode: Boolean = false,
-	selected: Boolean = false,
+	inSelectionMode: Boolean,
+	selected: Boolean,
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
@@ -155,21 +155,12 @@ fun MediaItem(
 
 @Composable
 fun CheckIcon(selected: Boolean) {
-	if (selected) {
-		Icon(
-			imageVector = Icons.Rounded.CheckCircle,
-			contentDescription = null,
-			tint = MaterialTheme.colorScheme.primary,
-			modifier = Modifier.padding(12.dp)
-		)
-	} else {
-		Icon(
-			imageVector = Icons.Rounded.RadioButtonUnchecked,
-			contentDescription = null,
-			tint = MaterialTheme.colorScheme.primary,
-			modifier = Modifier.padding(12.dp)
-		)
-	}
+	Icon(
+		imageVector = if (selected) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
+		contentDescription = null,
+		tint = MaterialTheme.colorScheme.primary,
+		modifier = Modifier.padding(12.dp)
+	)
 }
 
 @kotlin.OptIn(ExperimentalFoundationApi::class)

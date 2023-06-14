@@ -62,6 +62,7 @@ fun SongListHeader(
 	songs: List<Music>,
 	showSortAction: Boolean = false,
 	songsFromSearch: Boolean = false,
+	inSelectMode: Boolean,
 	playAllSongs: (Uri, Int) -> Unit,
 	openSortDialog: () -> Unit = {},
 	openMenu: () -> Unit = {}
@@ -77,12 +78,12 @@ fun SongListHeader(
 			Text(stringResource(R.string.search_result_size, songs.size), Modifier.padding(vertical = 16.dp))
 			Spacer(Modifier.weight(1f))
 			if (songs.isNotEmpty()) {
-				IconButton(onClick = openMenu) {
+				IconButton(onClick = openMenu, enabled = !inSelectMode) {
 					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
 				}
 			}
 		} else {
-			TextButton(onClick = {
+			TextButton(enabled = !inSelectMode, onClick = {
 				playAllSongs(songs.first().uri, 0)
 			}) {
 				Icon(Icons.Rounded.PlayCircleFilled, null)
@@ -90,7 +91,7 @@ fun SongListHeader(
 			}
 			if (showSortAction) {
 				Spacer(Modifier.weight(1f))
-				IconButton(onClick = openSortDialog) {
+				IconButton(onClick = openSortDialog, enabled = !inSelectMode) {
 					Icon(Icons.Rounded.Sort, stringResource(R.string.sort_by))
 				}
 			}

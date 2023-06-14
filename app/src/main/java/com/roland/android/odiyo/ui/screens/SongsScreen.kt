@@ -2,6 +2,7 @@ package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -23,10 +24,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.components.EmptyListScreen
-import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.SongListHeader
-import com.roland.android.odiyo.ui.components.selectSemantics
+import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.dialog.SortOptions
@@ -47,8 +45,7 @@ fun SongsScreen(
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
-	selectedSongs: MutableState<Set<Long>> = rememberSaveable { mutableStateOf(emptySet()) },
-	inSelectionMode: (Set<Long>) -> Unit
+	inSelectionMode: (Boolean) -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
@@ -58,10 +55,19 @@ fun SongsScreen(
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
+	val selectedSongs = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
-	inSelectionMode(selectedSongs.value)
+	inSelectionMode(!inSelectMode)
 
 	Scaffold(
+		topBar = {
+			if (inSelectMode) {
+				SelectionModeTopBar(selectedSongs.value.size) { selectedSongs.value = emptySet() }
+			}
+		},
+		bottomBar = {
+			SelectionModeBottomBar(inSelectMode) {}
+		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
@@ -69,20 +75,19 @@ fun SongsScreen(
 				}
 			}
 		}
-	) {
+	) { paddingValues ->
 		if (songs.isEmpty()) {
 			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 		} else {
-			LazyColumn {
+			LazyColumn(Modifier.padding(paddingValues)) {
 				item {
-					if (!inSelectMode) {
-						SongListHeader(
-							songs = songs,
-							showSortAction = true,
-							playAllSongs = playAudio,
-							openSortDialog = { openSortDialog.value = true }
-						)
-					}
+					SongListHeader(
+						songs = songs,
+						showSortAction = true,
+						inSelectMode = inSelectMode,
+						playAllSongs = playAudio,
+						openSortDialog = { openSortDialog.value = true }
+					)
 				}
 				itemsIndexed(
 					items = songs,
@@ -141,6 +146,10 @@ fun SongsScreen(
 			)
 		}
 	}
+
+	if (inSelectMode) {
+		BackHandler { selectedSongs.value = emptySet() }
+	}
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -160,8 +169,7 @@ fun SongsScreenPreview() {
 				sortOption = SortOptions.NameAZ,
 				playAudio = { _, _ -> },
 				goToCollection = { _, _ -> },
-				menuAction = {},
-				selectedSongs = remember { mutableStateOf(emptySet()) }
+				menuAction = {}
 			) {}
 		}
 	}

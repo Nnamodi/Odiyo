@@ -2,12 +2,14 @@ package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -21,10 +23,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.components.EmptyListScreen
-import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.SearchBar
-import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
@@ -44,6 +43,7 @@ fun SearchScreen(
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
+	inSelectionMode: (Boolean) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	clearSearchQuery: () -> Unit,
 	closeSearchScreen: () -> Unit
@@ -57,15 +57,25 @@ fun SearchScreen(
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
+	val selectedSongs = rememberSaveable { mutableStateOf(emptySet<Long>()) }
+	val inSelectMode by remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
+	inSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
-			SearchBar(
-				query = searchQuery,
-				onTextChange = onTextChange,
-				clearSearchQuery = clearSearchQuery,
-				closeSearchScreen = closeSearchScreen
-			)
+			if (inSelectMode) {
+				SelectionModeTopBar(selectedSongs.value.size) { selectedSongs.value = emptySet() }
+			} else {
+				SearchBar(
+					query = searchQuery,
+					onTextChange = onTextChange,
+					clearSearchQuery = clearSearchQuery,
+					closeSearchScreen = closeSearchScreen
+				)
+			}
+		},
+		bottomBar = {
+			SelectionModeBottomBar(inSelectMode) {}
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState) {
@@ -86,6 +96,7 @@ fun SearchScreen(
 					SongListHeader(
 						songs = searchResult,
 						songsFromSearch = true,
+						inSelectMode = inSelectMode,
 						playAllSongs = { _, _ -> },
 						openMenu = { openMenu.value = true }
 					)
@@ -94,9 +105,20 @@ fun SearchScreen(
 					items = searchResult,
 					key = { _, song -> song.id }
 				) { index, song ->
+					val selected by remember { derivedStateOf { selectedSongs.value.contains(song.id) } }
+
 					MediaItem(
+						modifier = Modifier.selectSemantics(
+							inSelectionMode = inSelectMode,
+							selected = selected,
+							onClick = { playAudio(song.uri, index) },
+							onLongClick = { if (!inSelectMode) { selectedSongs.value += song.id } },
+							toggleSelection = { if (it) selectedSongs.value += song.id else selectedSongs.value -= song.id }
+						),
 						song = song,
 						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						inSelectionMode = inSelectMode,
+						selected = selected,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 					)
 				}
@@ -122,7 +144,7 @@ fun SearchScreen(
 				songs = searchResult,
 				menuAction = {
 					menuAction(it)
-					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked)
 				},
 				yOffset = yOffset,
 			) { openMenu.value = it }
@@ -140,6 +162,10 @@ fun SearchScreen(
 			)
 		}
 	}
+
+	if (inSelectMode) {
+		BackHandler { selectedSongs.value = emptySet() }
+	}
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -156,6 +182,7 @@ fun SearchScreenPreview() {
 			currentSong = previewData[3],
 			playAudio = { _, _ -> },
 			menuAction = {},
+			inSelectionMode = {},
 			goToCollection = { _, _ -> },
 			clearSearchQuery = {}
 		) {}

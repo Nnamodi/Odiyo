@@ -3,10 +3,6 @@ package com.roland.android.odiyo.ui.components
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -56,11 +52,7 @@ fun BottomAppBar(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
 
-	AnimatedVisibility(
-		visible = concealBottomBar || inSelectionMode,
-		enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(delayMillis = 750)),
-		exit = slideOutVertically(targetOffsetY = { it })
-	) {
+	if (!concealBottomBar && !inSelectionMode) {
 		NowPlayingMinimizedView(
 			song = song,
 			artwork = artwork,
@@ -70,8 +62,6 @@ fun BottomAppBar(
 			moveToNowPlayingScreen = moveToNowPlayingScreen
 		)
 	}
-
-	SelectionModeBottomBar(inSelectionMode) {}
 
 	if (openMusicQueue.value) {
 		QueueItemsSheet(

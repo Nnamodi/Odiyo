@@ -2,6 +2,7 @@ package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,10 +23,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
-import com.roland.android.odiyo.ui.components.EmptyListScreen
-import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.MediaItemsAppBar
-import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.dialog.SortOptions
@@ -52,6 +50,7 @@ fun MediaItemsScreen(
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
+	inSelectionMode: (Boolean) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
@@ -63,14 +62,24 @@ fun MediaItemsScreen(
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
+	val selectedSongs = rememberSaveable { mutableStateOf(emptySet<Long>()) }
+	val inSelectMode by remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
+	inSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
-			MediaItemsAppBar(
-				collectionName = collectionName,
-				navigateUp = navigateUp,
-				songsNotEmpty = songs.isNotEmpty()
-			) { openMenu.value = true }
+			if (inSelectMode) {
+				SelectionModeTopBar(selectedSongs.value.size) { selectedSongs.value = emptySet() }
+			} else {
+				MediaItemsAppBar(
+					collectionName = collectionName,
+					navigateUp = navigateUp,
+					songsNotEmpty = songs.isNotEmpty()
+				) { openMenu.value = true }
+			}
+		},
+		bottomBar = {
+			SelectionModeBottomBar(inSelectMode) {}
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState) {
@@ -91,6 +100,7 @@ fun MediaItemsScreen(
 				item {
 					SongListHeader(
 						songs = songs,
+						inSelectMode = inSelectMode,
 						playAllSongs = playAudio
 					)
 				}
@@ -98,9 +108,20 @@ fun MediaItemsScreen(
 					items = songs,
 					key = { _, song -> song.id }
 				) { index, song ->
+					val selected by remember { derivedStateOf { selectedSongs.value.contains(song.id) } }
+
 					MediaItem(
+						modifier = Modifier.selectSemantics(
+							inSelectionMode = inSelectMode,
+							selected = selected,
+							onClick = { playAudio(song.uri, index) },
+							onLongClick = { if (!inSelectMode) { selectedSongs.value += song.id } },
+							toggleSelection = { if (it) selectedSongs.value += song.id else selectedSongs.value -= song.id }
+						),
 						song = song,
 						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						inSelectionMode = inSelectMode,
+						selected = selected,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
 					)
 				}
@@ -133,7 +154,7 @@ fun MediaItemsScreen(
 					songs = songs,
 					menuAction = {
 						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+						showSnackbar(it, context, scope, snackbarHostState, songClicked)
 					},
 					showSortAction = collectionType != LAST_PLAYED,
 					openSortDialog = { openSortDialog.value = it }
@@ -160,6 +181,10 @@ fun MediaItemsScreen(
 			}
 		}
 	}
+
+	if (inSelectMode) {
+		BackHandler { selectedSongs.value = emptySet() }
+	}
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -177,7 +202,8 @@ fun MediaItemsScreenPreview() {
 			sortOption = SortOptions.NameAZ,
 			playAudio = { _, _ -> },
 			goToCollection = { _, _ -> },
-			menuAction = {}
+			menuAction = {},
+			inSelectionMode = {}
 		) {}
 	}
 }
