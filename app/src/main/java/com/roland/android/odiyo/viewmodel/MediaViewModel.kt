@@ -70,11 +70,12 @@ class MediaViewModel @Inject constructor(
 			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
 			is MediaMenuActions.RenameSong -> renameSong(action.details)
 			is MediaMenuActions.Favorite -> favoriteSong(action.song)
-			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.song, action.playlist)
+			is MediaMenuActions.CreatePlaylist -> createPlaylist(action.playlist)
+			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.songs, action.playlist)
 			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.song, action.playlistName)
-			is MediaMenuActions.ShareSong -> shareSong(context, action.details)
+			is MediaMenuActions.ShareSong -> shareSong(context, action.songs)
 			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
-			is MediaMenuActions.DeleteSong -> deleteSong(action.details)
+			is MediaMenuActions.DeleteSongs -> deleteSong(action.songs)
 		}
 		updateMusicQueue()
 		Log.d("ViewModelInfo", "menuAction: $action")
@@ -92,15 +93,12 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	private fun addSongsToPlaylist(song: Music?, playlist: Playlist) {
+	private fun addSongsToPlaylist(songsToAdd: List<Music>, playlist: Playlist) {
 		viewModelScope.launch(Dispatchers.IO) {
-			if (song != null) {
+			if (songsToAdd.isNotEmpty()) {
 				val uriList = playlist.songs.toMutableList()
-				uriList.add(0, song.uri)
-				playlist.apply {
-					songs = uriList
-					numSongs = numSongs.inc()
-				}
+				uriList.addAll(0, songsToAdd.map { it.uri })
+				playlist.songs = uriList
 				playlistRepository.updatePlaylist(playlist)
 				fetchPlaylistSongs(playlist.name)
 				Log.d("ViewModelInfo", "Song added: ${playlist.songs}")
@@ -117,7 +115,6 @@ class MediaViewModel @Inject constructor(
 				val updatedSongs = it.songs
 				updatedSongs.toMutableList().remove(song.uri)
 				it.songs = updatedSongs
-				it.numSongs = it.numSongs.dec()
 				playlistRepository.updatePlaylist(it)
 				fetchPlaylistSongs(playlistName)
 				Log.d("ViewModelInfo", "Song removed: ${it.songs}")
@@ -131,15 +128,18 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	private fun deleteSong(songDetails: SongDetails) {
-		val songToDelete = songs.find { it.id == songDetails.id }
-		mediaRepository.deleteSongFromSystem(songDetails)
-		if (musicQueue.contains(songToDelete)) {
-			mediaItems.value.removeAll { it == songToDelete?.uri?.toMediaItem }
-		}
-		viewModelScope.launch(Dispatchers.IO) {
-			val song = songs.find { it.id == songDetails.id }
-			song?.let { musicRepository.deleteSongFromCache(song) }
+	private fun deleteSong(songsToDelete: List<SongDetails>) {
+		songsToDelete.forEach { song ->
+			val songDetails = SongDetails(song.id, song.uri)
+			val songToDelete = songs.find { it.id == songDetails.id }
+			mediaRepository.deleteSongFromSystem(songDetails)
+			if (musicQueue.contains(songToDelete)) {
+				mediaItems.value.removeAll { it == songToDelete?.uri?.toMediaItem }
+			}
+			viewModelScope.launch(Dispatchers.IO) {
+				val music = songs.find { it.id == songDetails.id }
+				music?.let { musicRepository.deleteSongFromCache(music) }
+			}
 		}
 	}
 

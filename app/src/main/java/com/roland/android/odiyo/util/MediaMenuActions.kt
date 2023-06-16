@@ -10,11 +10,12 @@ sealed interface MediaMenuActions {
 	data class AddToQueue(val songs: List<Music>) : MediaMenuActions
 	data class RenameSong(val details: SongDetails): MediaMenuActions
 	data class Favorite(val song: Music): MediaMenuActions
-	data class AddToPlaylist(val song: Music?, val playlist: Playlist): MediaMenuActions
+	data class CreatePlaylist(val playlist: Playlist): MediaMenuActions
+	data class AddToPlaylist(val songs: List<Music>, val playlist: Playlist): MediaMenuActions
 	data class RemoveFromPlaylist(val song: Music, val playlistName: String): MediaMenuActions
-	data class ShareSong(val details: Music): MediaMenuActions
+	data class ShareSong(val songs: List<Music>): MediaMenuActions
 	data class SortSongs(val sortOptions: SortOptions): MediaMenuActions
-	data class DeleteSong(val details: SongDetails): MediaMenuActions
+	data class DeleteSongs(val songs: List<SongDetails>): MediaMenuActions
 }
 
 data class SongDetails(

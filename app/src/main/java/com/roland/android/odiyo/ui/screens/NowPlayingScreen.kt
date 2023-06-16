@@ -369,7 +369,7 @@ fun MediaUtilActions(
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
-				contentDescription = stringResource(R.string.mute),
+				contentDescription = stringResource(if (deviceMuted) R.string.unmute else R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
 				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else componentColor
 			)

@@ -44,7 +44,7 @@ fun MediaItemSheet(
 	collectionIsPlaylist: Boolean = false,
 	goToCollection: (String, String) -> Unit,
 	openBottomSheet: (Boolean) -> Unit,
-	openAddToPlaylistDialog: (Music) -> Unit,
+	openAddToPlaylistDialog: (List<Music>) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	removeFromPlaylist: (Music) -> Unit = {}
 ) {
@@ -70,8 +70,8 @@ fun MediaItemSheet(
 					AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(listOf(song))); openBottomSheet(false) }
 					Rename -> openRenameDialog.value = true
 					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
-					AddToPlaylist -> { openAddToPlaylistDialog(song) }
-					Share -> menuAction(MediaMenuActions.ShareSong(song))
+					AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
+					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
 					GoToArtist -> { goToCollection(song.artist, ARTISTS); openBottomSheet(false) }
 					Details -> openDetailsDialog.value = true
@@ -112,8 +112,8 @@ fun MediaItemSheet(
 		DeleteDialog(
 			delete = {
 				menuAction(
-					MediaMenuActions.DeleteSong(
-						SongDetails(song.id, song.uri)
+					MediaMenuActions.DeleteSongs(
+						listOf(SongDetails(song.id, song.uri))
 					)
 				)
 				openBottomSheet(false)

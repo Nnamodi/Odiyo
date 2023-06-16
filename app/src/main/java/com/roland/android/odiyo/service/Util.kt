@@ -111,8 +111,8 @@ object Util {
 
 	fun Playlist.getBitmap(context: Context): Bitmap {
 		val defaultArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_playlist_art)
-		return if (numSongs > 0) {
-			songs[numSongs - 1].getMediaArt(context) ?: defaultArt
+		return if (numOfSongs() > 0) {
+			songs[numOfSongs() - 1].getMediaArt(context) ?: defaultArt
 		} else defaultArt
 	}
 

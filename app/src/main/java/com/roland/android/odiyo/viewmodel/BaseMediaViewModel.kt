@@ -257,8 +257,14 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	fun shareSong(context: Context, song: Music) {
-		mediaRepository.shareSong(context, song)
+	fun createPlaylist(playlist: Playlist) {
+		viewModelScope.launch(Dispatchers.IO) {
+			playlistRepository.createPlaylist(playlist)
+		}
+	}
+
+	fun shareSong(context: Context, songs: List<Music>) {
+		mediaRepository.shareSong(context, songs)
 	}
 
 	private fun saveStreamDate(song: Music) {

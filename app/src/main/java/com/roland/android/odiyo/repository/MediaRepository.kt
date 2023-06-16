@@ -44,12 +44,15 @@ class MediaRepository(
 		mediaAccessingObject.updateSong(songDetails)
 	}
 
-	fun shareSong(context: Context, song: Music) {
+	fun shareSong(context: Context, songs: List<Music>) {
 		Intent(Intent.ACTION_SEND).apply {
-			setDataAndType(song.uri, "audio/*")
-			putExtra(Intent.EXTRA_STREAM, song.uri)
+			songs.forEach { song ->
+				setDataAndType(song.uri, "audio/*")
+				putExtra(Intent.EXTRA_STREAM, song.uri)
+			}
 		}.also { intent ->
-			val chooserIntent = Intent.createChooser(intent, context.getString(R.string.send_audio_file, song.name))
+			val title = if (songs.size > 1) context.getString(R.string.songs) else songs[0].name
+			val chooserIntent = Intent.createChooser(intent, context.getString(R.string.send_audio_file, title))
 			context.startActivity(chooserIntent)
 		}
 	}

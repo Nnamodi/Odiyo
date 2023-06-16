@@ -49,12 +49,6 @@ class PlaylistViewModel @Inject constructor(
 		addToQueue(songsFromPlaylist)
 	}
 
-	private fun createPlaylist(playlist: Playlist) {
-		viewModelScope.launch(Dispatchers.IO) {
-			playlistRepository.createPlaylist(playlist)
-		}
-	}
-
 	private fun updatePlaylist(playlist: Playlist) {
 		viewModelScope.launch(Dispatchers.IO) {
 			playlistRepository.updatePlaylist(playlist)

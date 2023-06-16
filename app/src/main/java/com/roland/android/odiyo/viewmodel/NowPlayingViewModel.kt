@@ -84,7 +84,7 @@ class NowPlayingViewModel @Inject constructor(
 			is MediaControls.Favorite -> favoriteSong(action.song)
 			is MediaControls.Seek -> seek(action.previous, action.next)
 			is MediaControls.SeekToPosition -> onSeekToPosition(action.position)
-			is MediaControls.Share -> shareSong(context, action.music)
+			is MediaControls.Share -> shareSong(context, listOf(action.music))
 			MediaControls.Shuffle -> shuffle()
 		}
 	}
