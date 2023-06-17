@@ -6,7 +6,6 @@
     <string name="albums">Albums</string>
     <string name="artists">Artists</string>
     <string name="search_icon_desc">Search icon</string>
-    <string name="music_art_desc">media thumbnail</string>
     <string name="nothing_to_play">Nothing to play</string>
     <string name="pause">pause</string>
     <string name="play">play</string>
@@ -18,8 +17,6 @@
     <string name="unmute">unmute</string>
     <string name="mute">mute</string>
     <string name="more_options">More options</string>
-    <string name="album_art_desc">album thumbnail</string>
-    <string name="artist_art_desc">artist thumbnail</string>
     <string name="type_to_search">Type in the box to search</string>
     <string name="search_result_size">Search matched %d songs</string>
     <string name="search">Find your favourite songs</string>
@@ -47,7 +44,7 @@
     <string name="remove">Remove</string>
     <string name="add_to_queue">Add to queue</string>
     <string name="remove_from_queue">Remove from queue</string>
-    <string name="delete_dialog_text">You will not be able to recover this %s again</string>
+    <string name="delete_dialog_text">You will not be able to recover %s again</string>
     <string name="nothing_here">Nothing here</string>
     <string name="play_all_songs">Play all (%d)</string>
     <string name="playing_from_album">Playing from album:</string>
@@ -79,7 +76,6 @@
     <string name="playlist">Playlist</string>
     <string name="empty_playlist_text">No songs in this playlist</string>
     <string name="add_songs">Add songs</string>
-    <string name="song">song</string>
     <string name="rename_playlist">Rename playlist</string>
     <string name="no_songs_text">No songs found in your local storage</string>
     <string name="add_to_playlist">Add to playlist</string>
@@ -90,4 +86,7 @@
     <string name="storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
     <string name="queue_up">Queue up</string>
     <string name="selected_songs">%d songs</string>
+    <string name="this_playlist">this playlist</string>
+    <string name="these_songs">these songs</string>
+    <string name="this_song">this song</string>
 </resources>

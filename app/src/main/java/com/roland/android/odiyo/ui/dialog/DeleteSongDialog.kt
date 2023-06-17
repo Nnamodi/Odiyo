@@ -15,9 +15,16 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 fun DeleteDialog(
 	delete: () -> Unit,
 	openDialog: (Boolean) -> Unit,
-	itemIsPlaylist: Boolean = false
+	itemIsPlaylist: Boolean = false,
+	multipleSongs: Boolean = false
 ) {
-	val itemToDelete = stringResource(if (itemIsPlaylist) R.string.playlist else R.string.song)
+	val itemToDelete = stringResource(
+		when {
+			itemIsPlaylist -> R.string.this_playlist
+			multipleSongs -> R.string.these_songs
+			else -> R.string.this_song
+		}
+	)
 
 	AlertDialog(
 		onDismissRequest = { openDialog(false) },

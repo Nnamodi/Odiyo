@@ -33,6 +33,7 @@ import com.roland.android.odiyo.util.PlaylistMenuActions
 @Composable
 fun PlaylistItemSheet(
 	playlist: Playlist,
+	listOfPlaylists: List<Playlist>,
 	scaffoldState: SheetState,
 	openBottomSheet: (Boolean) -> Unit,
 	openPlaylist: (String, String) -> Unit,
@@ -46,7 +47,7 @@ fun PlaylistItemSheet(
 		sheetState = scaffoldState,
 	) {
 		val menuItems = PlaylistMenuItems.values().toMutableList()
-		if (playlist.numSongs == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue).toSet())
+		if (playlist.numOfSongs() == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue).toSet())
 
 		Column(
 			modifier = Modifier
@@ -68,9 +69,10 @@ fun PlaylistItemSheet(
 	if (openPlaylistDialog.value) {
 		CreateOrRenamePlaylistDialog(
 			playlist = playlist,
+			listOfPlaylists = listOfPlaylists,
 			openPlaylist = openPlaylist,
-			dialogAction = {
-				playlistMenuAction(it)
+			dialogAction = { action, _ ->
+				playlistMenuAction(action)
 				openBottomSheet(false)
 			}
 		) { openPlaylistDialog.value = it }
@@ -127,9 +129,10 @@ fun PlaylistItemSheetPreview() {
 			if (openBottomSheet.value) {
 				PlaylistItemSheet(
 					playlist = previewPlaylist[3],
+					listOfPlaylists = previewPlaylist,
 					scaffoldState = sheetState,
-					openPlaylist = { _, _ -> },
-					openBottomSheet = { openBottomSheet.value = it }
+					openBottomSheet = { openBottomSheet.value = it },
+					openPlaylist = { _, _ -> }
 				) {}
 			}
 		}

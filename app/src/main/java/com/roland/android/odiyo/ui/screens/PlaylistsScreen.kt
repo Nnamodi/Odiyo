@@ -90,10 +90,11 @@ fun PlaylistsScreen(
 	if (openPlaylistDialog.value) {
 		CreateOrRenamePlaylistDialog(
 			playlist = null,
+			listOfPlaylists = playlists,
 			openPlaylist = prepareAndViewSongs,
-			dialogAction = {
-				playlistAction(it)
-				SnackbarUtils.showSnackbar(it, context, scope, snackbarHostState)
+			dialogAction = { action, _ ->
+				playlistAction(action)
+				SnackbarUtils.showSnackbar(action, context, scope, snackbarHostState)
 			}
 		) { openPlaylistDialog.value = it }
 	}
@@ -101,9 +102,10 @@ fun PlaylistsScreen(
 	if (openMenuSheet.value && clickedPlaylist != null) {
 		PlaylistItemSheet(
 			playlist = clickedPlaylist!!,
+			listOfPlaylists = playlists,
 			scaffoldState = rememberModalBottomSheetState(true),
-			openPlaylist = prepareAndViewSongs,
 			openBottomSheet = { openMenuSheet.value = it },
+			openPlaylist = prepareAndViewSongs,
 			playlistMenuAction = {
 				playlistAction(it)
 				SnackbarUtils.showSnackbar(it, context, scope, snackbarHostState)
@@ -174,7 +176,7 @@ fun PlaylistItem(
 				maxLines = 2
 			)
 			Text(
-				text = stringResource(R.string.number_of_songs, playlist.numSongs),
+				text = stringResource(R.string.number_of_songs, playlist.numOfSongs()),
 				overflow = TextOverflow.Ellipsis,
 				style = MaterialTheme.typography.bodySmall,
 				modifier = Modifier.alpha(0.5f)

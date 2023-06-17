@@ -29,8 +29,9 @@ import com.roland.android.odiyo.util.PlaylistMenuActions
 @Composable
 fun CreateOrRenamePlaylistDialog(
 	playlist: Playlist?,
+	listOfPlaylists: List<Playlist>,
 	openPlaylist: (String, String) -> Unit,
-	dialogAction: (PlaylistMenuActions) -> Unit,
+	dialogAction: (PlaylistMenuActions, String) -> Unit,
 	openDialog: (Boolean) -> Unit
 ) {
 	var playlistName by remember { mutableStateOf(playlist?.name ?: "") }
@@ -59,13 +60,14 @@ fun CreateOrRenamePlaylistDialog(
 			Button(
 				enabled = playlistName.isNotEmpty() && playlistName != playlist?.name,
 				onClick = {
+					if (listOfPlaylists.any { it.name == playlistName }) return@Button
 					if (playlist == null) {
 						val createdPlaylist = Playlist(name = playlistName, songs = emptyList())
-						dialogAction(PlaylistMenuActions.CreatePlaylist(createdPlaylist))
+						dialogAction(PlaylistMenuActions.CreatePlaylist(createdPlaylist), createdPlaylist.name)
 						openPlaylist(createdPlaylist.name, PLAYLISTS)
 					} else {
 						playlist.name = playlistName
-						dialogAction(PlaylistMenuActions.RenamePlaylist(playlist))
+						dialogAction(PlaylistMenuActions.RenamePlaylist(playlist), playlistName)
 					}
 					openDialog(false)
 				}
@@ -96,8 +98,9 @@ fun CreateOrRenamePlaylistDialogPreview() {
 			if (openDialog.value) {
 				CreateOrRenamePlaylistDialog(
 					playlist = previewPlaylist[2],
+					listOfPlaylists = previewPlaylist,
 					openPlaylist = { _, _ -> },
-					dialogAction = {}
+					dialogAction = { _, _ -> }
 				) { openDialog.value = it }
 			}
 		}

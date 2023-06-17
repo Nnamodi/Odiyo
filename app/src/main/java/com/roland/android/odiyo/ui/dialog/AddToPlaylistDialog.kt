@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.mediaSource.previewPlaylist
@@ -32,7 +33,7 @@ import com.roland.android.odiyo.util.MediaMenuActions
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AddToPlaylistDialog(
-	song: Music,
+	songs: List<Music>,
 	playlists: List<Playlist>,
 	addSongToPlaylist: (MediaMenuActions) -> Unit,
 	openDialog: (Boolean) -> Unit
@@ -69,7 +70,7 @@ fun AddToPlaylistDialog(
 						PlaylistItem(
 							playlist = playlist,
 							onItemClick = { _, _ ->
-								addSongToPlaylist(MediaMenuActions.AddToPlaylist(song, playlist))
+								addSongToPlaylist(MediaMenuActions.AddToPlaylist(songs, playlist))
 								openDialog(false)
 							},
 							parentContentIsDialog = true,
@@ -92,12 +93,16 @@ fun AddToPlaylistDialog(
 	} else {
 		CreateOrRenamePlaylistDialog(
 			playlist = null,
-			openPlaylist = { playlistName, _ ->
-				val playlist = Playlist(name = playlistName, songs = listOf(song.uri), numSongs = 1)
-				addSongToPlaylist(MediaMenuActions.AddToPlaylist(null, playlist))
+			listOfPlaylists = playlists,
+			openPlaylist = { _, _ -> },
+			dialogAction = { _, newPlaylistName ->
+				val playlist = Playlist(
+					name = newPlaylistName,
+					songs = songs.map { it.uri }.plus("".toUri())
+				)
+				addSongToPlaylist(MediaMenuActions.CreatePlaylist(playlist))
 				openDialog(false)
 			},
-			dialogAction = {  },
 			openDialog = { openDialog(it) }
 		)
 	}
@@ -110,7 +115,7 @@ fun AddToPlaylistDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
 			AddToPlaylistDialog(
-				song = previewData[0],
+				songs = previewData,
 				playlists = previewPlaylist.take(2),
 				addSongToPlaylist = {},
 				openDialog = {}

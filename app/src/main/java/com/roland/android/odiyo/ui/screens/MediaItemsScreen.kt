@@ -25,6 +25,7 @@ import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.menu.SongListMenu
@@ -35,6 +36,7 @@ import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.SongDetails
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,18 +60,19 @@ fun MediaItemsScreen(
 	val openMenu = rememberSaveable { mutableStateOf(false) }
 	val openAddToPlaylistDialog = rememberSaveable { mutableStateOf(false) }
 	val openSortDialog = rememberSaveable { mutableStateOf(false) }
+	val openDeleteDialog = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
-	val selectedSongs = rememberSaveable { mutableStateOf(emptySet<Long>()) }
-	val inSelectMode by remember { derivedStateOf { selectedSongs.value.isNotEmpty() } }
+	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
+	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	inSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
 			if (inSelectMode) {
-				SelectionModeTopBar(selectedSongs.value.size) { selectedSongs.value = emptySet() }
+				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
 			} else {
 				MediaItemsAppBar(
 					collectionName = collectionName,
@@ -79,7 +82,17 @@ fun MediaItemsScreen(
 			}
 		},
 		bottomBar = {
-			SelectionModeBottomBar(inSelectMode) {}
+			SelectionModeBottomBar(inSelectMode) {
+				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
+				when (it) {
+					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
+					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.Delete -> openDeleteDialog.value = true
+				}
+				showSnackbar(it, context, scope, snackbarHostState)
+			}
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState) {
@@ -108,15 +121,15 @@ fun MediaItemsScreen(
 					items = songs,
 					key = { _, song -> song.id }
 				) { index, song ->
-					val selected by remember { derivedStateOf { selectedSongs.value.contains(song.id) } }
+					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
 
 					MediaItem(
 						modifier = Modifier.selectSemantics(
 							inSelectionMode = inSelectMode,
 							selected = selected,
 							onClick = { playAudio(song.uri, index) },
-							onLongClick = { if (!inSelectMode) { selectedSongs.value += song.id } },
-							toggleSelection = { if (it) selectedSongs.value += song.id else selectedSongs.value -= song.id }
+							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
+							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						),
 						song = song,
 						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
@@ -126,64 +139,86 @@ fun MediaItemsScreen(
 					)
 				}
 			}
+		}
 
-			if (openBottomSheet.value && songClicked != null) {
-				MediaItemSheet(
-					song = songClicked!!,
-					scaffoldState = sheetState,
-					collectionIsPlaylist = collectionType == PLAYLISTS,
-					goToCollection = goToCollection,
-					openBottomSheet = { openBottomSheet.value = it },
-					openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
-					menuAction = {
-						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
-					},
-					removeFromPlaylist = {
-						menuAction(MediaMenuActions.RemoveFromPlaylist(it, collectionName))
-						showSnackbar(
-							MediaMenuActions.RemoveFromPlaylist(it, collectionName),
-							context, scope, snackbarHostState, it
+		if (openBottomSheet.value && songClicked != null) {
+			MediaItemSheet(
+				song = songClicked!!,
+				scaffoldState = sheetState,
+				collectionIsPlaylist = collectionType == PLAYLISTS,
+				goToCollection = goToCollection,
+				openBottomSheet = { openBottomSheet.value = it },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
+				menuAction = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+				},
+				removeFromPlaylist = {
+					menuAction(MediaMenuActions.RemoveFromPlaylist(it, collectionName))
+					showSnackbar(
+						MediaMenuActions.RemoveFromPlaylist(it, collectionName),
+						context, scope, snackbarHostState, it
+					)
+				}
+			)
+		}
+
+		if (openMenu.value) {
+			SongListMenu(
+				songs = songs,
+				menuAction = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState)
+				},
+				showSortAction = collectionType != LAST_PLAYED,
+				openSortDialog = { openSortDialog.value = it }
+			) { openMenu.value = it }
+		}
+
+		if (openAddToPlaylistDialog.value &&
+			(songClicked != null || selectedSongsId.value.isNotEmpty())) {
+			val selectedSongs = if (inSelectMode) {
+				selectedSongs(selectedSongsId.value, songs)
+			} else listOf(songClicked!!)
+
+			AddToPlaylistDialog(
+				songs = selectedSongs,
+				playlists = playlists,
+				addSongToPlaylist = {
+					selectedSongsId.value = emptySet()
+					menuAction(it); openDeleteDialog.value = false
+					showSnackbar(it, context, scope, snackbarHostState)
+				},
+				openDialog = { openAddToPlaylistDialog.value = it }
+			)
+		}
+
+		if (openSortDialog.value) {
+			SortDialog(
+				selectedOption = sortOption,
+				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
+			) { openSortDialog.value = it }
+		}
+
+		if (openDeleteDialog.value) {
+			DeleteDialog(
+				delete = {
+					val selectedSongs = selectedSongs(selectedSongsId.value, songs)
+					menuAction(
+						MediaMenuActions.DeleteSongs(
+							selectedSongs.map { SongDetails(it.id, it.uri) }
 						)
-					}
-				)
-			}
-
-			if (openMenu.value) {
-				SongListMenu(
-					songs = songs,
-					menuAction = {
-						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState, songClicked)
-					},
-					showSortAction = collectionType != LAST_PLAYED,
-					openSortDialog = { openSortDialog.value = it }
-				) { openMenu.value = it }
-			}
-
-			if (openAddToPlaylistDialog.value) {
-				AddToPlaylistDialog(
-					song = songClicked!!,
-					playlists = playlists,
-					addSongToPlaylist = {
-						menuAction(it)
-						showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
-					},
-					openDialog = { openAddToPlaylistDialog.value = it }
-				)
-			}
-
-			if (openSortDialog.value) {
-				SortDialog(
-					selectedOption = sortOption,
-					onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
-				) { openSortDialog.value = it }
-			}
+					)
+					openDeleteDialog.value = false
+				},
+				openDialog = { openDeleteDialog.value = it },
+				multipleSongs = selectedSongsId.value.size > 1
+			)
 		}
 	}
 
 	if (inSelectMode) {
-		BackHandler { selectedSongs.value = emptySet() }
+		BackHandler { selectedSongsId.value = emptySet() }
 	}
 }
 
