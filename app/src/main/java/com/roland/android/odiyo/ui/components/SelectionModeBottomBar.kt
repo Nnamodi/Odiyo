@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.ui.components.SelectionModeItems.Delete
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -29,6 +30,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @Composable
 fun SelectionModeBottomBar(
 	inSelectionMode: Boolean,
+	collectionIsPlaylist: Boolean = false,
 	onClick: (SelectionModeItems) -> Unit
 ) {
 	val items = SelectionModeItems.values()
@@ -43,8 +45,10 @@ fun SelectionModeBottomBar(
 			horizontalArrangement = Arrangement.SpaceAround
 		) {
 			items.forEach { item ->
+				val title = if (item == Delete && collectionIsPlaylist) R.string.remove else item.titleRes
+
 				SelectionItems(
-					nameRes = item.titleRes,
+					nameRes = title,
 					icon = item.icon,
 					onClick = { onClick(item) }
 				)

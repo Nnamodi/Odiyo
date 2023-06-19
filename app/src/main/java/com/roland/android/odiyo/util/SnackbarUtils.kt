@@ -34,11 +34,12 @@ object SnackbarUtils {
 		selection: SelectionModeItems,
 		context: Context,
 		scope: CoroutineScope,
-		snackbarHostState: SnackbarHostState
+		snackbarHostState: SnackbarHostState,
+		collectionIsPlaylist: Boolean = false
 	) {
 		val text: Int? = when (selection) {
 			SelectionModeItems.AddToQueue -> R.string.added_to_queue
-			SelectionModeItems.Delete -> R.string.deleted
+			SelectionModeItems.Delete -> if (collectionIsPlaylist) R.string.removed else R.string.deleted
 			SelectionModeItems.PlayNext -> R.string.added_to_queue
 			else -> null
 		}

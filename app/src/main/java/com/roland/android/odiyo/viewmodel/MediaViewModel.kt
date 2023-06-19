@@ -72,7 +72,7 @@ class MediaViewModel @Inject constructor(
 			is MediaMenuActions.Favorite -> favoriteSong(action.song)
 			is MediaMenuActions.CreatePlaylist -> createPlaylist(action.playlist)
 			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.songs, action.playlist)
-			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.song, action.playlistName)
+			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.songs, action.playlistName)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.songs)
 			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
 			is MediaMenuActions.DeleteSongs -> deleteSong(action.songs)
@@ -108,12 +108,12 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	private fun removeFromPlaylist(song: Music, playlistName: String) {
+	private fun removeFromPlaylist(songs: List<Music>, playlistName: String) {
 		viewModelScope.launch(Dispatchers.IO) {
 			val playlist = playlists.find { it.name == playlistName }
 			playlist?.let {
-				val updatedSongs = it.songs
-				updatedSongs.toMutableList().remove(song.uri)
+				val updatedSongs = it.songs.toMutableList()
+				updatedSongs.removeAll(songs.map { music -> music.uri })
 				it.songs = updatedSongs
 				playlistRepository.updatePlaylist(it)
 				fetchPlaylistSongs(playlistName)

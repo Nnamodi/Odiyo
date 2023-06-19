@@ -82,16 +82,18 @@ fun MediaItemsScreen(
 			}
 		},
 		bottomBar = {
-			SelectionModeBottomBar(inSelectMode) {
+			SelectionModeBottomBar(inSelectMode, collectionType == PLAYLISTS) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.Delete -> openDeleteDialog.value = true
+					SelectionModeItems.Delete -> if (collectionType == PLAYLISTS) {
+						menuAction(MediaMenuActions.RemoveFromPlaylist(selectedSongs, collectionName)); selectedSongsId.value = emptySet()
+					} else openDeleteDialog.value = true
 				}
-				showSnackbar(it, context, scope, snackbarHostState)
+				showSnackbar(it, context, scope, snackbarHostState, collectionType == PLAYLISTS)
 			}
 		},
 		snackbarHost = {
@@ -154,9 +156,9 @@ fun MediaItemsScreen(
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
 				},
 				removeFromPlaylist = {
-					menuAction(MediaMenuActions.RemoveFromPlaylist(it, collectionName))
+					menuAction(MediaMenuActions.RemoveFromPlaylist(listOf(it), collectionName))
 					showSnackbar(
-						MediaMenuActions.RemoveFromPlaylist(it, collectionName),
+						MediaMenuActions.RemoveFromPlaylist(listOf(it), collectionName),
 						context, scope, snackbarHostState, it
 					)
 				}
