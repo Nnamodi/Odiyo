@@ -4,12 +4,6 @@ import android.net.Uri
 
 data class Album(
 	val uri: Uri,
-	private val numSongs: String,
+	val numberOfSongs: Int,
 	val album: String
-) {
-	val numberOfSongs = if (numSongs == "1") {
-		"$numSongs song"
-	} else {
-		"$numSongs songs"
-	}
-}
+)

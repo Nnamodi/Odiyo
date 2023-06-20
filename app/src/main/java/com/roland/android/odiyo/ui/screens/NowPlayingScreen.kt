@@ -162,7 +162,8 @@ private fun MediaDescription(
 	goToCollection: (String, String) -> Unit
 ) {
 	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
-	val songIsFavorite = song?.favorite == true
+	var songIsFavorite by remember { mutableStateOf(song?.favorite == true) }
+	songIsFavorite = song?.favorite == true
 
 	MediaImage(
 		modifier = Modifier
@@ -197,7 +198,7 @@ private fun MediaDescription(
 		}
 		if (song != null) {
 			IconButton(
-				onClick = { onFavorite(MediaControls.Favorite(song)) },
+				onClick = { onFavorite(MediaControls.Favorite(song)); songIsFavorite = !songIsFavorite },
 				modifier = Modifier
 					.size(50.dp)
 					.padding(start = 4.dp)

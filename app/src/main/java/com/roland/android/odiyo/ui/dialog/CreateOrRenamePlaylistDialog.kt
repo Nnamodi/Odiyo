@@ -35,6 +35,7 @@ fun CreateOrRenamePlaylistDialog(
 	openDialog: (Boolean) -> Unit
 ) {
 	var playlistName by remember { mutableStateOf(playlist?.name ?: "") }
+	var playlistNameExists by remember { mutableStateOf(false) }
 
 	AlertDialog(
 		onDismissRequest = {},
@@ -48,11 +49,12 @@ fun CreateOrRenamePlaylistDialog(
 						.fillMaxWidth()
 						.padding(top = 12.dp),
 					value = playlistName,
-					onValueChange = { playlistName = it },
+					onValueChange = { playlistName = it; playlistNameExists = false },
 					singleLine = true,
 					shape = RoundedCornerShape(12.dp),
 					textStyle = TextStyle(fontSize = 18.sp),
-					label = { CustomInputText(stringResource(R.string.playlist)) }
+					label = { CustomInputText(stringResource(R.string.playlist)) },
+					supportingText = { if (playlistNameExists) Text(stringResource(R.string.name_already_exists, playlistName)) }
 				)
 			}
 		},
@@ -60,7 +62,9 @@ fun CreateOrRenamePlaylistDialog(
 			Button(
 				enabled = playlistName.isNotEmpty() && playlistName != playlist?.name,
 				onClick = {
-					if (listOfPlaylists.any { it.name == playlistName }) return@Button
+					if (listOfPlaylists.any { it.name == playlistName }) {
+						playlistNameExists = true; return@Button
+					}
 					if (playlist == null) {
 						val createdPlaylist = Playlist(name = playlistName, songs = emptyList())
 						dialogAction(PlaylistMenuActions.CreatePlaylist(createdPlaylist), createdPlaylist.name)

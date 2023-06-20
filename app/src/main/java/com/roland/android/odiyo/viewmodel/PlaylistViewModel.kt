@@ -28,6 +28,7 @@ class PlaylistViewModel @Inject constructor(
 ) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
 
 	fun playlistActions(action: PlaylistMenuActions) {
+		if (!canAccessStorage) return
 		when (action) {
 			is PlaylistMenuActions.AddToQueue -> addToQueue(action.playlist.name)
 			is PlaylistMenuActions.CreatePlaylist -> createPlaylist(action.playlist)

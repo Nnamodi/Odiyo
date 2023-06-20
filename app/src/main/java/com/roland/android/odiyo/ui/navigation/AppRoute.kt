@@ -114,7 +114,7 @@ fun AppRoute(
 						navActions.navigateToNowPlayingScreen()
 					},
 					menuAction = { mediaViewModel.menuAction(context, it) },
-					inSelectionMode = { selectionModeClosed = it },
+					closeSelectionMode = { selectionModeClosed = it },
 					goToCollection = navActions::navigateToMediaItemScreen,
 					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = navController::navigateUp
@@ -155,9 +155,19 @@ fun AppRoute(
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
 					menuAction = { mediaViewModel.menuAction(context, it) },
-					inSelectionMode = { selectionModeClosed = it },
+					closeSelectionMode = { selectionModeClosed = it },
+					moveToAddSongsScreen = navActions::navigateToAddSongsScreen,
 					navigateUp = navController::navigateUp
 				)
+			}
+			composable(AppRoute.AddSongsScreen.route) { backStackEntry ->
+				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo")
+
+				AddSongsScreen(
+					songs = mediaViewModel.songsToAddToPlaylist(playlistName),
+					playlists = mediaViewModel.playlists, playlistToAddTo = playlistName,
+					menuAction = { mediaViewModel.menuAction(context, it) }
+				) { if (it) navController.navigateUp(); selectionModeClosed = it }
 			}
 			composable(
 				AppRoute.NowPlayingScreen.route,

@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -152,8 +153,10 @@ fun NowPlayingTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun MediaItemsAppBar(
 	collectionName: String,
-	navigateUp: () -> Unit,
+	collectionIsPlaylist: Boolean = false,
 	songsNotEmpty: Boolean,
+	addSongs: (String) -> Unit = {},
+	navigateUp: () -> Unit,
 	openMenu: () -> Unit
 ) {
 	TopAppBar(
@@ -165,6 +168,15 @@ fun MediaItemsAppBar(
 		},
 		actions = {
 			if (songsNotEmpty) {
+				if (collectionIsPlaylist) {
+					IconButton(onClick = { addSongs(collectionName) }) {
+						Icon(
+							imageVector = Icons.Rounded.Add,
+							contentDescription = stringResource(R.string.add_songs),
+							tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
+						)
+					}
+				}
 				IconButton(onClick = openMenu) {
 					Icon(
 						imageVector = Icons.Rounded.MoreVert,
@@ -181,17 +193,27 @@ fun MediaItemsAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun SelectionModeTopBar(
 	numOfSelectedSongs: Int,
+	showAddButton: Boolean = false,
+	addSongs: () -> Unit = {},
 	closeSelectionMode: () -> Unit
 ) {
 	TopAppBar(
 		title = { Text(
-			text = stringResource(R.string.selected_songs, numOfSelectedSongs),
-			overflow = TextOverflow.Ellipsis,
-			softWrap = false
+			text = pluralStringResource(R.plurals.number_of_songs, numOfSelectedSongs, numOfSelectedSongs),
+			overflow = TextOverflow.Ellipsis, softWrap = false
 		) },
 		navigationIcon = {
 			IconButton(onClick = closeSelectionMode) {
 				Icon(Icons.Rounded.Close, stringResource(R.string.close))
+			}
+		},
+		actions = {
+			if (showAddButton) {
+				Button(
+					onClick = addSongs, enabled = numOfSelectedSongs > 0,
+					modifier = Modifier.padding(end = 4.dp),
+					contentPadding = PaddingValues(12.dp, 0.dp)
+				) { Text(stringResource(R.string.add)) }
 			}
 		}
 	)

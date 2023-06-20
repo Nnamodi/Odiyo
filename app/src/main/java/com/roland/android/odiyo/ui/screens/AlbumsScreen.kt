@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,7 +82,7 @@ fun AlbumItem(
 				maxLines = 2
 			)
 			Text(
-				text = album.numberOfSongs,
+				text = pluralStringResource(R.plurals.number_of_songs, album.numberOfSongs, album.numberOfSongs),
 				overflow = TextOverflow.Ellipsis,
 				style = MaterialTheme.typography.bodySmall,
 				modifier = Modifier.alpha(0.5f)

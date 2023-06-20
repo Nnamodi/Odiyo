@@ -30,7 +30,7 @@ class AlbumsSource(
 
 			while (cursor.moveToNext()) {
 				val id = cursor.getLong(idColumn)
-				val numberOfSongs = cursor.getString(numberOfSongsColumn)
+				val numberOfSongs = cursor.getInt(numberOfSongsColumn)
 				val albumContent = cursor.getString(albumColumn)
 
 				val contentUri: Uri = ContentUris.withAppendedId(

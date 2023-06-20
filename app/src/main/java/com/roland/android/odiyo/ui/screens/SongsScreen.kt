@@ -95,11 +95,8 @@ fun SongsScreen(
 			LazyColumn(Modifier.padding(paddingValues)) {
 				item {
 					SongListHeader(
-						songs = songs,
-						showSortAction = true,
-						inSelectMode = inSelectMode,
-						playAllSongs = playAudio,
-						openSortDialog = { openSortDialog.value = true }
+						songs = songs, showSortAction = true, inSelectMode = inSelectMode,
+						playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
 					)
 				}
 				itemsIndexed(

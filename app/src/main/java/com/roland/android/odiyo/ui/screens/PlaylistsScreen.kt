@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,10 +55,9 @@ fun PlaylistsScreen(
 		topBar = {
 			MediaItemsAppBar(
 				collectionName = stringResource(R.string.playlists),
-				navigateUp = navigateUp,
 				songsNotEmpty = false,
-				openMenu = {}
-			)
+				navigateUp = navigateUp
+			) {}
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState) {
@@ -176,7 +176,7 @@ fun PlaylistItem(
 				maxLines = 2
 			)
 			Text(
-				text = stringResource(R.string.number_of_songs, playlist.numOfSongs()),
+				text = pluralStringResource(R.plurals.number_of_songs, playlist.numOfSongs(), playlist.numOfSongs()),
 				overflow = TextOverflow.Ellipsis,
 				style = MaterialTheme.typography.bodySmall,
 				modifier = Modifier.alpha(0.5f)

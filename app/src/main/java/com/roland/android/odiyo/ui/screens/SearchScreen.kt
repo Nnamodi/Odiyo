@@ -45,7 +45,7 @@ fun SearchScreen(
 	currentSong: Music?,
 	playAudio: (Uri, Int?) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
-	inSelectionMode: (Boolean) -> Unit,
+	closeSelectionMode: (Boolean) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	clearSearchQuery: () -> Unit,
 	closeSearchScreen: () -> Unit
@@ -62,7 +62,7 @@ fun SearchScreen(
 	val scope = rememberCoroutineScope()
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
-	inSelectionMode(!inSelectMode)
+	closeSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
@@ -217,7 +217,7 @@ fun SearchScreenPreview() {
 			currentSong = previewData[3],
 			playAudio = { _, _ -> },
 			menuAction = {},
-			inSelectionMode = {},
+			closeSelectionMode = {},
 			goToCollection = { _, _ -> },
 			clearSearchQuery = {}
 		) {}

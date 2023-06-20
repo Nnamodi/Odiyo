@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,7 +68,7 @@ fun QueueItemsSheet(
 				verticalAlignment = Alignment.CenterVertically
 			) {
 				Text(
-					text = stringResource(R.string.queue_sheet_title, songs.size),
+					text = pluralStringResource(R.plurals.queue_sheet_title, songs.size, songs.size),
 					style = MaterialTheme.typography.titleLarge,
 					color = componentColor,
 					modifier = Modifier.padding(vertical = 12.dp)

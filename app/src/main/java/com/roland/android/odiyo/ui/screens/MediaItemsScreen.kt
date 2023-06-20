@@ -52,7 +52,8 @@ fun MediaItemsScreen(
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
-	inSelectionMode: (Boolean) -> Unit,
+	closeSelectionMode: (Boolean) -> Unit,
+	moveToAddSongsScreen: (String) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
@@ -67,7 +68,7 @@ fun MediaItemsScreen(
 	val scope = rememberCoroutineScope()
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
-	inSelectionMode(!inSelectMode)
+	closeSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
@@ -75,9 +76,8 @@ fun MediaItemsScreen(
 				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
 			} else {
 				MediaItemsAppBar(
-					collectionName = collectionName,
-					navigateUp = navigateUp,
-					songsNotEmpty = songs.isNotEmpty()
+					collectionName = collectionName, collectionIsPlaylist = collectionType == PLAYLISTS,
+					songsNotEmpty = songs.isNotEmpty(), addSongs = moveToAddSongsScreen, navigateUp = navigateUp
 				) { openMenu.value = true }
 			}
 		},
@@ -108,7 +108,8 @@ fun MediaItemsScreen(
 			EmptyListScreen(
 				text = stringResource(R.string.nothing_here),
 				modifier = Modifier.padding(innerPadding),
-				playlistCollection = collectionType == PLAYLISTS
+				playlistCollection = collectionType == PLAYLISTS,
+				addSongs = { moveToAddSongsScreen(collectionName) }
 			)
 		} else {
 			LazyColumn(Modifier.padding(innerPadding)) {
@@ -240,7 +241,8 @@ fun MediaItemsScreenPreview() {
 			playAudio = { _, _ -> },
 			goToCollection = { _, _ -> },
 			menuAction = {},
-			inSelectionMode = {}
+			closeSelectionMode = {},
+			{}
 		) {}
 	}
 }

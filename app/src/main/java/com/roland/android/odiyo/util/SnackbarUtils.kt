@@ -39,7 +39,7 @@ object SnackbarUtils {
 	) {
 		val text: Int? = when (selection) {
 			SelectionModeItems.AddToQueue -> R.string.added_to_queue
-			SelectionModeItems.Delete -> if (collectionIsPlaylist) R.string.removed else R.string.deleted
+			SelectionModeItems.Delete -> if (collectionIsPlaylist) R.string.removed else null
 			SelectionModeItems.PlayNext -> R.string.added_to_queue
 			else -> null
 		}

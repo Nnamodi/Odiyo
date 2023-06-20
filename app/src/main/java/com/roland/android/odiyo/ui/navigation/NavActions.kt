@@ -6,7 +6,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 class NavActions(
 	private val navController: NavHostController,
-	private val storagePermissionGranted: Boolean = false,
+	private val storagePermissionGranted: Boolean,
 	private val requestPermission: (Boolean) -> Unit
 ) {
 	fun navigateToMediaScreen() {
@@ -29,6 +29,12 @@ class NavActions(
 			AppRoute.MediaItemsScreen.routeWithName(collectionName, collectionType)
 		)
 	}
+	fun navigateToAddSongsScreen(playlistToAddSongs: String) {
+		if (!storagePermissionGranted) { requestPermission(true); return }
+		navController.navigate(
+			AppRoute.AddSongsScreen.routeWithName(playlistToAddSongs)
+		)
+	}
 }
 
 @Composable
@@ -47,6 +53,9 @@ sealed class AppRoute(val route: String) {
 	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
 		fun routeWithName(collectionName: String, collectionType: String) =
 			String.format("media_item_screen/%s/%s", collectionName, collectionType)
+	}
+	object AddSongsScreen: AppRoute("add_songs_screen/{playlistToAddTo}") {
+		fun routeWithName(playlistToAddTo: String) = String.format("add_songs_screen/%s", playlistToAddTo)
 	}
 }
 

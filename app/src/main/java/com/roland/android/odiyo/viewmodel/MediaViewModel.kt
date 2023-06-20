@@ -65,6 +65,7 @@ class MediaViewModel @Inject constructor(
 	}
 
 	fun menuAction(context: Context, action: MediaMenuActions) {
+		if (!canAccessStorage) return
 		when (action) {
 			is MediaMenuActions.PlayNext -> playNext(action.songs)
 			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
@@ -193,5 +194,10 @@ class MediaViewModel @Inject constructor(
 			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 		}
 		return result
+	}
+
+	fun songsToAddToPlaylist(playlistName: String?): List<Music> {
+		val playlist = playlists.find { it.name == playlistName }
+		return songs.filterNot { playlist?.songs?.contains(it.uri) == true }
 	}
 }

@@ -18,7 +18,6 @@
     <string name="mute">mute</string>
     <string name="more_options">More options</string>
     <string name="type_to_search">Type in the box to search</string>
-    <string name="search_result_size">Search matched %d songs</string>
     <string name="search">Find your favourite songs</string>
     <string name="clear_icon_desc">Clear search icon</string>
     <string name="play_next">Play next</string>
@@ -39,7 +38,6 @@
     <string name="path_column">Path:</string>
     <string name="got_it">Got it</string>
     <string name="music_queue">Music queue</string>
-    <string name="queue_sheet_title">Queue (%d songs)</string>
     <string name="add">Add</string>
     <string name="remove">Remove</string>
     <string name="add_to_queue">Add to queue</string>
@@ -70,7 +68,6 @@
     <string name="name_z_a">Name Z - A</string>
     <string name="sort_option_selected">%s selected</string>
     <string name="playlist_art_desc">playlist thumbnail</string>
-    <string name="number_of_songs">%d songs</string>
     <string name="create_playlist">Create new playlist</string>
     <string name="create">Create</string>
     <string name="playlist">Playlist</string>
@@ -85,8 +82,21 @@
     <string name="continue_button">Continue</string>
     <string name="storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
     <string name="queue_up">Queue up</string>
-    <string name="selected_songs">%d songs</string>
     <string name="this_playlist">this playlist</string>
     <string name="these_songs">these songs</string>
     <string name="this_song">this song</string>
+    <string name="name_already_exists">Playlist name \"%s\" already exists</string>
+
+    <plurals name="number_of_songs">
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
+    </plurals>
+    <plurals name="search_result_size">
+        <item quantity="one">Search matched %d song</item>
+        <item quantity="other">Search matched %d songs</item>
+    </plurals>
+    <plurals name="queue_sheet_title">
+        <item quantity="one">Queue (%d song)</item>
+        <item quantity="other">Queue (%d songs)</item>
+    </plurals>
 </resources>

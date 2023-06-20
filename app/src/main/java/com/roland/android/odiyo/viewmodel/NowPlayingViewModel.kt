@@ -78,6 +78,7 @@ class NowPlayingViewModel @Inject constructor(
 	}
 
 	fun mediaControl(context: Context, action: MediaControls) {
+		if (!canAccessStorage) return
 		when (action) {
 			MediaControls.Mute -> onMuteDevice(context)
 			is MediaControls.PlayPause -> playPause()

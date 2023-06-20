@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -23,7 +24,8 @@ fun EmptyListScreen(
 	text: String,
 	modifier: Modifier = Modifier,
 	playlistCollection: Boolean = false,
-	isSongsScreen: Boolean = false
+	isSongsScreen: Boolean = false,
+	addSongs: () -> Unit = {}
 ) = if (playlistCollection || isSongsScreen) {
 	Column(
 		modifier = Modifier.fillMaxSize(),
@@ -40,7 +42,7 @@ fun EmptyListScreen(
 			textAlign = TextAlign.Center
 		)
 		if (!isSongsScreen) {
-			Button(onClick = {}) {
+			Button(onClick = addSongs) {
 				Text(stringResource(R.string.add_songs))
 			}
 		}
@@ -75,7 +77,10 @@ fun SongListHeader(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		if (songsFromSearch) {
-			Text(stringResource(R.string.search_result_size, songs.size), Modifier.padding(vertical = 16.dp))
+			Text(
+				text = pluralStringResource(R.plurals.search_result_size, songs.size, songs.size),
+				modifier = Modifier.padding(vertical = 16.dp)
+			)
 			Spacer(Modifier.weight(1f))
 			if (songs.isNotEmpty()) {
 				IconButton(onClick = openMenu, enabled = !inSelectMode) {
