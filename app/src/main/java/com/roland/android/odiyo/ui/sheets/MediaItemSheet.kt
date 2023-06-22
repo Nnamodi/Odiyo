@@ -15,12 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
@@ -33,10 +31,10 @@ import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
+import com.roland.android.odiyo.util.sheetHeight
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@ExperimentalMaterial3Api
-@UnstableApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaItemSheet(
 	song: Music,
@@ -48,7 +46,6 @@ fun MediaItemSheet(
 	menuAction: (MediaMenuActions) -> Unit,
 	removeFromPlaylist: (Music) -> Unit = {}
 ) {
-	val screenHeight = LocalConfiguration.current.screenHeightDp / 2
 	val openRenameDialog = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
@@ -61,7 +58,7 @@ fun MediaItemSheet(
 
 		Column(
 			modifier = Modifier
-				.height(screenHeight.dp)
+				.height(sheetHeight().dp)
 				.verticalScroll(rememberScrollState())
 		) {
 			menuItems.forEach { menu ->
@@ -156,7 +153,6 @@ enum class MenuItems(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
-@UnstableApi
 @Preview(showBackground = true)
 @Composable
 fun SheetPreview() {

@@ -1,5 +1,7 @@
 package com.roland.android.odiyo.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -58,7 +60,7 @@ fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
 	)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SearchBar(
 	query: String,
@@ -74,10 +76,10 @@ fun SearchBar(
 				onValueChange = onTextChange,
 				placeholder = {
 					Row(
-						Modifier.alpha(0.6f), Arrangement.Center, Alignment.CenterVertically
+						Modifier.alpha(0.6f).basicMarquee(), Arrangement.Center, Alignment.CenterVertically
 					) {
 						Icon(Icons.Rounded.Search, null)
-						Text(stringResource(R.string.search), Modifier.padding(start = 4.dp))
+						Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
 					}
 				},
 				trailingIcon = {

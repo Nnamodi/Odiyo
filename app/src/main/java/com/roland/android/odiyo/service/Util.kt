@@ -9,8 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -38,12 +36,14 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 object Util {
 	val audioAttribute = AudioAttributes.Builder()
 		.setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
 		.setUsage(C.USAGE_MEDIA)
 		.build()
+
+	lateinit var notificationManager: OdiyoNotificationManager
 
 	var mediaSession: MediaSession? = null
 
@@ -128,8 +128,6 @@ object Util {
 	}
 
 	// an intent to launch UI from player notification.
-	@ExperimentalAnimationApi
-	@ExperimentalMaterial3Api
 	val Context.pendingIntent: PendingIntent
 		get() = PendingIntent.getActivity(
 				this,

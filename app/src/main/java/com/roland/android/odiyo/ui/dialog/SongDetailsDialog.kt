@@ -1,8 +1,11 @@
 package com.roland.android.odiyo.ui.dialog
 
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -24,7 +27,7 @@ import com.roland.android.odiyo.ui.components.SongDetailText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 @Composable
 fun SongDetailsDialog(
 	song: Music,
@@ -42,7 +45,7 @@ fun SongDetailsDialog(
 			Text(text = stringResource(R.string.details), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 		},
 		text = {
-			Column {
+			Column(Modifier.verticalScroll(rememberScrollState())) {
 				Row(
 					modifier = Modifier.fillMaxWidth(),
 					horizontalArrangement = Arrangement.Center
@@ -69,7 +72,6 @@ fun SongDetailsDialog(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview(showBackground = true)
 @Composable
 fun SongDetailsDialogPreview() {

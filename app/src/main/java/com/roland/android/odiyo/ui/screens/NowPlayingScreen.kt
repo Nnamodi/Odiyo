@@ -31,6 +31,8 @@ import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingLandscapeView
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingPortraitView
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
@@ -38,13 +40,15 @@ import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackground
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.MediaControls
 import com.roland.android.odiyo.util.QueueItemActions
+import com.roland.android.odiyo.util.WindowType
+import com.roland.android.odiyo.util.rememberWindowSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.min
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
-@UnstableApi
 @Composable
 fun NowPlayingScreen(
 	song: Music?,
@@ -67,48 +71,28 @@ fun NowPlayingScreen(
 	val screenLaunched = remember { mutableStateOf(false) }
 	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val componentColor = componentColor(generatedColor)
+	val windowSize = rememberWindowSize()
 	val scope = rememberCoroutineScope()
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
 			NowPlayingTopAppBar(song, componentColor, goToCollection, navigateUp)
-		}
-	) {
-		Column(
-			modifier = Modifier
-				.background(generatedColor)
-				.padding(start = 30.dp, top = 40.dp, end = 30.dp, bottom = 10.dp),
-			horizontalAlignment = Alignment.CenterHorizontally
-		) {
-			MediaDescription(
-				song = song,
-				artwork = artwork,
-				componentColor = componentColor,
-				onFavorite = mediaControl,
-				goToCollection = goToCollection
-			)
-
-			MediaControls(
-				song = song,
-				isPlaying = isPlaying,
-				shuffleState = shuffleState,
-				progress = progress,
-				timeElapsed = timeElapsed,
-				componentColor = componentColor,
-				mediaControl = mediaControl,
-				showMusicQueue = { openMusicQueue.value = it },
-			)
-
-			Spacer(Modifier.weight(1f))
-
-			MediaUtilActions(
-				song = song,
-				deviceMuted = deviceMuted,
-				componentColor = componentColor,
-				mediaControl = mediaControl,
-				openDetailsDialog = { openDetailsDialog.value = it }
-			)
+		},
+		containerColor = generatedColor
+	) { paddingValues ->
+		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
+			NowPlayingLandscapeView(
+				paddingValues, song, artwork, componentColor, isPlaying,
+				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
+				openMusicQueue = { openMusicQueue.value = it }
+			) { openDetailsDialog.value = it }
+		} else {
+			NowPlayingPortraitView(
+				paddingValues, song, artwork, componentColor, isPlaying,
+				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
+				openMusicQueue = { openMusicQueue.value = it }
+			) { openDetailsDialog.value = it }
 		}
 	}
 
@@ -150,27 +134,32 @@ fun NowPlayingScreen(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalFoundationApi::class)
-@UnstableApi
+@RequiresApi(Build.VERSION_CODES.Q)
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
-private fun MediaDescription(
+fun MediaDescription(
 	song: Music?,
 	artwork: Any?,
 	componentColor: Color,
+	portraitView: Boolean,
 	onFavorite: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit
 ) {
-	val screenWidth = LocalConfiguration.current.screenWidthDp - (30 * 2)
+	val maxSize = LocalConfiguration.current.screenWidthDp - (30 * 2)
+	val minSize = LocalConfiguration.current.screenHeightDp / 2.3
+	val imageSize = min(minSize, maxSize.toDouble())
 	var songIsFavorite by remember { mutableStateOf(song?.favorite == true) }
 	songIsFavorite = song?.favorite == true
 
-	MediaImage(
-		modifier = Modifier
-			.size(screenWidth.dp, (screenWidth * 1.12).dp)
-			.padding(top = 20.dp, bottom = 10.dp),
-		artwork = artwork
-	)
+	if (portraitView) {
+		MediaImage(
+			modifier = Modifier
+				.size(imageSize.dp)
+				.padding(bottom = 10.dp),
+			artwork = artwork
+		)
+	}
 	Row(
 		modifier = Modifier.fillMaxWidth(),
 		verticalAlignment = Alignment.CenterVertically
@@ -205,7 +194,7 @@ private fun MediaDescription(
 			) {
 				Icon(
 					imageVector = if (songIsFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-					contentDescription = if (songIsFavorite) stringResource(R.string.remove_from_favorite) else stringResource(R.string.add_to_favorite),
+					contentDescription = stringResource(if (songIsFavorite) R.string.remove_from_favorite else R.string.add_to_favorite),
 					modifier = Modifier.fillMaxSize(0.75f),
 					tint = if (songIsFavorite) MaterialTheme.colorScheme.primary else componentColor
 				)
@@ -216,7 +205,7 @@ private fun MediaDescription(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-private fun MediaControls(
+fun MediaControls(
 	song: Music?,
 	isPlaying: Boolean,
 	shuffleState: Boolean,
@@ -240,7 +229,7 @@ private fun MediaControls(
 		valueRange = 0f..maxSeekValue,
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(top = 20.dp),
+			.padding(top = 8.dp),
 		colors = sliderColor(componentColor)
 	)
 	Row {
@@ -251,7 +240,7 @@ private fun MediaControls(
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(top = 35.dp),
+			.padding(top = 8.dp),
 		horizontalArrangement = Arrangement.SpaceEvenly,
 		verticalAlignment = Alignment.CenterVertically
 	) {
@@ -323,66 +312,10 @@ private fun MediaControls(
 	}
 }
 
-@Composable
-fun MediaUtilActions(
-	song: Music?,
-	deviceMuted: Boolean,
-	componentColor: Color,
-	mediaControl: (MediaControls) -> Unit,
-	openDetailsDialog: (Boolean) -> Unit
-) {
-	Row(
-		modifier = Modifier.fillMaxWidth(),
-		horizontalArrangement = Arrangement.SpaceEvenly,
-		verticalAlignment = Alignment.CenterVertically
-	) {
-		IconButton(
-			onClick = { song?.let { mediaControl(MediaControls.Share(it)) } },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Share,
-				contentDescription = stringResource(R.string.share),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
-			)
-		}
-		IconButton(
-			onClick = { openDetailsDialog(true) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Info,
-				contentDescription = stringResource(R.string.details),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
-			)
-		}
-		IconButton(
-			onClick = { mediaControl(MediaControls.Mute) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
-		) {
-			Icon(
-				imageVector = Icons.Rounded.VolumeOff,
-				contentDescription = stringResource(if (deviceMuted) R.string.unmute else R.string.mute),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else componentColor
-			)
-		}
-	}
-}
-
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview
 @Composable
-fun NowPlayingPreview() {
+private fun NowPlayingPreview() {
 	OdiyoTheme {
 		val context = LocalContext.current
 		var isPlaying by remember { mutableStateOf(false) }
@@ -412,4 +345,18 @@ fun NowPlayingPreview() {
 			navigateUp = {}
 		)
 	}
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@Preview(widthDp = 340, heightDp = 280)
+@Composable
+private fun NowPlayingMultiWindowPreview() {
+	NowPlayingPreview()
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+@Preview(widthDp = 700, heightDp = 340)
+@Composable
+private fun NowPlayingLandscapePreview() {
+	NowPlayingPreview()
 }

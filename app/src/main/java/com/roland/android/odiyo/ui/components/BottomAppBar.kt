@@ -11,9 +11,7 @@ import androidx.compose.material.icons.rounded.PauseCircleOutline
 import androidx.compose.material.icons.rounded.PlayCircleOutline
 import androidx.compose.material.icons.rounded.QueueMusic
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +30,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.util.QueueItemActions
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -51,8 +50,10 @@ fun BottomAppBar(
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
+	var nowPlayingScreen by remember { mutableStateOf(false) }
+	if (concealBottomBar) nowPlayingScreen = true
 
-	if (!concealBottomBar && !inSelectionMode) {
+	if (!nowPlayingScreen && !inSelectionMode) {
 		NowPlayingMinimizedView(
 			song = song,
 			artwork = artwork,
@@ -71,6 +72,13 @@ fun BottomAppBar(
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
 		)
+	}
+
+	LaunchedEffect(!concealBottomBar) {
+		if (!concealBottomBar) {
+			delay(1500)
+			nowPlayingScreen = false
+		}
 	}
 }
 

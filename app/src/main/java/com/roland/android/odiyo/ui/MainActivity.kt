@@ -15,7 +15,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -35,6 +34,7 @@ import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.mediaSession
+import com.roland.android.odiyo.service.Util.notificationManager
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.service.Util.storagePermissionGranted
@@ -49,13 +49,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 class MainActivity : ComponentActivity() {
-	private lateinit var notificationManager: OdiyoNotificationManager
-
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		// player, mediaSession and notificationManager will be initialized and managed in the Service class for background media playback

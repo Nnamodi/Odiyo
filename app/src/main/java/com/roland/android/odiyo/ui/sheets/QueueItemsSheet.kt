@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,11 +32,12 @@ import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.light_onBackground
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
+import com.roland.android.odiyo.util.sheetHeight
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@ExperimentalMaterial3Api
-@UnstableApi
+@OptIn(ExperimentalMaterial3Api::class)
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun QueueItemsSheet(
 	songs: List<Music>,
@@ -48,9 +48,8 @@ fun QueueItemsSheet(
 	queueAction: (QueueItemActions) -> Unit
 ) {
 	val scope = rememberCoroutineScope()
-	val maxSheetHeight = (LocalConfiguration.current.screenHeightDp / 2)
-	val emptySheetHeight = 28 + (12 * 2)
-	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else maxSheetHeight
+	val emptySheetHeight = 28 + (12 * 2.0)
+	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else sheetHeight()
 	val scrollState = rememberLazyListState()
 	val addToQueue = remember { mutableStateOf(false) }
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else light_onBackground
@@ -175,7 +174,7 @@ fun QueueItem(
 			) {
 				Icon(
 					imageVector = if (addToQueue) Icons.Rounded.Add else Icons.Rounded.Clear,
-					contentDescription = if (addToQueue) stringResource(R.string.add_to_queue) else stringResource(R.string.remove_from_queue),
+					contentDescription = stringResource(if (addToQueue) R.string.add_to_queue else R.string.remove_from_queue),
 					tint = componentColor.copy(alpha = 0.7f)
 				)
 			}
@@ -184,9 +183,8 @@ fun QueueItem(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
-@UnstableApi
+@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun QueueItemsPreview() {
