@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -38,6 +39,7 @@ import com.roland.android.odiyo.service.Util.notificationManager
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.service.Util.storagePermissionGranted
+import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
@@ -53,6 +55,8 @@ import kotlinx.coroutines.flow.collectLatest
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 class MainActivity : ComponentActivity() {
+	private lateinit var audioIntent: MutableState<Uri?>
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		// player, mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
@@ -66,6 +70,7 @@ class MainActivity : ComponentActivity() {
 		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
 		notificationManager.showNotification(player)
 		volumeControlStream = AudioManager.STREAM_MUSIC
+		audioIntent = mutableStateOf(intent.data)
 
 		val requestPermissionLauncher = registerForActivityResult(
 			ActivityResultContracts.RequestPermission()
@@ -90,6 +95,7 @@ class MainActivity : ComponentActivity() {
 			storagePermission(permission = { permission = it }) { isGranted ->
 				openPermissionDialog.value = !isGranted
 				storagePermissionGranted.value = isGranted
+				if (!isGranted) audioIntent.value = null
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
@@ -111,6 +117,14 @@ class MainActivity : ComponentActivity() {
 							permissionMessage = stringResource(R.string.storage_permission_message),
 							requestPermission = { requestPermissionLauncher.launch(permission) },
 							openDialog = { openPermissionDialog.value = it }
+						)
+					}
+
+					if (audioIntent.value != null) {
+						AudioIntentDialog(
+							uri = audioIntent.value!!,
+							intentAction = { mediaViewModel.audioIntentAction(it); audioIntent.value = null },
+							openDialog = { audioIntent.value = null }
 						)
 					}
 
@@ -138,6 +152,13 @@ class MainActivity : ComponentActivity() {
 				}
 			}
 		}
+	}
+
+	override fun onNewIntent(intent: Intent?) {
+		super.onNewIntent(intent)
+		val newData = intent?.data
+		audioIntent.value = newData
+		Log.d(/* tag = */ "AudioIntentInfo", /* msg = */ "$newData")
 	}
 
 	override fun onDestroy() {

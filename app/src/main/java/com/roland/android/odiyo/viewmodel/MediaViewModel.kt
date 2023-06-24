@@ -18,6 +18,7 @@ import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.odiyo.util.AudioIntentActions
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -199,5 +200,50 @@ class MediaViewModel @Inject constructor(
 	fun songsToAddToPlaylist(playlistName: String?): List<Music> {
 		val playlist = playlists.find { it.name == playlistName }
 		return songs.filterNot { playlist?.songs?.contains(it.uri) == true }
+	}
+
+	fun audioIntentAction(action: AudioIntentActions) {
+		if (!canAccessStorage) return
+		when (action) {
+			is AudioIntentActions.Play -> playAudioFromIntent(action.uri)
+			is AudioIntentActions.PlayNext -> playNext(action.uri)
+			is AudioIntentActions.AddToQueue -> addToQueue(action.uri)
+		}
+		updateMusicQueue()
+		Log.d("ViewModelInfo", "audioIntentAction: $action")
+	}
+
+	private fun playAudioFromIntent(uri: Uri) {
+		mediaItems.value = mutableListOf(uri.toMediaItem)
+		playAudio(uri, 0)
+	}
+
+	private fun playNext(uri: Uri) {
+		val mediaItem = uri.toMediaItem
+		mediaSession?.player?.apply {
+			if (musicQueue.isNotEmpty()) {
+				val index = currentMediaItemIndex + 1
+				addMediaItem(index, mediaItem)
+				mediaItems.value.add(index, mediaItem)
+			} else {
+				pause()
+				mediaItems.value = mutableListOf(mediaItem)
+				preparePlaylist()
+			}
+		}
+	}
+
+	private fun addToQueue(uri: Uri) {
+		val mediaItem = uri.toMediaItem
+		mediaSession?.player?.apply {
+			if (musicQueue.isNotEmpty()) {
+				addMediaItem(mediaItem)
+				mediaItems.value.add(mediaItem)
+			} else {
+				pause()
+				mediaItems.value = mutableListOf(mediaItem)
+				preparePlaylist()
+			}
+		}
 	}
 }

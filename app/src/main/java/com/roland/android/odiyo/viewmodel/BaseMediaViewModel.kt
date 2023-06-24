@@ -179,10 +179,9 @@ open class BaseMediaViewModel(
 	private fun getCurrentSong() {
 		viewModelScope.launch {
 			nowPlaying.collect { item ->
-				currentSong = musicItem(item)
-				delay(3000) // delay allow songs to completely load from device before further action
-				if (currentSong == null || currentSong !in songs) currentSong = musicItem(item)
-				currentSong?.let { saveStreamDate(it) }
+				musicItem(item)?.let { currentSong = it }
+				delay(3000) // delay allows songs to completely load from device before further action
+				musicItem(item)?.let { currentSong = it; saveStreamDate(it) }
 				updateMusicQueue(queueEdited = false)
 			}
 		}
@@ -199,7 +198,10 @@ open class BaseMediaViewModel(
 
 	fun musicItem(mediaItem: MediaItem?): Music? {
 		val currentSongUri = mediaItem?.localConfiguration?.uri
-		return cachedSongs.find { it.uri == currentSongUri }
+		val songPath = currentSongUri.toString().replace("%20", " ")
+		return cachedSongs.find {
+			it.uri == currentSongUri || songPath.contains(it.path)
+		}
 	}
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
@@ -278,7 +280,7 @@ open class BaseMediaViewModel(
 		val playlist = playlists.find { it.name == playlistName }
 		val uris = playlist?.songs
 		songsFromPlaylist = songs.filter { uris?.contains(it.uri) == true }
-		Log.d("ViewModelInfo", "Songs from playlist: $songsFromPlaylist")
+		Log.i("ViewModelInfo", "Songs from playlist: $songsFromPlaylist")
 	}
 
 	fun updateMusicQueue(queueEdited: Boolean = true) {
@@ -298,7 +300,7 @@ open class BaseMediaViewModel(
 			is QueueItemActions.RemoveSong -> removeSong(action.item)
 		}
 		updateMusicQueue()
-		Log.d("ViewModelInfo", "queueAction: $action")
+		Log.i("ViewModelInfo", "queueAction: $action")
 	}
 
 	private fun playFromQueue(song: QueueMediaItem) {

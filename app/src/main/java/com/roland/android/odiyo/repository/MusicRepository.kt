@@ -6,6 +6,8 @@ import com.roland.android.odiyo.model.Music
 import kotlinx.coroutines.flow.Flow
 
 class MusicRepository(private val musicDao: MusicDao) {
+	private var songsCached = false
+
 	val getCachedSongs: Flow<List<Music>> = musicDao.getAllSongs()
 
 	fun getCachedSongs(songsFromSystem: List<Music>, cachedSongs: List<Music>): List<Music> {
@@ -21,6 +23,7 @@ class MusicRepository(private val musicDao: MusicDao) {
 	}
 
 	suspend fun cacheSongs(songs: List<Music>) {
+		if (songsCached) return else songsCached = true
 		musicDao.clearDatabase()
 		musicDao.addSongs(songs)
 	}

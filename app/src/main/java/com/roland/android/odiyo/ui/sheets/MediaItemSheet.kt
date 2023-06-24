@@ -121,9 +121,14 @@ fun MediaItemSheet(
 }
 
 @Composable
-fun SheetItem(icon: ImageVector, menuText: String, action: () -> Unit) {
+fun SheetItem(
+	icon: ImageVector,
+	menuText: String,
+	modifier: Modifier = Modifier,
+	action: () -> Unit
+) {
 	Row(
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.clickable { action() }
 			.padding(horizontal = 20.dp, vertical = 16.dp),

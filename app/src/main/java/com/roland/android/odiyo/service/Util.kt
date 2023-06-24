@@ -35,7 +35,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @androidx.annotation.OptIn(UnstableApi::class)
 object Util {
 	val audioAttribute = AudioAttributes.Builder()
@@ -70,6 +69,7 @@ object Util {
 	val songsOnQueue = MutableStateFlow<MutableList<Music>>(mutableListOf())
 
 	val Long.time: String
+		@RequiresApi(Build.VERSION_CODES.O)
 		get() = LocalDateTime.ofInstant(
 			Instant.ofEpochMilli(this),
 			ZoneId.systemDefault()
@@ -129,6 +129,7 @@ object Util {
 
 	// an intent to launch UI from player notification.
 	val Context.pendingIntent: PendingIntent
+		@RequiresApi(Build.VERSION_CODES.Q)
 		get() = PendingIntent.getActivity(
 				this,
 				0,

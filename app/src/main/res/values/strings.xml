@@ -8,7 +8,7 @@
     <string name="search_icon_desc">Search icon</string>
     <string name="nothing_to_play">Nothing to play</string>
     <string name="pause">pause</string>
-    <string name="play">play</string>
+    <string name="play">Play</string>
     <string name="back_icon_desc">Back</string>
     <string name="unknown">Unknown</string>
     <string name="shuffle">shuffle</string>
@@ -86,6 +86,8 @@
     <string name="these_songs">these songs</string>
     <string name="this_song">this song</string>
     <string name="name_already_exists">Playlist name \"%s\" already exists</string>
+    <string name="drop_it">Drop it</string>
+    <string name="audio_intent_message">An audio file got dropped in by another application. But you have an existing playlist.\nHow would you want to handle it?</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>

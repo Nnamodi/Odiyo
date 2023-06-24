@@ -2,6 +2,7 @@ package com.roland.android.odiyo.repository
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.AlbumsSource
 import com.roland.android.odiyo.mediaSource.ArtistsSource
@@ -45,11 +46,11 @@ class MediaRepository(
 	}
 
 	fun shareSong(context: Context, songs: List<Music>) {
-		Intent(Intent.ACTION_SEND).apply {
-			songs.forEach { song ->
-				setDataAndType(song.uri, "audio/*")
-				putExtra(Intent.EXTRA_STREAM, song.uri)
-			}
+		val uris: ArrayList<Uri> = arrayListOf()
+		songs.forEach { uris += it.uri }
+		Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+			type = "audio/*"
+			putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
 		}.also { intent ->
 			val title = if (songs.size > 1) context.getString(R.string.songs) else songs[0].name
 			val chooserIntent = Intent.createChooser(intent, context.getString(R.string.send_audio_file, title))
