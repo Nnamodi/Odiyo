@@ -18,11 +18,11 @@ import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.progress
-import com.roland.android.odiyo.service.Util.shuffleModeState
 import com.roland.android.odiyo.service.Util.time
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.util.MediaControls
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +30,7 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
 class NowPlayingViewModel @Inject constructor(
-	appDataStore: AppDataStore,
+	private val appDataStore: AppDataStore,
 	mediaRepository: MediaRepository,
 	musicRepository: MusicRepository,
 	playlistRepository: PlaylistRepository
@@ -55,8 +55,9 @@ class NowPlayingViewModel @Inject constructor(
 			}
 		}
 		viewModelScope.launch {
-			shuffleModeState.collect {
+			appDataStore.getShuffleState().collect {
 				shuffleState = it
+				mediaSession?.player?.shuffleModeEnabled = it
 			}
 		}
 		viewModelScope.launch {
@@ -112,8 +113,8 @@ class NowPlayingViewModel @Inject constructor(
 	}
 
 	private fun shuffle() {
-		mediaSession?.player?.apply {
-			shuffleModeEnabled = !shuffleModeEnabled
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveShuffleState(!shuffleState)
 		}
 	}
 

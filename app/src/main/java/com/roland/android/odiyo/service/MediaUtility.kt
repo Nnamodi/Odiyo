@@ -20,7 +20,6 @@ import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.progress
-import com.roland.android.odiyo.service.Util.shuffleModeState
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @UnstableApi
@@ -29,7 +28,6 @@ class PlayerListener : Player.Listener {
 		super.onEvents(player, events)
 		playingState.value = player.isPlaying
 		deviceMuteState.value = player.isDeviceMuted
-		shuffleModeState.value = player.shuffleModeEnabled
 		progress.value = player.currentPosition
 		currentMediaIndex.value = player.currentMediaItemIndex
 	}

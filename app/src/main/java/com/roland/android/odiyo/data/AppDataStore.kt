@@ -11,6 +11,7 @@ private val CURRENT_PLAYLIST = stringPreferencesKey("current_playlist")
 private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
 private val SORT_PREFERENCE = stringPreferencesKey("sort_preference")
+private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	suspend fun saveCurrentPlaylist(
@@ -46,6 +47,18 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 			SortOptions.valueOf(
 				value = preference[SORT_PREFERENCE] ?: SortOptions.NameAZ.name
 			)
+		}
+	}
+
+	suspend fun saveShuffleState(shuffleState: Boolean) {
+		dataStore.edit { preference ->
+			preference[SHUFFLE_STATE] = shuffleState
+		}
+	}
+
+	fun getShuffleState(): Flow<Boolean> {
+		return dataStore.data.map { preference ->
+			preference[SHUFFLE_STATE] ?: false
 		}
 	}
 }

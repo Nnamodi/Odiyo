@@ -54,8 +54,6 @@ object Util {
 
 	val deviceMuteState = MutableStateFlow(false)
 
-	val shuffleModeState = MutableStateFlow(false)
-
 	val progress = MutableStateFlow(0L)
 
 	val currentMediaIndex = MutableStateFlow(0)

@@ -29,7 +29,6 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
-import com.roland.android.odiyo.ui.theme.color.light_onBackground
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import com.roland.android.odiyo.util.sheetHeight
@@ -52,7 +51,7 @@ fun QueueItemsSheet(
 	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else sheetHeight()
 	val scrollState = rememberLazyListState()
 	val addToQueue = remember { mutableStateOf(false) }
-	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else light_onBackground
+	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
 
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
