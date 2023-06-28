@@ -55,6 +55,7 @@ fun NowPlayingScreen(
 	artwork: Any?,
 	isPlaying: Boolean,
 	deviceMuted: Boolean,
+	repeatMode: Int,
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
@@ -83,13 +84,13 @@ fun NowPlayingScreen(
 	) { paddingValues ->
 		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
 			NowPlayingLandscapeView(
-				paddingValues, song, artwork, componentColor, isPlaying,
+				paddingValues, song, artwork, componentColor, isPlaying, repeatMode,
 				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
 		} else {
 			NowPlayingPortraitView(
-				paddingValues, song, artwork, componentColor, isPlaying,
+				paddingValues, song, artwork, componentColor, isPlaying, repeatMode,
 				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
@@ -326,6 +327,7 @@ private fun NowPlayingPreview() {
 			song = previewData[4],
 			artwork = previewData[4].getBitmap(context),
 			isPlaying = isPlaying,
+			repeatMode = 0,
 			deviceMuted = deviceMuted,
 			shuffleState = shuffleState,
 			progress = 0f,

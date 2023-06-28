@@ -3,6 +3,7 @@ package com.roland.android.odiyo.data
 import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
+import androidx.media3.common.Player
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -12,6 +13,7 @@ private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
 private val SORT_PREFERENCE = stringPreferencesKey("sort_preference")
 private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
+private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	suspend fun saveCurrentPlaylist(
@@ -59,6 +61,18 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	fun getShuffleState(): Flow<Boolean> {
 		return dataStore.data.map { preference ->
 			preference[SHUFFLE_STATE] ?: false
+		}
+	}
+
+	suspend fun saveRepeatMode(repeatMode: Int) {
+		dataStore.edit { preference ->
+			preference[REPEAT_MODE] = repeatMode
+		}
+	}
+
+	fun getRepeatMode(): Flow<Int> {
+		return dataStore.data.map { preference ->
+			preference[REPEAT_MODE] ?: Player.REPEAT_MODE_OFF
 		}
 	}
 }

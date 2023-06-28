@@ -4,9 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.VolumeOff
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.screens.MediaControls
@@ -30,6 +29,7 @@ fun NowPlayingPortraitView(
 	artwork: Any?,
 	componentColor: Color,
 	isPlaying: Boolean,
+	repeatMode: Int,
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
@@ -73,6 +73,7 @@ fun NowPlayingPortraitView(
 		MediaUtilActionsPortrait(
 			song = song,
 			deviceMuted = deviceMuted,
+			repeatMode = repeatMode,
 			componentColor = componentColor,
 			mediaControl = mediaControl,
 			openDetailsDialog = openDetailsDialog
@@ -84,6 +85,7 @@ fun NowPlayingPortraitView(
 fun MediaUtilActionsPortrait(
 	song: Music?,
 	deviceMuted: Boolean,
+	repeatMode: Int,
 	componentColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
@@ -130,6 +132,19 @@ fun MediaUtilActionsPortrait(
 				contentDescription = stringResource(if (deviceMuted) R.string.unmute else R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
 				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else componentColor
+			)
+		}
+		IconButton(
+			onClick = { mediaControl(MediaControls.RepeatMode) },
+			modifier = Modifier
+				.size(50.dp)
+				.weight(1f)
+		) {
+			Icon(
+				imageVector = if (repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
+				contentDescription = stringResource(R.string.repeat_mode),
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = if (repeatMode == Player.REPEAT_MODE_OFF) componentColor else MaterialTheme.colorScheme.primary
 			)
 		}
 	}

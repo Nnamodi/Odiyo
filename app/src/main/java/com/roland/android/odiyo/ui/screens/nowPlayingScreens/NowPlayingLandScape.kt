@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
@@ -32,6 +33,7 @@ fun NowPlayingLandscapeView(
 	artwork: Any?,
 	componentColor: Color,
 	isPlaying: Boolean,
+	repeatMode: Int,
 	shuffleState: Boolean,
 	progress: Float,
 	timeElapsed: String,
@@ -102,6 +104,7 @@ fun NowPlayingLandscapeView(
 		MediaUtilActionsLandscape(
 			song = song,
 			deviceMuted = deviceMuted,
+			repeatMode = repeatMode,
 			componentColor = componentColor,
 			mediaControl = mediaControl,
 			openDetailsDialog = openDetailsDialog
@@ -113,6 +116,7 @@ fun NowPlayingLandscapeView(
 fun MediaUtilActionsLandscape(
 	song: Music?,
 	deviceMuted: Boolean,
+	repeatMode: Int,
 	componentColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
@@ -161,6 +165,19 @@ fun MediaUtilActionsLandscape(
 				contentDescription = stringResource(if (deviceMuted) R.string.unmute else R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
 				tint = if (deviceMuted) MaterialTheme.colorScheme.primary else componentColor
+			)
+		}
+		IconButton(
+			onClick = { mediaControl(MediaControls.RepeatMode) },
+			modifier = Modifier
+				.size(50.dp)
+				.weight(1f)
+		) {
+			Icon(
+				imageVector = if (repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
+				contentDescription = stringResource(R.string.repeat_mode),
+				modifier = Modifier.fillMaxSize(0.75f),
+				tint = if (repeatMode == Player.REPEAT_MODE_OFF) componentColor else MaterialTheme.colorScheme.primary
 			)
 		}
 	}

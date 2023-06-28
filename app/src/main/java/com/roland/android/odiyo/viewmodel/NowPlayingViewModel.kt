@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.repository.MediaRepository
@@ -37,6 +38,7 @@ class NowPlayingViewModel @Inject constructor(
 ) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
 	var isDeviceMuted by mutableStateOf(false); private set
 	var shuffleState by mutableStateOf(false); private set
+	var repeatMode by mutableStateOf(0); private set
 	private var initialDeviceVolume by mutableStateOf(0)
 
 	var seekProgress by mutableStateOf(0f); private set
@@ -58,6 +60,12 @@ class NowPlayingViewModel @Inject constructor(
 			appDataStore.getShuffleState().collect {
 				shuffleState = it
 				mediaSession?.player?.shuffleModeEnabled = it
+			}
+		}
+		viewModelScope.launch {
+			appDataStore.getRepeatMode().collect {
+				repeatMode = it
+				mediaSession?.player?.repeatMode = it
 			}
 		}
 		viewModelScope.launch {
@@ -84,6 +92,7 @@ class NowPlayingViewModel @Inject constructor(
 			MediaControls.Mute -> onMuteDevice(context)
 			is MediaControls.PlayPause -> playPause()
 			is MediaControls.Favorite -> favoriteSong(action.song)
+			MediaControls.RepeatMode -> setRepeatMode()
 			is MediaControls.Seek -> seek(action.previous, action.next)
 			is MediaControls.SeekToPosition -> onSeekToPosition(action.position)
 			is MediaControls.Share -> shareSong(context, listOf(action.music))
@@ -110,6 +119,17 @@ class NowPlayingViewModel @Inject constructor(
 
 	private fun onSeekToPosition(position: Long) {
 		mediaSession?.player?.seekTo(position)
+	}
+
+	private fun setRepeatMode() {
+		val mode = when (repeatMode) {
+			Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
+			Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
+			else -> Player.REPEAT_MODE_OFF
+		}
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveRepeatMode(mode)
+		}
 	}
 
 	private fun shuffle() {

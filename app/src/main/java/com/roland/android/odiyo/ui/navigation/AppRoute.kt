@@ -181,6 +181,7 @@ fun AppRoute(
 					artwork = nowPlayingViewModel.currentMediaItemImage,
 					isPlaying = nowPlayingViewModel.isPlaying,
 					deviceMuted = nowPlayingViewModel.isDeviceMuted,
+					repeatMode = nowPlayingViewModel.repeatMode,
 					shuffleState = nowPlayingViewModel.shuffleState,
 					progress = nowPlayingViewModel.seekProgress,
 					timeElapsed = nowPlayingViewModel.currentDuration,

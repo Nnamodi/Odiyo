@@ -88,6 +88,7 @@
     <string name="name_already_exists">Playlist name \"%s\" already exists</string>
     <string name="drop_it">Drop it</string>
     <string name="audio_intent_message">An audio file got dropped in by another application. But you have an existing playlist.\nHow would you want to handle it?</string>
+    <string name="repeat_mode">change repeat mode</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
