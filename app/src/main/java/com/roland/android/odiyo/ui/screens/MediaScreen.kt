@@ -21,6 +21,7 @@ import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.screens.MediaScreen.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.light_outline
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -55,7 +56,8 @@ fun MediaScreen(
 						onClick = {
 							scope.launch { pagerState.animateScrollToPage(index) }
 						},
-						enabled = !inSelectMode
+						enabled = !inSelectMode,
+						unselectedContentColor = light_outline
 					)
 				}
 			}

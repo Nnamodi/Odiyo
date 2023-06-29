@@ -40,7 +40,7 @@ fun SongListMenu(
 		modifier = Modifier.fillMaxWidth(0.5f)
 	) {
 		val menuItems = values().toMutableList()
-		if (!showSortAction) menuItems.remove(SortBy)
+		if (!showSortAction || songs.size < 2) menuItems.remove(SortBy)
 
 		menuItems.forEach { menu ->
 			val action = { when (menu) {

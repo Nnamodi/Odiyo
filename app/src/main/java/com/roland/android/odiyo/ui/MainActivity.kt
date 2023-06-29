@@ -53,7 +53,7 @@ import kotlinx.coroutines.flow.collectLatest
 @AndroidEntryPoint
 @OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 class MainActivity : ComponentActivity() {
 	private lateinit var audioIntent: MutableState<Uri?>
 

@@ -198,7 +198,9 @@ open class BaseMediaViewModel(
 
 	fun musicItem(mediaItem: MediaItem?): Music? {
 		val currentSongUri = mediaItem?.localConfiguration?.uri
-		val songPath = currentSongUri.toString().replace("%20", " ")
+		val songPath = currentSongUri.toString()
+			.replace("%20", " ")
+			.replace("%40", "@")
 		return cachedSongs.find {
 			it.uri == currentSongUri || songPath.contains(it.path)
 		}

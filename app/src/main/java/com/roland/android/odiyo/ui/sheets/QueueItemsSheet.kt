@@ -2,12 +2,12 @@ package com.roland.android.odiyo.ui.sheets
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.BottomSheetDefaults.ContainerColor
@@ -16,17 +16,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.ui.components.SwipeableItem
+import com.roland.android.odiyo.ui.components.rememberSwipeToDismissState
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.QueueItemActions
@@ -89,15 +93,27 @@ fun QueueItemsSheet(
 					items = songs,
 					key = { index, song -> "$index-${song.id}" }
 				) { index, song ->
-					QueueItem(
-						itemIndex = index,
-						song = song,
-						currentSongIndex = currentSongIndex,
-						addToQueue = addToQueue.value,
-						itemIsLast = index == songs.size,
-						componentColor = componentColor,
-						action = { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
+					val dismissState = rememberSwipeToDismissState(
+						index = index,
+						songUri = song.uri,
+						queueAction = queueAction
 					)
+					val elevation by animateDpAsState(targetValue = if (dismissState.dismissDirection != null) 4.dp else 0.dp)
+
+					SwipeableItem(
+						dismissState = dismissState,
+						defaultBackgroundColor = containerColor.copy(alpha = 1f)
+					) {
+						QueueItem(
+							itemIndex = index,
+							song = song,
+							currentSongIndex = currentSongIndex,
+							itemIsLast = index == songs.size,
+							elevation = elevation,
+							cardColor = containerColor,
+							componentColor = componentColor
+						) { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
+					}
 				}
 			}
 		}
@@ -115,19 +131,23 @@ fun QueueItem(
 	itemIndex: Int,
 	song: Music,
 	currentSongIndex: Int,
-	addToQueue: Boolean,
 	itemIsLast: Boolean,
+	elevation: Dp,
+	cardColor: Color,
 	componentColor: Color,
 	action: (QueueItemActions) -> Unit
 ) {
 	val isPlaying = itemIndex == currentSongIndex
 	val color = if (isPlaying) MaterialTheme.colorScheme.primary else componentColor
 
-	Column(
-		modifier = Modifier.fillMaxWidth()
+	Card(
+		colors = CardDefaults.cardColors(cardColor),
+		elevation = CardDefaults.cardElevation(elevation),
+		shape = RectangleShape
 	) {
 		Row(
 			modifier = Modifier
+				.fillMaxWidth()
 				.clickable {
 					action(
 						QueueItemActions.Play(
@@ -135,48 +155,26 @@ fun QueueItem(
 						)
 					)
 				}
-				.padding(start = 16.dp, top = 2.dp, end = 4.dp, bottom = 2.dp),
-			horizontalArrangement = Arrangement.Center,
+				.padding(horizontal = 16.dp, vertical = 16.dp),
+			horizontalArrangement = Arrangement.Start,
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			Row(
-				modifier = Modifier.weight(1f),
-				verticalAlignment = Alignment.CenterVertically
-			) {
-				Text(
-					text = song.title,
-					fontSize = 18.sp,
-					overflow = TextOverflow.Ellipsis,
-					softWrap = false,
-					color = color
-				)
-				Text(
-					text = " - ${song.artist}",
-					fontSize = 15.sp,
-					fontWeight = FontWeight.Light,
-					modifier = Modifier.alpha(0.7f),
-					overflow = TextOverflow.Ellipsis,
-					softWrap = false,
-					color = color
-				)
-			}
-			IconButton(
-				onClick = {
-					action(
-						if (addToQueue) {
-							QueueItemActions.DuplicateSong(QueueMediaItem(itemIndex, song.uri))
-						} else {
-							QueueItemActions.RemoveSong(QueueMediaItem(itemIndex, song.uri))
-						}
-					)
-				}
-			) {
-				Icon(
-					imageVector = if (addToQueue) Icons.Rounded.Add else Icons.Rounded.Clear,
-					contentDescription = stringResource(if (addToQueue) R.string.add_to_queue else R.string.remove_from_queue),
-					tint = componentColor.copy(alpha = 0.7f)
-				)
-			}
+			Text(
+				text = song.title,
+				fontSize = 18.sp,
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false,
+				color = color
+			)
+			Text(
+				text = " - ${song.artist}",
+				fontSize = 15.sp,
+				fontWeight = FontWeight.Light,
+				modifier = Modifier.alpha(0.7f),
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false,
+				color = color
+			)
 		}
 		if (!itemIsLast) Divider(color = Color.White.copy(alpha = 0.5f))
 	}
