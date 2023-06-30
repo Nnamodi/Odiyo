@@ -23,13 +23,18 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
+import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
+import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,14 +47,20 @@ fun BottomAppBar(
 	isPlaying: Boolean,
 	currentSongIndex:Int,
 	musicQueue: List<Music>,
+	playlists: List<Playlist>,
 	playPause: (Uri, Int?) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 	moveToNowPlayingScreen: () -> Unit,
+	snackbarHostState: SnackbarHostState,
 	concealBottomBar: Boolean,
 	inSelectionMode: Boolean
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
+	val context = LocalContext.current
+	val scope = rememberCoroutineScope()
 	val openMusicQueue = remember { mutableStateOf(false) }
+	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	var nowPlayingScreen by remember { mutableStateOf(false) }
 	if (concealBottomBar) nowPlayingScreen = true
 
@@ -69,8 +80,21 @@ fun BottomAppBar(
 			songs = musicQueue,
 			currentSongIndex = currentSongIndex,
 			scaffoldState = scaffoldState,
+			saveQueue = { openAddToPlaylistDialog.value = true },
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
+		)
+	}
+
+	if (openAddToPlaylistDialog.value) {
+		AddToPlaylistDialog(
+			songs = musicQueue,
+			playlists = playlists,
+			addSongToPlaylist = {
+				menuAction(it)
+				showSnackbar(it, context, scope, snackbarHostState)
+			},
+			openDialog = { openAddToPlaylistDialog.value = it }
 		)
 	}
 
@@ -158,6 +182,7 @@ fun BottomAppBarPreview() {
 		val currentSong = previewData[3]
 		val concealBottomBar = remember { mutableStateOf(true) }
 		val playPause = remember { mutableStateOf(false) }
+		val snackbarHostState = remember { SnackbarHostState() }
 
 		Column(
 			modifier = Modifier
@@ -171,9 +196,12 @@ fun BottomAppBarPreview() {
 				isPlaying = playPause.value,
 				currentSongIndex = 3,
 				musicQueue = previewData,
+				playlists = previewPlaylist,
 				playPause = { _, _ -> playPause.value = !playPause.value },
 				queueAction = {},
+				menuAction = {},
 				moveToNowPlayingScreen = {},
+				snackbarHostState = snackbarHostState,
 				concealBottomBar = concealBottomBar.value,
 				inSelectionMode = false
 			)

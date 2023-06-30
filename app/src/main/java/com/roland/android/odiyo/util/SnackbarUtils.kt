@@ -22,6 +22,7 @@ object SnackbarUtils {
 			is MediaMenuActions.DeleteSongs -> R.string.deleted
 			is MediaMenuActions.Favorite -> if (song?.favorite == true) R.string.added_to_favorites else R.string.removed_from_favorites
 			is MediaMenuActions.AddToPlaylist -> R.string.added_to_playlist
+			is MediaMenuActions.CreatePlaylist -> R.string.added_to_playlist
 			is MediaMenuActions.RemoveFromPlaylist -> R.string.removed
 			is MediaMenuActions.PlayNext -> R.string.added_to_queue
 			is MediaMenuActions.RenameSong -> R.string.renamed

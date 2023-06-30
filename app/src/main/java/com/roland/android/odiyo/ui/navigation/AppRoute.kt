@@ -4,11 +4,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -36,6 +36,7 @@ fun AppRoute(
 	playlistViewModel: PlaylistViewModel
 ) {
 	val context = LocalContext.current
+	val snackbarHostState = remember { SnackbarHostState() }
 	var selectionModeClosed by remember { mutableStateOf(true) } // determines whether items in a LazyColumn are being selected.
 
 	Scaffold(
@@ -46,12 +47,22 @@ fun AppRoute(
 				isPlaying = mediaViewModel.isPlaying,
 				currentSongIndex = mediaViewModel.currentSongIndex,
 				musicQueue = mediaViewModel.musicQueue,
+				playlists = mediaViewModel.playlists,
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
+				menuAction = { mediaViewModel.menuAction(context, it) },
 				moveToNowPlayingScreen = navActions::navigateToNowPlayingScreen,
+				snackbarHostState = snackbarHostState,
 				concealBottomBar = concealMinimizedView(navController),
 				inSelectionMode = !selectionModeClosed
 			)
+		},
+		snackbarHost = {
+			SnackbarHost(snackbarHostState) {
+				Snackbar(Modifier.padding(horizontal = 16.dp)) {
+					Text(it.visuals.message)
+				}
+			}
 		}
 	) { innerPadding ->
 		AnimatedNavHost(
@@ -187,6 +198,7 @@ fun AppRoute(
 					timeElapsed = nowPlayingViewModel.currentDuration,
 					currentSongIndex = mediaViewModel.currentSongIndex,
 					musicQueue = nowPlayingViewModel.musicQueue,
+					playlists = nowPlayingViewModel.playlists,
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
 					goToCollection = navActions::navigateToMediaItemScreen,

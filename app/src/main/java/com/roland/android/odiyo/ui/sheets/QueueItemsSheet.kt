@@ -47,6 +47,7 @@ fun QueueItemsSheet(
 	currentSongIndex: Int,
 	scaffoldState: SheetState,
 	containerColor: Color = ContainerColor,
+	saveQueue: () -> Unit,
 	openBottomSheet: (Boolean) -> Unit,
 	queueAction: (QueueItemActions) -> Unit
 ) {
@@ -54,7 +55,6 @@ fun QueueItemsSheet(
 	val emptySheetHeight = 28 + (12 * 2.0)
 	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else sheetHeight()
 	val scrollState = rememberLazyListState()
-	val addToQueue = remember { mutableStateOf(false) }
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
 
 	ModalBottomSheet(
@@ -77,10 +77,8 @@ fun QueueItemsSheet(
 				)
 				Spacer(Modifier.weight(1f))
 				if (songs.isNotEmpty()) {
-					TextButton(
-						onClick = { addToQueue.value = !addToQueue.value }
-					) {
-						Text(stringResource(if (!addToQueue.value) R.string.add else R.string.remove))
+					TextButton(onClick = { saveQueue(); openBottomSheet(false) }) {
+						Text(stringResource(R.string.save_queue))
 					}
 				}
 			}
@@ -199,9 +197,9 @@ fun QueueItemsPreview() {
 					songs = previewData.shuffled(),
 					currentSongIndex = 4,
 					scaffoldState = sheetState,
-					openBottomSheet = { openBottomSheet.value = it },
-					queueAction = {}
-				)
+					saveQueue = {},
+					openBottomSheet = { openBottomSheet.value = it }
+				) {}
 			}
 		}
 	}

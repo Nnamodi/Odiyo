@@ -28,6 +28,7 @@ import com.roland.android.odiyo.ui.screens.CreatePlaylistButton
 import com.roland.android.odiyo.ui.screens.PlaylistItem
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -35,7 +36,9 @@ import com.roland.android.odiyo.util.MediaMenuActions
 fun AddToPlaylistDialog(
 	songs: List<Music>,
 	playlists: List<Playlist>,
-	addSongToPlaylist: (MediaMenuActions) -> Unit,
+	songsFromMusicQueue: Boolean = false,
+	addSongToPlaylist: (MediaMenuActions) -> Unit = {},
+	saveQueueToPlaylist: (QueueItemActions) -> Unit = {},
 	openDialog: (Boolean) -> Unit
 ) {
 	val openPlaylistDialog = remember { mutableStateOf(false) }
@@ -70,7 +73,8 @@ fun AddToPlaylistDialog(
 						PlaylistItem(
 							playlist = playlist,
 							onItemClick = { _, _ ->
-								addSongToPlaylist(MediaMenuActions.AddToPlaylist(songs, playlist))
+								if (songsFromMusicQueue) saveQueueToPlaylist(QueueItemActions.AddToPlaylist(songs, playlist))
+								else addSongToPlaylist(MediaMenuActions.AddToPlaylist(songs, playlist))
 								openDialog(false)
 							},
 							parentContentIsDialog = true,
@@ -99,8 +103,10 @@ fun AddToPlaylistDialog(
 				val playlist = Playlist(
 					name = newPlaylistName,
 					songs = songs.map { it.uri }.plus("".toUri())
+						.toSet().toList() // changed collection to set to avoid duplicate elements.
 				)
-				addSongToPlaylist(MediaMenuActions.CreatePlaylist(playlist))
+				if (songsFromMusicQueue) saveQueueToPlaylist(QueueItemActions.CreatePlaylist(playlist))
+				else addSongToPlaylist(MediaMenuActions.CreatePlaylist(playlist))
 				openDialog(false)
 			},
 			openDialog = { openDialog(it) }
@@ -116,10 +122,8 @@ fun AddToPlaylistDialogPreview() {
 		Column(Modifier.fillMaxSize()) {
 			AddToPlaylistDialog(
 				songs = previewData,
-				playlists = previewPlaylist.take(2),
-				addSongToPlaylist = {},
-				openDialog = {}
-			)
+				playlists = previewPlaylist.take(2)
+			) {}
 		}
 	}
 }

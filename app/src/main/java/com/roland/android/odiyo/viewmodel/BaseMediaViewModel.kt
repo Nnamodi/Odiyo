@@ -267,6 +267,21 @@ open class BaseMediaViewModel(
 		}
 	}
 
+	fun addSongsToPlaylist(songsToAdd: List<Music>, playlist: Playlist) {
+		viewModelScope.launch(Dispatchers.IO) {
+			if (songsToAdd.isNotEmpty()) {
+				val uriList = playlist.songs.toMutableList()
+				uriList.addAll(0, songsToAdd.map { it.uri }.toSet())
+				playlist.songs = uriList
+				playlistRepository.updatePlaylist(playlist)
+				fetchPlaylistSongs(playlist.name)
+				Log.d("ViewModelInfo", "Song added: ${playlist.songs}")
+			} else {
+				playlistRepository.createPlaylist(playlist)
+			}
+		}
+	}
+
 	fun shareSong(context: Context, songs: List<Music>) {
 		mediaRepository.shareSong(context, songs)
 	}
@@ -300,6 +315,8 @@ open class BaseMediaViewModel(
 			is QueueItemActions.Play -> playFromQueue(action.item)
 			is QueueItemActions.DuplicateSong -> duplicateSong(action.item)
 			is QueueItemActions.RemoveSong -> removeSong(action.item)
+			is QueueItemActions.CreatePlaylist -> createPlaylist(action.playlist)
+			is QueueItemActions.AddToPlaylist -> addSongsToPlaylist(action.songs, action.playlist)
 		}
 		updateMusicQueue()
 		Log.i("ViewModelInfo", "queueAction: $action")

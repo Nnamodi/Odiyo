@@ -25,10 +25,13 @@ import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingLandscapeView
@@ -38,10 +41,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
-import com.roland.android.odiyo.util.MediaControls
-import com.roland.android.odiyo.util.QueueItemActions
-import com.roland.android.odiyo.util.WindowType
-import com.roland.android.odiyo.util.rememberWindowSize
+import com.roland.android.odiyo.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -61,6 +61,7 @@ fun NowPlayingScreen(
 	timeElapsed: String,
 	currentSongIndex: Int,
 	musicQueue: List<Music>,
+	playlists: List<Playlist>,
 	mediaControl: (MediaControls) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	goToCollection: (String, String) -> Unit,
@@ -69,11 +70,14 @@ fun NowPlayingScreen(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
+	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val screenLaunched = remember { mutableStateOf(false) }
 	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val componentColor = componentColor(generatedColor)
 	val windowSize = rememberWindowSize()
 	val scope = rememberCoroutineScope()
+	val context = LocalContext.current
+	val snackbarHostState = remember { SnackbarHostState() }
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
@@ -103,8 +107,24 @@ fun NowPlayingScreen(
 			currentSongIndex = currentSongIndex,
 			scaffoldState = scaffoldState,
 			containerColor = generatedColor,
+			saveQueue = { openAddToPlaylistDialog.value = true },
 			openBottomSheet = { openMusicQueue.value = it },
 			queueAction = queueAction
+		)
+	}
+
+	if (openAddToPlaylistDialog.value) {
+		AddToPlaylistDialog(
+			songs = musicQueue,
+			playlists = playlists,
+			songsFromMusicQueue = true,
+			saveQueueToPlaylist = {
+				queueAction(it)
+				scope.launch {
+					snackbarHostState.showSnackbar(context.getString(R.string.added_to_playlist))
+				}
+			},
+			openDialog = { openAddToPlaylistDialog.value = it }
 		)
 	}
 
@@ -327,13 +347,14 @@ private fun NowPlayingPreview() {
 			song = previewData[4],
 			artwork = previewData[4].getBitmap(context),
 			isPlaying = isPlaying,
-			repeatMode = 0,
 			deviceMuted = deviceMuted,
+			repeatMode = 0,
 			shuffleState = shuffleState,
 			progress = 0f,
 			timeElapsed = "00.00",
 			currentSongIndex = 5,
 			musicQueue = previewData,
+			playlists = previewPlaylist,
 			mediaControl = {
 				when (it) {
 					MediaControls.Mute -> deviceMuted = !deviceMuted
@@ -343,9 +364,8 @@ private fun NowPlayingPreview() {
 				}
 			},
 			queueAction = {},
-			goToCollection = { _, _ -> },
-			navigateUp = {}
-		)
+			goToCollection = { _, _ -> }
+		) {}
 	}
 }
 

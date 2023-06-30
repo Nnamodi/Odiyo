@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
@@ -91,21 +90,6 @@ class MediaViewModel @Inject constructor(
 				songDetails.title?.let { song.title = it }
 				songDetails.artist?.let { song.artist = it }
 				musicRepository.updateSongInCache(song)
-			}
-		}
-	}
-
-	private fun addSongsToPlaylist(songsToAdd: List<Music>, playlist: Playlist) {
-		viewModelScope.launch(Dispatchers.IO) {
-			if (songsToAdd.isNotEmpty()) {
-				val uriList = playlist.songs.toMutableList()
-				uriList.addAll(0, songsToAdd.map { it.uri })
-				playlist.songs = uriList
-				playlistRepository.updatePlaylist(playlist)
-				fetchPlaylistSongs(playlist.name)
-				Log.d("ViewModelInfo", "Song added: ${playlist.songs}")
-			} else {
-				playlistRepository.createPlaylist(playlist)
 			}
 		}
 	}
