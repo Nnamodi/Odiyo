@@ -78,11 +78,17 @@ fun NowPlayingScreen(
 	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
+	val snackbarOffset = LocalConfiguration.current.screenHeightDp - 116
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
 			NowPlayingTopAppBar(song, componentColor, goToCollection, navigateUp)
+		},
+		snackbarHost = {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-snackbarOffset).dp)) {
+				Snackbar(Modifier.padding(horizontal = 30.dp)) { Text(it.visuals.message) }
+			}
 		},
 		containerColor = generatedColor
 	) { paddingValues ->

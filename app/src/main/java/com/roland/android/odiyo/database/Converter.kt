@@ -20,7 +20,7 @@ class Converter {
 
 	@TypeConverter
 	fun fromListOfSongs(songs: List<Uri>): String {
-		return songs.joinToString("|")
+		return songs.toSet().joinToString("|") // changed collection to Set to avoid duplicate elements.
 	}
 
 	@TypeConverter

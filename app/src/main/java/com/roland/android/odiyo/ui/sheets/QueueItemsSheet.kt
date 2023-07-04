@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
@@ -56,11 +58,13 @@ fun QueueItemsSheet(
 	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else sheetHeight()
 	val scrollState = rememberLazyListState()
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
+	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
+	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
 
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
-		containerColor = containerColor
+		containerColor = customContainerColor
 	) {
 		Column(Modifier.height(sheetHeight.dp)) {
 			Row(
@@ -97,10 +101,12 @@ fun QueueItemsSheet(
 						queueAction = queueAction
 					)
 					val elevation by animateDpAsState(targetValue = if (dismissState.dismissDirection != null) 4.dp else 0.dp)
+					val colorBlend = ColorUtils.blendARGB(Color.Black.toArgb(), containerColor.toArgb(), 0.75f)
+					val backgroundColor = if (containerColor == ContainerColor) containerColor else Color(colorBlend)
 
 					SwipeableItem(
 						dismissState = dismissState,
-						defaultBackgroundColor = containerColor.copy(alpha = 1f)
+						defaultBackgroundColor = backgroundColor
 					) {
 						QueueItem(
 							itemIndex = index,
@@ -108,7 +114,7 @@ fun QueueItemsSheet(
 							currentSongIndex = currentSongIndex,
 							itemIsLast = index == songs.size,
 							elevation = elevation,
-							cardColor = containerColor,
+							cardColor = customContainerColor,
 							componentColor = componentColor
 						) { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					}

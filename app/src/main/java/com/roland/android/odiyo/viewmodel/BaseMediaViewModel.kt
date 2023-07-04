@@ -271,7 +271,7 @@ open class BaseMediaViewModel(
 		viewModelScope.launch(Dispatchers.IO) {
 			if (songsToAdd.isNotEmpty()) {
 				val uriList = playlist.songs.toMutableList()
-				uriList.addAll(0, songsToAdd.map { it.uri }.toSet())
+				uriList.addAll(0, songsToAdd.map { it.uri })
 				playlist.songs = uriList
 				playlistRepository.updatePlaylist(playlist)
 				fetchPlaylistSongs(playlist.name)

@@ -52,6 +52,9 @@ fun SwipeableItem(
 				StartToEnd -> Icons.Rounded.RemoveCircle
 				EndToStart -> Icons.Rounded.AddCircle
 			}
+			val iconColor by animateColorAsState(
+				if (dismissState.targetValue == Default) MaterialTheme.colorScheme.onBackground else Color.White
+			)
 			val scale by animateFloatAsState(
 				if (dismissState.targetValue == Default) 0.75f else 1f
 			)
@@ -62,7 +65,7 @@ fun SwipeableItem(
 					.padding(horizontal = 20.dp),
 				contentAlignment = alignment
 			) {
-				Icon(icon, null, Modifier.scale(scale))
+				Icon(icon, null, Modifier.scale(scale), iconColor)
 			}
 		},
 		dismissContent = { if (!dismissState.isDismissed(StartToEnd)) { content() } }

@@ -103,7 +103,6 @@ fun AddToPlaylistDialog(
 				val playlist = Playlist(
 					name = newPlaylistName,
 					songs = songs.map { it.uri }.plus("".toUri())
-						.toSet().toList() // changed collection to set to avoid duplicate elements.
 				)
 				if (songsFromMusicQueue) saveQueueToPlaylist(QueueItemActions.CreatePlaylist(playlist))
 				else addSongToPlaylist(MediaMenuActions.CreatePlaylist(playlist))
