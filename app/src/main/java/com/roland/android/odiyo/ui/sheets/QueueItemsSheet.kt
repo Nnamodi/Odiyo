@@ -54,8 +54,6 @@ fun QueueItemsSheet(
 	queueAction: (QueueItemActions) -> Unit
 ) {
 	val scope = rememberCoroutineScope()
-	val emptySheetHeight = 28 + (12 * 2.0)
-	val sheetHeight = if (songs.isEmpty()) emptySheetHeight else sheetHeight()
 	val scrollState = rememberLazyListState()
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
@@ -66,7 +64,7 @@ fun QueueItemsSheet(
 		sheetState = scaffoldState,
 		containerColor = customContainerColor
 	) {
-		Column(Modifier.height(sheetHeight.dp)) {
+		Column(Modifier.heightIn(min = 10.dp, max = sheetHeight().dp)) {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -88,6 +86,7 @@ fun QueueItemsSheet(
 			}
 			Divider(color = Color.White.copy(alpha = 0.5f))
 			LazyColumn(
+				modifier = Modifier.wrapContentHeight(),
 				contentPadding = PaddingValues(bottom = 14.dp),
 				state = scrollState
 			) {

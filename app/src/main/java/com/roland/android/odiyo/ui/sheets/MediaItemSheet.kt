@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
@@ -53,6 +56,19 @@ fun MediaItemSheet(
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
+		dragHandle = {
+			MediaItem(
+				modifier = Modifier
+					.padding(10.dp)
+					.clip(BottomSheetDefaults.ExpandedShape),
+				song = song,
+				currentSongUri = Util.NOTHING_PLAYING,
+				inSelectionMode = false,
+				selected = false,
+				showTrailingIcon = false,
+				openMenuSheet = {}
+			)
+		}
 	) {
 		val menuItems = MenuItems.values()
 

@@ -90,6 +90,7 @@ fun MediaItem(
 	currentSongUri: MediaItem,
 	inSelectionMode: Boolean,
 	selected: Boolean,
+	showTrailingIcon: Boolean = true,
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
@@ -101,7 +102,7 @@ fun MediaItem(
 		modifier = modifier
 			.fillMaxWidth()
 			.background(itemColor)
-			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
+			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp, end = if (showTrailingIcon) 0.dp else 10.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		MediaImage(
@@ -133,21 +134,25 @@ fun MediaItem(
 						.alpha(0.5f)
 						.weight(1f)
 				)
-				Text(
-					song.duration(),
-					color = textColor,
-					style = MaterialTheme.typography.bodySmall,
-					modifier = Modifier
-						.alpha(0.5f)
-						.padding(start = 4.dp)
-				)
+				if (showTrailingIcon) {
+					Text(
+						song.duration(),
+						color = textColor,
+						style = MaterialTheme.typography.bodySmall,
+						modifier = Modifier
+							.alpha(0.5f)
+							.padding(start = 4.dp)
+					)
+				}
 			}
 		}
-		if (inSelectionMode) {
-			CheckIcon(selected)
-		} else {
-			IconButton(onClick = { openMenuSheet(song) }) {
-				Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+		if (showTrailingIcon) {
+			if (inSelectionMode) {
+				CheckIcon(selected)
+			} else {
+				IconButton(onClick = { openMenuSheet(song) }) {
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+				}
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package com.roland.android.odiyo.ui.screens
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -145,6 +146,7 @@ fun CreatePlaylistButton(openDialog: () -> Unit) {
 @OptIn(UnstableApi::class)
 @Composable
 fun PlaylistItem(
+	modifier: Modifier = Modifier,
 	playlist: Playlist,
 	onItemClick: (String, String) -> Unit,
 	parentContentIsDialog: Boolean = false,
@@ -153,10 +155,11 @@ fun PlaylistItem(
 	val context = LocalContext.current
 
 	Row(
-		modifier = Modifier
+		modifier = modifier
 			.clickable { onItemClick(playlist.name, PLAYLISTS) }
 			.fillMaxWidth()
-			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp),
+			.background(MaterialTheme.colorScheme.background)
+			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp, end = if (parentContentIsDialog) 10.dp else 0.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		MediaImage(

@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +25,7 @@ import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.screens.PlaylistItem
 import com.roland.android.odiyo.ui.sheets.PlaylistMenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
@@ -45,6 +47,16 @@ fun PlaylistItemSheet(
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
+		dragHandle = {
+			PlaylistItem(
+				modifier = Modifier
+					.padding(10.dp)
+					.clip(BottomSheetDefaults.ExpandedShape),
+				playlist = playlist,
+				onItemClick = { _, _ -> },
+				parentContentIsDialog = true
+			) {}
+		}
 	) {
 		val menuItems = PlaylistMenuItems.values().toMutableList()
 		if (playlist.numOfSongs() == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue).toSet())

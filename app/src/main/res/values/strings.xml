@@ -55,10 +55,10 @@
     <string name="added_to_queue">Added to queue</string>
     <string name="deleted">Deleted</string>
     <string name="renamed">Renamed</string>
-    <string name="add_to_favorite">Add to favorite</string>
-    <string name="remove_from_favorite">Remove from favorite</string>
-    <string name="added_to_favorites">Added to favorites</string>
-    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="add_to_favorite">Add to Favorite</string>
+    <string name="remove_from_favorite">Remove from Favorite</string>
+    <string name="added_to_favorites">Added to Favorites</string>
+    <string name="removed_from_favorites">Removed from Favorites</string>
     <string name="send_audio_file">Send \'%s\'</string>
     <string name="sort_by">Sort by</string>
     <string name="close">Close</string>
