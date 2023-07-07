@@ -120,12 +120,17 @@ class MainActivity : ComponentActivity() {
 						)
 					}
 
-					if (audioIntent.value != null) {
-						AudioIntentDialog(
-							uri = audioIntent.value!!,
-							intentAction = { mediaViewModel.audioIntentAction(it); audioIntent.value = null },
-							openDialog = { audioIntent.value = null }
-						)
+					if (audioIntent.value != null && mediaViewModel.songsFetched) {
+						if (mediaViewModel.currentMediaItems.isNotEmpty()) {
+							AudioIntentDialog(
+								uri = audioIntent.value!!,
+								intentAction = { mediaViewModel.audioIntentAction(it); audioIntent.value = null },
+								openDialog = { audioIntent.value = null }
+							)
+						} else {
+							mediaViewModel.playAudioFromIntent(audioIntent.value!!)
+							audioIntent.value = null
+						}
 					}
 
 					LaunchedEffect(true) {

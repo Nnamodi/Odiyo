@@ -20,6 +20,7 @@ import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.service.Util.EMPTY_MEDIA_ITEM
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
@@ -36,6 +37,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -54,8 +57,9 @@ open class BaseMediaViewModel(
 	var lastPlayedSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var favoriteSongs by mutableStateOf<List<Music>>(emptyList())
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
+	var currentMediaItems by mutableStateOf<List<MediaItem>>(emptyList()); private set
 	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
-	private var songsFetched by mutableStateOf(false)
+	var songsFetched by mutableStateOf(false)
 	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
 	var canAccessStorage by mutableStateOf(false)
@@ -147,13 +151,15 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			appDataStore.getCurrentPlaylist().collect {
 				if (mediaItems.value.isEmpty()) {
-					mediaItems.value = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
+					val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
+					mediaItems.value = items
 					mediaSession?.player?.apply {
 						setMediaItems(mediaItems.value); prepare()
 						if (mediaItems.value.isNotEmpty()) {
 							seekTo(it.currentSongPosition, it.currentSongSeekPosition)
 						}
 					}
+					currentMediaItems = if (items.size == 1 && items[0] == EMPTY_MEDIA_ITEM) emptyList() else items
 					Log.i("ViewModelInfo", "CurrentPlaylist: ${it.playlist.take(15)}, ${it.currentSongPosition}")
 				}
 			}
@@ -197,12 +203,10 @@ open class BaseMediaViewModel(
 	}
 
 	fun musicItem(mediaItem: MediaItem?): Music? {
-		val currentSongUri = mediaItem?.localConfiguration?.uri
-		val songPath = currentSongUri.toString()
-			.replace("%20", " ")
-			.replace("%40", "@")
+		val songUri = mediaItem?.localConfiguration?.uri
+		val songPath = URLDecoder.decode(songUri.toString(), UTF_8.name())
 		return cachedSongs.find {
-			it.uri == currentSongUri || songPath.contains(it.path)
+			it.uri == songUri || songPath.contains(it.path)
 		}
 	}
 

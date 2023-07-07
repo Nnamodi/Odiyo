@@ -197,7 +197,7 @@ class MediaViewModel @Inject constructor(
 		Log.d("ViewModelInfo", "audioIntentAction: $action")
 	}
 
-	private fun playAudioFromIntent(uri: Uri) {
+	fun playAudioFromIntent(uri: Uri) {
 		mediaItems.value = mutableListOf(uri.toMediaItem)
 		playAudio(uri, 0)
 	}

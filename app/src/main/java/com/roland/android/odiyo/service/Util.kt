@@ -136,4 +136,6 @@ object Util {
 			)
 
 	val NOTHING_PLAYING = MediaItem.Builder().setUri("null".toUri()).build()
+
+	val EMPTY_MEDIA_ITEM = MediaItem.Builder().setUri("".toUri()).build()
 }
