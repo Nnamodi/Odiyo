@@ -62,7 +62,7 @@ fun MediaItemSheet(
 					.padding(10.dp)
 					.clip(BottomSheetDefaults.ExpandedShape),
 				song = song,
-				currentSongUri = Util.NOTHING_PLAYING,
+				currentMediaItem = Util.NOTHING_PLAYING,
 				inSelectionMode = false,
 				selected = false,
 				showTrailingIcon = false,

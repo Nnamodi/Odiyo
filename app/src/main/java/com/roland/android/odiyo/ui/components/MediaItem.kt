@@ -87,14 +87,14 @@ fun RecentSongItem(
 fun MediaItem(
 	modifier: Modifier = Modifier,
 	song: Music,
-	currentSongUri: MediaItem,
+	currentMediaItem: MediaItem,
 	inSelectionMode: Boolean,
 	selected: Boolean,
 	showTrailingIcon: Boolean = true,
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
-	val isPlaying = song.uri.toMediaItem == currentSongUri
+	val isPlaying = song.uri.toMediaItem == currentMediaItem
 	val textColor = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 	val itemColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.background
 

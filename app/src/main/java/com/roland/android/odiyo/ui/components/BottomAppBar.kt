@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.components
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -23,10 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -42,12 +41,7 @@ import kotlinx.coroutines.delay
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun BottomAppBar(
-	song: Music?,
-	artwork: Any?,
-	isPlaying: Boolean,
-	currentSongIndex:Int,
-	musicQueue: List<Music>,
-	playlists: List<Playlist>,
+	uiState: NowPlayingUiState,
 	playPause: (Uri, Int?) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
@@ -66,9 +60,9 @@ fun BottomAppBar(
 
 	if (!nowPlayingScreen && !inSelectionMode) {
 		NowPlayingMinimizedView(
-			song = song,
-			artwork = artwork,
-			isPlaying = isPlaying,
+			song = uiState.currentSong,
+			artwork = uiState.artwork,
+			isPlaying = uiState.playingState,
 			playPause = playPause,
 			showMusicQueue = { openMusicQueue.value = it },
 			moveToNowPlayingScreen = moveToNowPlayingScreen
@@ -77,8 +71,8 @@ fun BottomAppBar(
 
 	if (openMusicQueue.value) {
 		QueueItemsSheet(
-			songs = musicQueue,
-			currentSongIndex = currentSongIndex,
+			songs = uiState.musicQueue,
+			currentSongIndex = uiState.currentSongIndex,
 			scaffoldState = scaffoldState,
 			saveQueue = { openAddToPlaylistDialog.value = true },
 			openBottomSheet = { openMusicQueue.value = it },
@@ -88,8 +82,8 @@ fun BottomAppBar(
 
 	if (openAddToPlaylistDialog.value) {
 		AddToPlaylistDialog(
-			songs = musicQueue,
-			playlists = playlists,
+			songs = uiState.musicQueue,
+			playlists = uiState.playlists,
 			addSongToPlaylist = {
 				menuAction(it)
 				showSnackbar(it, context, scope, snackbarHostState)
@@ -111,7 +105,7 @@ fun BottomAppBar(
 @Composable
 fun NowPlayingMinimizedView(
 	song: Music?,
-	artwork: Any?,
+	artwork: Bitmap?,
 	isPlaying: Boolean,
 	playPause: (Uri, Int?) -> Unit,
 	showMusicQueue: (Boolean) -> Unit,
@@ -178,10 +172,12 @@ fun NowPlayingMinimizedView(
 @Composable
 fun BottomAppBarPreview() {
 	OdiyoTheme {
-		val context = LocalContext.current
-		val currentSong = previewData[3]
+		var uiState by remember {
+			mutableStateOf(
+				NowPlayingUiState(currentSong = previewData[4], musicQueue = previewData.take(8))
+			)
+		}
 		val concealBottomBar = remember { mutableStateOf(true) }
-		val playPause = remember { mutableStateOf(false) }
 		val snackbarHostState = remember { SnackbarHostState() }
 
 		Column(
@@ -191,13 +187,8 @@ fun BottomAppBarPreview() {
 			verticalArrangement = Arrangement.Bottom
 		) {
 			BottomAppBar(
-				song = currentSong,
-				artwork = currentSong.getBitmap(context),
-				isPlaying = playPause.value,
-				currentSongIndex = 3,
-				musicQueue = previewData,
-				playlists = previewPlaylist,
-				playPause = { _, _ -> playPause.value = !playPause.value },
+				uiState = uiState,
+				playPause = { _, _ -> uiState = uiState.copy(playingState = !uiState.playingState) },
 				queueAction = {},
 				menuAction = {},
 				moveToNowPlayingScreen = {},

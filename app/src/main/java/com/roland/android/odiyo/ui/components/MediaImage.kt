@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.components
 
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -18,7 +19,7 @@ import com.roland.android.odiyo.R
 @Composable
 fun MediaImage(
 	modifier: Modifier = Modifier,
-	artwork: Any?,
+	artwork: Bitmap?,
 	placeholderRes: Int = R.drawable.default_art
 ) {
 	AsyncImage(

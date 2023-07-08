@@ -64,8 +64,7 @@ fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
 @Composable
 fun SearchBar(
 	query: String,
-	onTextChange: (String) -> Unit,
-	clearSearchQuery: () -> Unit,
+	editSearchQuery: (String?, Boolean) -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
 	TopAppBar(
@@ -73,10 +72,12 @@ fun SearchBar(
 			OutlinedTextField(
 				modifier = Modifier.fillMaxWidth(),
 				value = query,
-				onValueChange = onTextChange,
+				onValueChange = { editSearchQuery(it, false) },
 				placeholder = {
 					Row(
-						Modifier.alpha(0.6f).basicMarquee(), Arrangement.Center, Alignment.CenterVertically
+						Modifier
+							.alpha(0.6f)
+							.basicMarquee(), Arrangement.Center, Alignment.CenterVertically
 					) {
 						Icon(Icons.Rounded.Search, null)
 						Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
@@ -84,7 +85,7 @@ fun SearchBar(
 				},
 				trailingIcon = {
 					if (query.isNotEmpty()) {
-						IconButton(onClick = clearSearchQuery) {
+						IconButton(onClick = { editSearchQuery(null, true) }) {
 							Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
 						}
 					}

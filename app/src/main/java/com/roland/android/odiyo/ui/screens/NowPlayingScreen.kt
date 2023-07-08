@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.screens
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
@@ -25,10 +26,8 @@ import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
@@ -51,17 +50,7 @@ import kotlin.math.min
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NowPlayingScreen(
-	song: Music?,
-	artwork: Any?,
-	isPlaying: Boolean,
-	deviceMuted: Boolean,
-	repeatMode: Int,
-	shuffleState: Boolean,
-	progress: Float,
-	timeElapsed: String,
-	currentSongIndex: Int,
-	musicQueue: List<Music>,
-	playlists: List<Playlist>,
+	uiState: NowPlayingUiState,
 	mediaControl: (MediaControls) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	goToCollection: (String, String) -> Unit,
@@ -72,7 +61,7 @@ fun NowPlayingScreen(
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val screenLaunched = remember { mutableStateOf(false) }
-	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val generatedColor = nowPlayingBackgroundColor(uiState.artwork)
 	val componentColor = componentColor(generatedColor)
 	val windowSize = rememberWindowSize()
 	val scope = rememberCoroutineScope()
@@ -83,7 +72,7 @@ fun NowPlayingScreen(
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
-			NowPlayingTopAppBar(song, componentColor, goToCollection, navigateUp)
+			NowPlayingTopAppBar(uiState.currentSong, componentColor, goToCollection, navigateUp)
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-snackbarOffset).dp)) {
@@ -94,14 +83,12 @@ fun NowPlayingScreen(
 	) { paddingValues ->
 		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
 			NowPlayingLandscapeView(
-				paddingValues, song, artwork, componentColor, isPlaying, repeatMode,
-				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
+				paddingValues, uiState, componentColor, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
 		} else {
 			NowPlayingPortraitView(
-				paddingValues, song, artwork, componentColor, isPlaying, repeatMode,
-				shuffleState, progress, timeElapsed, deviceMuted, mediaControl, goToCollection,
+				paddingValues, uiState, componentColor, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
 		}
@@ -109,8 +96,8 @@ fun NowPlayingScreen(
 
 	if (openMusicQueue.value) {
 		QueueItemsSheet(
-			songs = musicQueue,
-			currentSongIndex = currentSongIndex,
+			songs = uiState.musicQueue,
+			currentSongIndex = uiState.currentSongIndex,
 			scaffoldState = scaffoldState,
 			containerColor = generatedColor,
 			saveQueue = { openAddToPlaylistDialog.value = true },
@@ -121,8 +108,8 @@ fun NowPlayingScreen(
 
 	if (openAddToPlaylistDialog.value) {
 		AddToPlaylistDialog(
-			songs = musicQueue,
-			playlists = playlists,
+			songs = uiState.musicQueue,
+			playlists = uiState.playlists,
 			songsFromMusicQueue = true,
 			saveQueueToPlaylist = {
 				queueAction(it)
@@ -134,8 +121,8 @@ fun NowPlayingScreen(
 		)
 	}
 
-	if (openDetailsDialog.value && song != null) {
-		SongDetailsDialog(song, artwork) { openDetailsDialog.value = it }
+	if (openDetailsDialog.value && uiState.currentSong != null) {
+		SongDetailsDialog(uiState.currentSong, uiState.artwork) { openDetailsDialog.value = it }
 	}
 
 	val systemUiController = rememberSystemUiController()
@@ -167,7 +154,7 @@ fun NowPlayingScreen(
 @Composable
 fun MediaDescription(
 	song: Music?,
-	artwork: Any?,
+	artwork: Bitmap?,
 	componentColor: Color,
 	portraitView: Boolean,
 	onFavorite: (MediaControls) -> Unit,
@@ -233,21 +220,17 @@ fun MediaDescription(
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun MediaControls(
-	song: Music?,
-	isPlaying: Boolean,
-	shuffleState: Boolean,
-	progress: Float,
-	timeElapsed: String,
+	uiState: NowPlayingUiState,
 	componentColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	showMusicQueue: (Boolean) -> Unit
 ) {
-	val maxSeekValue = song?.time?.toFloat() ?: 1f
-	var seekValue by remember { mutableStateOf(progress) }
+	val maxSeekValue = uiState.currentSong?.time?.toFloat() ?: 1f
+	var seekValue by remember { mutableStateOf(uiState.seekProgress) }
 	var valueBeingChanged by remember { mutableStateOf(false) }
 
 	Slider(
-		value = if (valueBeingChanged) seekValue else progress,
+		value = if (valueBeingChanged) seekValue else uiState.seekProgress,
 		onValueChange = { valueBeingChanged = true; seekValue = it },
 		onValueChangeFinished = {
 			mediaControl(MediaControls.SeekToPosition(seekValue.toLong()))
@@ -260,9 +243,9 @@ fun MediaControls(
 		colors = sliderColor(componentColor)
 	)
 	Row {
-		Text(timeElapsed, color = componentColor)
+		Text(uiState.currentDuration, color = componentColor)
 		Spacer(Modifier.weight(1f))
-		Text(song?.duration() ?: "00:00", color = componentColor)
+		Text(uiState.currentSong?.duration() ?: "00:00", color = componentColor)
 	}
 	Row(
 		modifier = Modifier
@@ -281,7 +264,7 @@ fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (shuffleState) MaterialTheme.colorScheme.primary else componentColor
+				tint = if (uiState.shuffleState) MaterialTheme.colorScheme.primary else componentColor
 			)
 		}
 		IconButton(
@@ -304,8 +287,8 @@ fun MediaControls(
 				.weight(1.2f)
 		) {
 			Icon(
-				imageVector = if (isPlaying) Icons.Rounded.PauseCircleFilled else Icons.Rounded.PlayCircleFilled,
-				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
+				imageVector = if (uiState.playingState) Icons.Rounded.PauseCircleFilled else Icons.Rounded.PlayCircleFilled,
+				contentDescription = if (uiState.playingState) stringResource(R.string.pause) else stringResource(R.string.play),
 				modifier = Modifier.fillMaxSize(),
 				tint = componentColor
 			)
@@ -344,28 +327,20 @@ fun MediaControls(
 @Composable
 private fun NowPlayingPreview() {
 	OdiyoTheme {
-		val context = LocalContext.current
-		var isPlaying by remember { mutableStateOf(false) }
-		var deviceMuted by remember { mutableStateOf(false) }
-		var shuffleState by remember { mutableStateOf(false) }
+		var uiState by remember {
+			mutableStateOf(
+				NowPlayingUiState(currentSong = previewData[4], musicQueue = previewData.take(8))
+			)
+		}
 
 		NowPlayingScreen(
-			song = previewData[4],
-			artwork = previewData[4].getBitmap(context),
-			isPlaying = isPlaying,
-			deviceMuted = deviceMuted,
-			repeatMode = 0,
-			shuffleState = shuffleState,
-			progress = 0f,
-			timeElapsed = "00.00",
-			currentSongIndex = 5,
-			musicQueue = previewData,
-			playlists = previewPlaylist,
+			uiState = uiState,
 			mediaControl = {
 				when (it) {
-					MediaControls.Mute -> deviceMuted = !deviceMuted
-					MediaControls.PlayPause -> isPlaying = !isPlaying
-					MediaControls.Shuffle -> shuffleState = !shuffleState
+					MediaControls.Mute -> uiState = uiState.copy(deviceMuted = !uiState.deviceMuted)
+					MediaControls.PlayPause -> uiState = uiState.copy(playingState = !uiState.playingState)
+					MediaControls.Shuffle -> uiState = uiState.copy(shuffleState = !uiState.shuffleState)
+					is MediaControls.Favorite -> uiState = uiState.copy(currentSong = uiState.currentSong?.copy(favorite = !uiState.currentSong?.favorite!!))
 					else -> {}
 				}
 			},

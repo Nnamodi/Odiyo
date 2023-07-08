@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.dialog
 
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -31,7 +32,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @Composable
 fun SongDetailsDialog(
 	song: Music,
-	songArtwork: Any? = null,
+	songArtwork: Bitmap? = null,
 	openDialog: (Boolean) -> Unit
 ) {
 	val context = LocalContext.current

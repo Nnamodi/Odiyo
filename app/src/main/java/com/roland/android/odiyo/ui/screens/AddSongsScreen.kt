@@ -14,10 +14,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
-import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
+import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -25,12 +24,11 @@ import com.roland.android.odiyo.util.MediaMenuActions
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AddSongsScreen(
-	songs: List<Music>,
-	playlists: List<Playlist>,
-	playlistToAddTo: String?,
+	uiState: MediaItemsUiState,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit
 ) {
+	val (_, playlistToAddTo, _, _, songs, playlists) = uiState
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	closeSelectionMode(false)
 
@@ -66,7 +64,7 @@ fun AddSongsScreen(
 							onClick = {}, onLongClick = {},
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						),
-						song = song, currentSongUri = NOTHING_PLAYING,
+						song = song, currentMediaItem = NOTHING_PLAYING,
 						inSelectionMode = true, selected = selected
 					) {}
 				}
@@ -85,9 +83,7 @@ fun getPlaylist(name: String?, playlists: List<Playlist>): Playlist = playlists.
 fun AddSongsScreenPreview() {
 	OdiyoTheme {
 		AddSongsScreen(
-			songs = previewData.shuffled(),
-			playlists = previewPlaylist,
-			playlistToAddTo = null,
+			uiState = MediaItemsUiState(songs = previewData.shuffled()),
 			menuAction = {}
 		) {}
 	}

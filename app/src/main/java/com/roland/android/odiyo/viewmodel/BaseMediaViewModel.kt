@@ -1,8 +1,10 @@
 package com.roland.android.odiyo.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.core.net.toUri
@@ -12,8 +14,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
-import com.roland.android.odiyo.model.Album
-import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.repository.MediaRepository
@@ -21,6 +21,7 @@ import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.EMPTY_MEDIA_ITEM
+import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
@@ -30,7 +31,11 @@ import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.songsOnQueue
 import com.roland.android.odiyo.service.Util.storagePermissionGranted
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.states.MediaItemsUiState
+import com.roland.android.odiyo.states.MediaUiState
+import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +47,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 open class BaseMediaViewModel(
 	private val appDataStore: AppDataStore,
 	private val mediaRepository: MediaRepository,
@@ -51,46 +56,63 @@ open class BaseMediaViewModel(
 ) : ViewModel() {
 	private var cachedSongs by mutableStateOf<List<Music>>(emptyList())
 	var songs by mutableStateOf<List<Music>>(emptyList())
-	var albumList by mutableStateOf<List<Album>>(emptyList()); private set
-	var artistList by mutableStateOf<List<Artist>>(emptyList()); private set
-
 	var lastPlayedSongs by mutableStateOf<List<Music>>(emptyList()); private set
 	var favoriteSongs by mutableStateOf<List<Music>>(emptyList())
 	var recentSongs by mutableStateOf<List<Music>>(emptyList()); private set
-	var currentMediaItems by mutableStateOf<List<MediaItem>>(emptyList()); private set
-	var musicQueue by mutableStateOf<List<Music>>(emptyList()); private set
-	var songsFetched by mutableStateOf(false)
-	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 
+	var currentMediaItems by mutableStateOf<List<MediaItem>>(emptyList()); private set
+	var sortOrder by mutableStateOf(SortOptions.NameAZ)
+	var songsFetched by mutableStateOf(false)
 	var canAccessStorage by mutableStateOf(false)
 
-	var playlists by mutableStateOf<List<Playlist>>(emptyList()); private set
-	var songsFromPlaylist by mutableStateOf<List<Music>>(emptyList()); private set
+	val mediaUiState = MutableStateFlow(MediaUiState())
+	private val _mediaUiState: StateFlow<MediaUiState> = mediaUiState.asStateFlow()
+	var mediaScreenUiState by mutableStateOf(MediaUiState()); private set
 
-	var currentMediaItemImage by mutableStateOf<Any?>(null)
-	var currentSong by mutableStateOf<Music?>(null); private set
-	var currentSongIndex by mutableStateOf(0); private set
-	var isPlaying by mutableStateOf(false); private set
+	val mediaItemsUiState = MutableStateFlow(MediaItemsUiState())
+	private val _mediaItemsUiState: StateFlow<MediaItemsUiState> = mediaItemsUiState.asStateFlow()
+	var mediaItemsScreenUiState by mutableStateOf(MediaItemsUiState()); private set
+
+	val nowPlayingUiState = MutableStateFlow(NowPlayingUiState())
+	private val _nowPlayingUiState: StateFlow<NowPlayingUiState> = nowPlayingUiState.asStateFlow()
+	var nowPlayingScreenUiState by mutableStateOf(NowPlayingUiState()); private set
 
 	init {
 		viewModelScope.launch {
-			playlistRepository.getPlaylists.collectLatest {
-				playlists = it
+			playlistRepository.getPlaylists.collectLatest { allPlaylists ->
+				mediaUiState.update { it.copy(playlists = allPlaylists) }
+				mediaItemsUiState.update { it.copy(playlists = allPlaylists) }
+				nowPlayingUiState.update { it.copy(playlists = allPlaylists) }
 			}
 		}
 		viewModelScope.launch {
-			songsOnQueue.collect {
-				musicQueue = it
+			songsOnQueue.collect { queue ->
+				nowPlayingUiState.update { it.copy(musicQueue = queue) }
 			}
 		}
 		viewModelScope.launch {
-			playingState.collect {
-				isPlaying = it
+			playingState.collect { playingState ->
+				nowPlayingUiState.update { it.copy(playingState = playingState) }
 			}
 		}
 		viewModelScope.launch {
-			currentMediaIndex.collect {
-				currentSongIndex = it
+			currentMediaIndex.collect { index ->
+				nowPlayingUiState.update { it.copy(currentSongIndex = index) }
+			}
+		}
+		viewModelScope.launch {
+			_mediaUiState.collectLatest {
+				mediaScreenUiState = it
+			}
+		}
+		viewModelScope.launch {
+			_mediaItemsUiState.collectLatest {
+				mediaItemsScreenUiState = it
+			}
+		}
+		viewModelScope.launch {
+			_nowPlayingUiState.collectLatest {
+				nowPlayingScreenUiState = it
 			}
 		}
 		viewModelScope.launch {
@@ -115,6 +137,7 @@ open class BaseMediaViewModel(
 				songs = musicList
 					.filter { it.name.endsWith(".mp3") }
 					.sortList()
+				mediaUiState.update { it.copy(songs = songs) }
 				lastPlayedSongs = songs
 					.filter { it.lastPlayed != Date(0) }
 					.sortedByDescending { it.lastPlayed }
@@ -168,16 +191,16 @@ open class BaseMediaViewModel(
 
 	private fun getAlbums() {
 		viewModelScope.launch {
-			mediaRepository.getAlbums().collect {
-				albumList = it
+			mediaRepository.getAlbums().collect { albums ->
+				mediaUiState.update { it.copy(albums = albums) }
 			}
 		}
 	}
 
 	private fun getArtists() {
 		viewModelScope.launch {
-			mediaRepository.getArtists().collect {
-				artistList = it
+			mediaRepository.getArtists().collect { artists ->
+				mediaUiState.update { it.copy(artists = artists) }
 			}
 		}
 	}
@@ -185,9 +208,17 @@ open class BaseMediaViewModel(
 	private fun getCurrentSong() {
 		viewModelScope.launch {
 			nowPlaying.collect { item ->
-				musicItem(item)?.let { currentSong = it }
+				musicItem(item)?.let { music ->
+					nowPlayingUiState.update { it.copy(currentSong = music) }
+				}
 				delay(3000) // delay allows songs to completely load from device before further action
-				musicItem(item)?.let { currentSong = it; saveStreamDate(it) }
+				musicItem(item)?.let { music ->
+					updateMusicInfo(music)
+					val currentMediaItem = music.uri.toMediaItem
+					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+					nowPlayingUiState.update { it.copy(currentSong = music) }
+				}
 				updateMusicQueue(queueEdited = false)
 			}
 		}
@@ -195,9 +226,19 @@ open class BaseMediaViewModel(
 
 	private fun getNowPlayingMetadata() {
 		viewModelScope.launch {
-			nowPlayingMetadata.collect {
+			nowPlayingMetadata.collect { metadata ->
 				if (!songsFetched) return@collect
-				if (currentSong !in songs) currentSong = musicItem(it)
+				if (nowPlayingScreenUiState.currentSong !in songs) {
+					val currentMediaItem = musicItem(metadata).uri.toMediaItem
+					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+					nowPlayingUiState.update { it.copy(currentSong = musicItem(metadata)) }
+				}
+				if (currentMediaItems.isEmpty()) {
+					mediaUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
+					mediaItemsUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
+					nowPlayingUiState.update { it.copy(currentSong = null) }
+				}
 			}
 		}
 	}
@@ -212,13 +253,18 @@ open class BaseMediaViewModel(
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
 		val time = mediaSession?.player?.duration ?: 0
+		val uri = mediaSession?.player?.currentMediaItem?.localConfiguration?.uri
 		return Music(
-			id = 0, uri = "".toUri(), name = "",
+			id = 0, uri = uri ?: "".toUri(), name = "",
 			title = (metadata?.title ?: "Unknown") as String,
 			artist = (metadata?.artist ?: "Unknown") as String,
 			time = if (time < 0) 0 else time, bytes = 0,
 			addedOn = 0, album = "Unknown", path = "Unknown"
 		)
+	}
+
+	fun updateMediaArtwork(artwork: Bitmap) {
+		nowPlayingUiState.update { it.copy(artwork = artwork) }
 	}
 
 	fun preparePlaylist() {
@@ -232,7 +278,7 @@ open class BaseMediaViewModel(
 	fun playNext(song: List<Music>) {
 		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
-			if (musicQueue.isNotEmpty()) {
+			if (nowPlayingScreenUiState.musicQueue.isNotEmpty()) {
 				val index = currentMediaItemIndex + 1
 				addMediaItems(index, mediaItems)
 				Util.mediaItems.value.addAll(index, mediaItems)
@@ -247,7 +293,7 @@ open class BaseMediaViewModel(
 	fun addToQueue(song: List<Music>) {
 		val mediaItems = song.map { it.uri.toMediaItem }
 		mediaSession?.player?.apply {
-			if (musicQueue.isNotEmpty()) {
+			if (nowPlayingScreenUiState.musicQueue.isNotEmpty()) {
 				addMediaItems(mediaItems)
 				Util.mediaItems.value.addAll(mediaItems)
 			} else {
@@ -290,7 +336,7 @@ open class BaseMediaViewModel(
 		mediaRepository.shareSong(context, songs)
 	}
 
-	private fun saveStreamDate(song: Music) {
+	private fun updateMusicInfo(song: Music) {
 		viewModelScope.launch(Dispatchers.IO) {
 			song.lastPlayed = Calendar.getInstance().time
 			musicRepository.updateSongInCache(song)
@@ -298,14 +344,18 @@ open class BaseMediaViewModel(
 	}
 
 	fun fetchPlaylistSongs(playlistName: String) {
-		val playlist = playlists.find { it.name == playlistName }
+		val playlist = mediaScreenUiState.playlists.find { it.name == playlistName }
 		val uris = playlist?.songs
-		songsFromPlaylist = songs.filter { uris?.contains(it.uri) == true }
+		val songsFromPlaylist = songs.filter { uris?.contains(it.uri) == true }
+		mediaItemsUiState.update {
+			it.copy(songs = songsFromPlaylist, collectionName = playlistName, collectionType = PLAYLISTS)
+		}
 		Log.i("ViewModelInfo", "Songs from playlist: $songsFromPlaylist")
 	}
 
 	fun updateMusicQueue(queueEdited: Boolean = true) {
 		songsOnQueue.value = try {
+//			mediaItems.value.map { musicItem(it) ?: musicItem(it.mediaMetadata) }.toMutableList()
 			mediaItems.value.map { musicItem(it)!! }.toMutableList()
 		} catch (e: Exception) {
 			Log.e("ViewModelInfo", "Couldn't fetch queue items", e)

@@ -15,8 +15,6 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
-import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.*
 import com.roland.android.odiyo.ui.components.BottomAppBar
 import com.roland.android.odiyo.ui.screens.*
@@ -42,12 +40,7 @@ fun AppRoute(
 	Scaffold(
 		bottomBar = {
 			BottomAppBar(
-				song = mediaViewModel.currentSong,
-				artwork = mediaViewModel.currentMediaItemImage,
-				isPlaying = mediaViewModel.isPlaying,
-				currentSongIndex = mediaViewModel.currentSongIndex,
-				musicQueue = mediaViewModel.musicQueue,
-				playlists = mediaViewModel.playlists,
+				uiState = mediaViewModel.nowPlayingScreenUiState,
 				playPause = mediaViewModel::playAudio,
 				queueAction = mediaViewModel::queueAction,
 				menuAction = { mediaViewModel.menuAction(context, it) },
@@ -73,7 +66,7 @@ fun AppRoute(
 			composable(AppRoute.LibraryScreen.route) {
 				LibraryScreen(
 					songs = mediaViewModel.recentSongs,
-					currentSongUri = mediaViewModel.currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+					currentSongUri = mediaViewModel.mediaScreenUiState.currentMediaItem,
 					playSong = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(recentSongs)
@@ -98,7 +91,7 @@ fun AppRoute(
 			}
 			composable(AppRoute.PlaylistsScreen.route) {
 				PlaylistsScreen(
-					playlists = mediaViewModel.playlists,
+					playlists = mediaViewModel.mediaScreenUiState.playlists,
 					playlistAction = playlistViewModel::playlistActions,
 					prepareAndViewSongs = navActions::navigateToMediaItemScreen,
 					navigateUp = navController::navigateUp
@@ -112,14 +105,11 @@ fun AppRoute(
 				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
 			) {
 				SearchScreen(
-					searchQuery = mediaViewModel.searchQuery,
-					searchResult = mediaViewModel.songsFromSearch(),
-					playlists = mediaViewModel.playlists,
-					onTextChange = { mediaViewModel.searchQuery = it },
-					currentSong = mediaViewModel.currentSong,
+					uiState = mediaViewModel.mediaItemsScreenUiState,
+					editSearchQuery = mediaViewModel::editSearchQuery,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
-							resetPlaylist(songsFromSearch())
+							resetPlaylist(mediaItemsScreenUiState.songs)
 							playAudio(uri, index)
 						}
 						navActions.navigateToNowPlayingScreen()
@@ -127,7 +117,6 @@ fun AppRoute(
 					menuAction = { mediaViewModel.menuAction(context, it) },
 					closeSelectionMode = { selectionModeClosed = it },
 					goToCollection = navActions::navigateToMediaItemScreen,
-					clearSearchQuery = { mediaViewModel.searchQuery = "" },
 					closeSearchScreen = navController::navigateUp
 				)
 			}
@@ -142,27 +131,18 @@ fun AppRoute(
 				popEnterTransition = null,
 				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
 			) { backStackEntry ->
-				val collectionName = backStackEntry.arguments?.getString("collectionName")!!
-				val collectionType = backStackEntry.arguments?.getString("collectionType")!!
-				val songs = when (collectionType) {
-					ALBUMS -> mediaViewModel.songsFromAlbum(collectionName)
-					ARTISTS -> mediaViewModel.songsFromArtist(collectionName)
-					FAVORITES -> mediaViewModel.favoriteSongs
-					LAST_PLAYED -> mediaViewModel.lastPlayedSongs
-					PLAYLISTS -> { mediaViewModel.fetchPlaylistSongs(collectionName); mediaViewModel.songsFromPlaylist }
-					else -> emptyList()
-				}
+				val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
+				val collectionType = backStackEntry.arguments?.getString("collectionType") ?: ""
+				mediaViewModel.prepareMediaItems(collectionName, collectionType)
 
 				MediaItemsScreen(
-					songs = songs, collectionName = collectionName, collectionType = collectionType,
-					currentSong = mediaViewModel.currentSong, playlists = mediaViewModel.playlists,
-					sortOption = mediaViewModel.sortOrder,
+					uiState = mediaViewModel.mediaItemsScreenUiState,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
-							resetPlaylist(songs)
+							resetPlaylist(mediaItemsScreenUiState.songs)
 							playAudio(uri, index)
 						}
-						index?.let { navActions.navigateToNowPlayingScreen() }
+						navActions.navigateToNowPlayingScreen()
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
 					menuAction = { mediaViewModel.menuAction(context, it) },
@@ -172,11 +152,11 @@ fun AppRoute(
 				)
 			}
 			composable(AppRoute.AddSongsScreen.route) { backStackEntry ->
-				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo")
+				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo") ?: ""
+				mediaViewModel.prepareMediaItems(playlistName, ADD_TO_PLAYLIST)
 
 				AddSongsScreen(
-					songs = mediaViewModel.songsToAddToPlaylist(playlistName),
-					playlists = mediaViewModel.playlists, playlistToAddTo = playlistName,
+					uiState = mediaViewModel.mediaItemsScreenUiState,
 					menuAction = { mediaViewModel.menuAction(context, it) }
 				) { if (it) navController.navigateUp(); selectionModeClosed = it }
 			}
@@ -188,17 +168,7 @@ fun AppRoute(
 				popExitTransition = { slideOutOfContainer(DOWN, tween(700)) }
 			) {
 				NowPlayingScreen(
-					song = nowPlayingViewModel.currentSong,
-					artwork = nowPlayingViewModel.currentMediaItemImage,
-					isPlaying = nowPlayingViewModel.isPlaying,
-					deviceMuted = nowPlayingViewModel.isDeviceMuted,
-					repeatMode = nowPlayingViewModel.repeatMode,
-					shuffleState = nowPlayingViewModel.shuffleState,
-					progress = nowPlayingViewModel.seekProgress,
-					timeElapsed = nowPlayingViewModel.currentDuration,
-					currentSongIndex = mediaViewModel.currentSongIndex,
-					musicQueue = nowPlayingViewModel.musicQueue,
-					playlists = nowPlayingViewModel.playlists,
+					uiState = nowPlayingViewModel.nowPlayingScreenUiState,
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
 					goToCollection = navActions::navigateToMediaItemScreen,

@@ -23,13 +23,10 @@ fun SongsTab(
 	val context = LocalContext.current
 
 	SongsScreen(
-		songs = viewModel.songs,
-		currentSong = viewModel.currentSong,
-		playlists = viewModel.playlists,
-		sortOption = viewModel.sortOrder,
+		uiState = viewModel.mediaScreenUiState,
 		playAudio = { uri, index ->
 			viewModel.apply {
-				resetPlaylist(songs)
+				resetPlaylist(viewModel.mediaScreenUiState.songs)
 				playAudio(uri, index)
 			}
 			index?.let { navActions.navigateToNowPlayingScreen() }
@@ -45,7 +42,7 @@ fun SongsTab(
 @Composable
 fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	AlbumsScreen(
-		albums = viewModel.albumList,
+		albums = viewModel.mediaScreenUiState.albums,
 		prepareAndViewSongs = {
 			navActions.navigateToMediaItemScreen(it, ALBUMS)
 		}
@@ -57,7 +54,7 @@ fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 @Composable
 fun ArtistsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	ArtistsScreen(
-		artists = viewModel.artistList,
+		artists = viewModel.mediaScreenUiState.artists,
 		prepareAndViewSongs = {
 			navActions.navigateToMediaItemScreen(it, ARTISTS)
 		}

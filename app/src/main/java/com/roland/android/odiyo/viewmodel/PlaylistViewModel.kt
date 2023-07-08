@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.repository.MediaRepository
@@ -19,7 +18,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 class PlaylistViewModel @Inject constructor(
 	appDataStore: AppDataStore,
 	musicRepository: MusicRepository,
@@ -42,12 +40,12 @@ class PlaylistViewModel @Inject constructor(
 
 	private fun playNext(playlistName: String) {
 		fetchPlaylistSongs(playlistName)
-		playNext(songsFromPlaylist)
+		playNext(mediaItemsScreenUiState.songs)
 	}
 
 	private fun addToQueue(playlistName: String) {
 		fetchPlaylistSongs(playlistName)
-		addToQueue(songsFromPlaylist)
+		addToQueue(mediaItemsScreenUiState.songs)
 	}
 
 	private fun updatePlaylist(playlist: Playlist) {

@@ -138,8 +138,8 @@ class MainActivity : ComponentActivity() {
 							val mediaArt: Bitmap = it?.getBitmap(context) ?:
 							BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 
-							mediaViewModel.currentMediaItemImage = mediaArt
-							nowPlayingViewModel.currentMediaItemImage = mediaArt
+							mediaViewModel.updateMediaArtwork(mediaArt)
+							nowPlayingViewModel.updateMediaArtwork(mediaArt)
 						}
 					}
 				}

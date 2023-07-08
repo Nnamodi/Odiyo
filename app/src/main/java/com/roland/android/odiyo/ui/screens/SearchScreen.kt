@@ -18,11 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
@@ -38,18 +35,15 @@ import com.roland.android.odiyo.util.SongDetails
 @UnstableApi
 @Composable
 fun SearchScreen(
-	searchQuery: String,
-	searchResult: List<Music>,
-	playlists: List<Playlist>,
-	onTextChange: (String) -> Unit,
-	currentSong: Music?,
+	uiState: MediaItemsUiState,
+	editSearchQuery: (String?, Boolean) -> Unit,
 	playAudio: (Uri, Int?) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	goToCollection: (String, String) -> Unit,
-	clearSearchQuery: () -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
+	val (currentMediaItem, _, _, searchQuery, songs, playlists) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val openMenu = remember { mutableStateOf(false) }
@@ -71,15 +65,14 @@ fun SearchScreen(
 			} else {
 				SearchBar(
 					query = searchQuery,
-					onTextChange = onTextChange,
-					clearSearchQuery = clearSearchQuery,
+					editSearchQuery = editSearchQuery,
 					closeSearchScreen = closeSearchScreen
 				)
 			}
 		},
 		bottomBar = {
 			SelectionModeBottomBar(inSelectMode) {
-				val selectedSongs = selectedSongs(selectedSongsId.value, searchResult)
+				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
@@ -107,7 +100,7 @@ fun SearchScreen(
 			LazyColumn(Modifier.padding(paddingValues)) {
 				item {
 					SongListHeader(
-						songs = searchResult,
+						songs = songs,
 						songsFromSearch = true,
 						inSelectMode = inSelectMode,
 						playAllSongs = { _, _ -> },
@@ -115,7 +108,7 @@ fun SearchScreen(
 					)
 				}
 				itemsIndexed(
-					items = searchResult,
+					items = songs,
 					key = { _, song -> song.id }
 				) { index, song ->
 					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
@@ -129,7 +122,7 @@ fun SearchScreen(
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						),
 						song = song,
-						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						currentMediaItem = currentMediaItem,
 						inSelectionMode = inSelectMode,
 						selected = selected,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
@@ -154,7 +147,7 @@ fun SearchScreen(
 
 		if (openMenu.value) {
 			SongListMenu(
-				songs = searchResult,
+				songs = songs,
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)
@@ -166,7 +159,7 @@ fun SearchScreen(
 		if (openAddToPlaylistDialog.value &&
 			(songClicked != null || selectedSongsId.value.isNotEmpty())) {
 			val selectedSongs = if (inSelectMode) {
-				selectedSongs(selectedSongsId.value, searchResult)
+				selectedSongs(selectedSongsId.value, songs)
 			} else listOf(songClicked!!)
 
 			AddToPlaylistDialog(
@@ -184,7 +177,7 @@ fun SearchScreen(
 		if (openDeleteDialog.value) {
 			DeleteDialog(
 				delete = {
-					val selectedSongs = selectedSongs(selectedSongsId.value, searchResult)
+					val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 					menuAction(
 						MediaMenuActions.DeleteSongs(
 							selectedSongs.map { SongDetails(it.id, it.uri) }
@@ -210,16 +203,12 @@ fun SearchScreen(
 fun SearchScreenPreview() {
 	OdiyoTheme {
 		SearchScreen(
-			searchQuery = "a",
-			searchResult = previewData.shuffled(),
-			playlists = previewPlaylist,
-			onTextChange = {},
-			currentSong = previewData[3],
+			uiState = MediaItemsUiState(searchQuery = "a", songs = previewData.take(7)),
+			editSearchQuery = { _, _ -> },
 			playAudio = { _, _ -> },
 			menuAction = {},
 			closeSelectionMode = {},
 			goToCollection = { _, _ -> },
-			clearSearchQuery = {}
 		) {}
 	}
 }

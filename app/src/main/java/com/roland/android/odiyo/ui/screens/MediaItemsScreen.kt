@@ -20,16 +20,13 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.menu.SongListMenu
-import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
@@ -43,19 +40,15 @@ import com.roland.android.odiyo.util.SongDetails
 @UnstableApi
 @Composable
 fun MediaItemsScreen(
-	songs: List<Music>,
-	collectionName: String,
-	collectionType: String,
-	currentSong: Music?,
-	playlists: List<Playlist>,
-	sortOption: SortOptions,
-	playAudio: (Uri, Int?) -> Unit,
+	uiState: MediaItemsUiState,
+	playAudio: (Uri, Int) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	moveToAddSongsScreen: (String) -> Unit,
 	navigateUp: () -> Unit
 ) {
+	val (currentMediaItem, collectionName, collectionType, _, songs, playlists, sortOption) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openMenu = rememberSaveable { mutableStateOf(false) }
@@ -135,7 +128,7 @@ fun MediaItemsScreen(
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						),
 						song = song,
-						currentSongUri = currentSong?.uri?.toMediaItem ?: NOTHING_PLAYING,
+						currentMediaItem = currentMediaItem,
 						inSelectionMode = inSelectMode,
 						selected = selected,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
@@ -231,13 +224,15 @@ fun MediaItemsScreen(
 @Composable
 fun MediaItemsScreenPreview() {
 	OdiyoTheme {
+		val uiState by remember { mutableStateOf(
+			MediaItemsUiState(
+				collectionName = "Does it have to be me?", songs = previewData.takeLast(5),
+				playlists = previewPlaylist, sortOption = SortOptions.NameAZ
+			)
+		) }
+
 		MediaItemsScreen(
-			songs = previewData.takeLast(5),
-			collectionName = "Does it have to be me?",
-			collectionType = ALBUMS,
-			currentSong = previewData[5],
-			playlists = previewPlaylist,
-			sortOption = SortOptions.NameAZ,
+			uiState = uiState,
 			playAudio = { _, _ -> },
 			goToCollection = { _, _ -> },
 			menuAction = {},

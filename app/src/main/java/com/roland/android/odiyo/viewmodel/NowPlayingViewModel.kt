@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
@@ -24,25 +23,22 @@ import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.util.MediaControls
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 class NowPlayingViewModel @Inject constructor(
 	private val appDataStore: AppDataStore,
 	mediaRepository: MediaRepository,
 	musicRepository: MusicRepository,
 	playlistRepository: PlaylistRepository
 ) : BaseMediaViewModel(appDataStore, mediaRepository, musicRepository, playlistRepository) {
-	var isDeviceMuted by mutableStateOf(false); private set
-	var shuffleState by mutableStateOf(false); private set
-	var repeatMode by mutableStateOf(0); private set
+	private var shuffleState by mutableStateOf(false)
+	private var repeatMode by mutableStateOf(0)
 	private var initialDeviceVolume by mutableStateOf(0)
 
-	var seekProgress by mutableStateOf(0f); private set
-	var currentDuration by mutableStateOf("00:00"); private set
 	private var updateProgress = true
 
 	init {
@@ -52,26 +48,29 @@ class NowPlayingViewModel @Inject constructor(
 			}
 		}
 		viewModelScope.launch {
-			deviceMuteState.collect {
-				isDeviceMuted = it
+			deviceMuteState.collect { deviceMuted ->
+				nowPlayingUiState.update { it.copy(deviceMuted = deviceMuted) }
 			}
 		}
 		viewModelScope.launch {
-			appDataStore.getShuffleState().collect {
-				shuffleState = it
-				mediaSession?.player?.shuffleModeEnabled = it
+			appDataStore.getShuffleState().collect { state ->
+				shuffleState = state
+				nowPlayingUiState.update { it.copy(shuffleState = state) }
+				mediaSession?.player?.shuffleModeEnabled = state
 			}
 		}
 		viewModelScope.launch {
-			appDataStore.getRepeatMode().collect {
-				repeatMode = it
-				mediaSession?.player?.repeatMode = it
+			appDataStore.getRepeatMode().collect { mode ->
+				repeatMode = mode
+				nowPlayingUiState.update { it.copy(repeatMode = mode) }
+				mediaSession?.player?.repeatMode = mode
 			}
 		}
 		viewModelScope.launch {
-			progress.collect {
-				currentDuration = it.time
-				seekProgress = it.toFloat()
+			progress.collect { progress ->
+				nowPlayingUiState.update {
+					it.copy(currentDuration = progress.time, seekProgress = progress.toFloat())
+				}
 			}
 		}
 	}
@@ -79,8 +78,9 @@ class NowPlayingViewModel @Inject constructor(
 	private fun updateProgress(): Boolean {
 		return Handler(Looper.getMainLooper()).postDelayed({
 			mediaSession?.player?.apply {
-				seekProgress = currentPosition.toFloat()
-				currentDuration = currentPosition.time
+				nowPlayingUiState.update {
+					it.copy(currentDuration = currentPosition.time, seekProgress = currentPosition.toFloat())
+				}
 			}
 			if (updateProgress) updateProgress()
 		}, 100L)
