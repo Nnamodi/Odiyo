@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.media3.common.Player
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.NowPlayingUiState
@@ -68,6 +70,8 @@ fun MediaUtilActionsPortrait(
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
 ) {
+	val buttonEnabled = uiState.currentSong != null && uiState.currentSong.uri != "".toUri()
+
 	Row(
 		modifier = Modifier.fillMaxWidth(),
 		horizontalArrangement = Arrangement.SpaceEvenly,
@@ -77,13 +81,14 @@ fun MediaUtilActionsPortrait(
 			onClick = { uiState.currentSong?.let { mediaControl(MediaControls.Share(it)) } },
 			modifier = Modifier
 				.size(50.dp)
-				.weight(1f)
+				.weight(1f),
+			enabled = buttonEnabled
 		) {
 			Icon(
 				imageVector = Icons.Rounded.Share,
 				contentDescription = stringResource(R.string.share),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
+				tint = if (buttonEnabled) componentColor else LocalContentColor.current
 			)
 		}
 		IconButton(

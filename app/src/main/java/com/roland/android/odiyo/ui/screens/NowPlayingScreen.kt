@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
+import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
@@ -199,7 +200,7 @@ fun MediaDescription(
 				softWrap = false
 			)
 		}
-		if (song != null) {
+		if (song != null && song.uri != "".toUri()) {
 			IconButton(
 				onClick = { onFavorite(MediaControls.Favorite(song)); songIsFavorite = !songIsFavorite },
 				modifier = Modifier

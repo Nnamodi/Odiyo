@@ -175,14 +175,14 @@ open class BaseMediaViewModel(
 			appDataStore.getCurrentPlaylist().collect {
 				if (mediaItems.value.isEmpty()) {
 					val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
-					mediaItems.value = items
+					mediaItems.value = if (items.size == 1 && items[0] == EMPTY_MEDIA_ITEM) mutableListOf() else items
 					mediaSession?.player?.apply {
 						setMediaItems(mediaItems.value); prepare()
 						if (mediaItems.value.isNotEmpty()) {
 							seekTo(it.currentSongPosition, it.currentSongSeekPosition)
 						}
 					}
-					currentMediaItems = if (items.size == 1 && items[0] == EMPTY_MEDIA_ITEM) emptyList() else items
+					currentMediaItems = mediaItems.value
 					Log.i("ViewModelInfo", "CurrentPlaylist: ${it.playlist.take(15)}, ${it.currentSongPosition}")
 				}
 			}
@@ -220,6 +220,8 @@ open class BaseMediaViewModel(
 					nowPlayingUiState.update { it.copy(currentSong = music) }
 				}
 				updateMusicQueue(queueEdited = false)
+				if (nowPlayingScreenUiState.currentSong == null) getNowPlayingMetadata()
+				if (mediaItems.value.isEmpty()) nowPlayingUiState.update { it.copy(currentSong = null) }
 			}
 		}
 	}
@@ -227,18 +229,11 @@ open class BaseMediaViewModel(
 	private fun getNowPlayingMetadata() {
 		viewModelScope.launch {
 			nowPlayingMetadata.collect { metadata ->
-				if (!songsFetched) return@collect
-				if (nowPlayingScreenUiState.currentSong !in songs) {
-					val currentMediaItem = musicItem(metadata).uri.toMediaItem
-					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-					nowPlayingUiState.update { it.copy(currentSong = musicItem(metadata)) }
-				}
-				if (currentMediaItems.isEmpty()) {
-					mediaUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
-					mediaItemsUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
-					nowPlayingUiState.update { it.copy(currentSong = null) }
-				}
+				if (!songsFetched && nowPlayingScreenUiState.currentSong in songs) return@collect
+				val currentMediaItem = musicItem(metadata).uri.toMediaItem
+				mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+				mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+				nowPlayingUiState.update { it.copy(currentSong = musicItem(metadata)) }
 			}
 		}
 	}
@@ -253,9 +248,8 @@ open class BaseMediaViewModel(
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
 		val time = mediaSession?.player?.duration ?: 0
-		val uri = mediaSession?.player?.currentMediaItem?.localConfiguration?.uri
 		return Music(
-			id = 0, uri = uri ?: "".toUri(), name = "",
+			id = 0, uri = "".toUri(), name = "",
 			title = (metadata?.title ?: "Unknown") as String,
 			artist = (metadata?.artist ?: "Unknown") as String,
 			time = if (time < 0) 0 else time, bytes = 0,
@@ -354,13 +348,9 @@ open class BaseMediaViewModel(
 	}
 
 	fun updateMusicQueue(queueEdited: Boolean = true) {
-		songsOnQueue.value = try {
-//			mediaItems.value.map { musicItem(it) ?: musicItem(it.mediaMetadata) }.toMutableList()
-			mediaItems.value.map { musicItem(it)!! }.toMutableList()
-		} catch (e: Exception) {
-			Log.e("ViewModelInfo", "Couldn't fetch queue items", e)
-			mutableListOf()
-		}
+		songsOnQueue.value = mediaItems.value.map {
+			musicItem(it) ?: musicItem(it.mediaMetadata)
+		}.toMutableList()
 		if (queueEdited || mediaItems.value.isNotEmpty()) saveCurrentPlaylist()
 	}
 
@@ -393,6 +383,10 @@ open class BaseMediaViewModel(
 	private fun removeSong(song: QueueMediaItem) {
 		mediaSession?.player?.removeMediaItem(song.index)
 		mediaItems.value.removeAt(song.index)
+		if (mediaItems.value.isNotEmpty()) return
+		mediaUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
+		mediaItemsUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
+		nowPlayingUiState.update { it.copy(currentSong = null) }
 	}
 
 	private fun cacheSongs(songs: List<Music>) {

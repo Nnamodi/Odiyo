@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
@@ -102,6 +103,8 @@ fun MediaUtilActionsLandscape(
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
 ) {
+	val buttonEnabled = uiState.currentSong != null && uiState.currentSong.uri != "".toUri()
+
 	Column(
 		modifier = Modifier
 			.fillMaxHeight()
@@ -113,13 +116,14 @@ fun MediaUtilActionsLandscape(
 			onClick = { uiState.currentSong?.let { mediaControl(MediaControls.Share(it)) } },
 			modifier = Modifier
 				.size(50.dp)
-				.weight(1f)
+				.weight(1f),
+			enabled = buttonEnabled
 		) {
 			Icon(
 				imageVector = Icons.Rounded.Share,
 				contentDescription = stringResource(R.string.share),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
+				tint = if (buttonEnabled) componentColor else LocalContentColor.current
 			)
 		}
 		IconButton(
