@@ -2,7 +2,7 @@
 An offline music streaming app.
 
 ## Screenshots
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |![Home screen (light)](screenshots/home_screen_light.png)|![Home screen (dark)](screenshots/home_screen_dark.png)|![Now playing](screenshots/now_playing.png)|![Now playing II](screenshots/now_playing_II.png)|![Editing music queue](screenshots/editing_music_queue.png)|![Songs screen](screenshots/songs_screen.png)|![Music item sheet](screenshots/music_item_sheet.png)|
 
