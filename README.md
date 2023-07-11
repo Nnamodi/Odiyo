@@ -4,7 +4,7 @@ An offline music streaming app.
 ## Screenshots
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|![Home screen (light)](screenshots/home_screen_light)|![Home screen (dark)](screenshots/home_screen_dark)|![Now playing](screenshots/now_playing)|![Now playing II](screenshots/now_playing_II)|![Editing music queue](screenshots/editing_music_queue)|![Songs screen](screenshots/songs_screen)|![Music item sheet](screenshots/music_item_sheet)|
+|![Home screen (light)](screenshots/home_screen_light.png)|![Home screen (dark)](screenshots/home_screen_dark.png)|![Now playing](screenshots/now_playing.png)|![Now playing II](screenshots/now_playing_II.png)|![Editing music queue](screenshots/editing_music_queue.png)|![Songs screen](screenshots/songs_screen.png)|![Music item sheet](screenshots/music_item_sheet.png)|
 
 ## Features
 * Listen to all songs on your device's local storage
