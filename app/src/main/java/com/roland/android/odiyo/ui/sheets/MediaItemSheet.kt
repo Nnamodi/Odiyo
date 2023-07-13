@@ -1,6 +1,9 @@
 package com.roland.android.odiyo.ui.sheets
 
 import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,13 +12,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,6 +28,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.ui.components.MediaItem
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ALBUMS
@@ -33,6 +36,7 @@ import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
 import com.roland.android.odiyo.util.sheetHeight
 
@@ -52,6 +56,19 @@ fun MediaItemSheet(
 	val openRenameDialog = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
+	val openPermissionDialog = remember { mutableStateOf(false) }
+	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
+	var permission by remember { mutableStateOf("") }
+	val context = LocalContext.current
+	val requestPermissionLauncher = rememberLauncherForActivityResult(
+		contract = ActivityResultContracts.RequestPermission(),
+		onResult = { writeStoragePermissionGranted.value = it }
+	)
+
+	context.writeStoragePermission({ permission = it }) { isGranted ->
+		writeStoragePermissionGranted.value = isGranted
+		Log.d("PermissionInfo", "Storage write permission granted: $isGranted")
+	}
 
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
@@ -60,7 +77,8 @@ fun MediaItemSheet(
 			MediaItem(
 				modifier = Modifier
 					.padding(10.dp)
-					.clip(BottomSheetDefaults.ExpandedShape),
+					.clip(BottomSheetDefaults.ExpandedShape)
+					.clickable {},
 				song = song,
 				currentMediaItem = Util.NOTHING_PLAYING,
 				inSelectionMode = false,
@@ -81,7 +99,10 @@ fun MediaItemSheet(
 				val action = { when (menu) {
 					PlayNext -> { menuAction(MediaMenuActions.PlayNext(listOf(song))); openBottomSheet(false) }
 					AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(listOf(song))); openBottomSheet(false) }
-					Rename -> openRenameDialog.value = true
+					Rename -> {
+						openPermissionDialog.value = !writeStoragePermissionGranted.value
+						openRenameDialog.value = writeStoragePermissionGranted.value
+					}
 					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
 					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
@@ -90,7 +111,10 @@ fun MediaItemSheet(
 					Details -> openDetailsDialog.value = true
 					Delete -> if (collectionIsPlaylist) {
 						removeFromPlaylist(song); openBottomSheet(false)
-					} else { openDeleteDialog.value = true }
+					} else {
+						openPermissionDialog.value = !writeStoragePermissionGranted.value
+						openDeleteDialog.value = writeStoragePermissionGranted.value
+					}
 				} }
 				val text = when (menu) {
 					AddToFavorite -> if (song.favorite) R.string.remove_from_favorite else menu.menuText
@@ -132,6 +156,14 @@ fun MediaItemSheet(
 				openBottomSheet(false)
 			},
 			openDialog = { openDeleteDialog.value = it }
+		)
+	}
+
+	if (openPermissionDialog.value) {
+		PermissionDialog(
+			permissionMessage = stringResource(R.string.write_storage_permission_message),
+			requestPermission = { requestPermissionLauncher.launch(permission) },
+			openDialog = { openPermissionDialog.value = it }
 		)
 	}
 }

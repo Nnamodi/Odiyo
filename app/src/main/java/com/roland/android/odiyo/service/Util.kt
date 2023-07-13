@@ -58,7 +58,7 @@ object Util {
 
 	val currentMediaIndex = MutableStateFlow(0)
 
-	val storagePermissionGranted = MutableStateFlow(false)
+	val readStoragePermissionGranted = MutableStateFlow(false)
 
 	// mutable list of MediaItems for populating the Player
 	val mediaItems = MutableStateFlow<MutableList<MediaItem>>(mutableListOf())

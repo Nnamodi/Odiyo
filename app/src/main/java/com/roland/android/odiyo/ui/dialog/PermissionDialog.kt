@@ -65,7 +65,7 @@ fun PermissionDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
 			PermissionDialog(
-				permissionMessage = stringResource(R.string.storage_permission_message),
+				permissionMessage = stringResource(R.string.read_storage_permission_message),
 				requestPermission = {},
 				openDialog = {}
 			)

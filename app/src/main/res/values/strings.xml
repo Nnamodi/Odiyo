@@ -80,7 +80,7 @@
     <string name="added_to_playlist">Added to playlist</string>
     <string name="removed">Removed</string>
     <string name="continue_button">Continue</string>
-    <string name="storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
+    <string name="read_storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
     <string name="queue_up">Queue up</string>
     <string name="this_playlist">this playlist</string>
     <string name="these_songs">these songs</string>
@@ -90,6 +90,7 @@
     <string name="audio_intent_message">An audio file got dropped in by another application. But you have an existing playlist.\nHow would you want to handle it?</string>
     <string name="repeat_mode">change repeat mode</string>
     <string name="save_queue">Save queue</string>
+    <string name="write_storage_permission_message">Allow Odiyo to modify and delete songs on your device storage.</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>

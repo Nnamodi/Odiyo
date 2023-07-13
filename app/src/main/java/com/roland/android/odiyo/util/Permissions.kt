@@ -2,6 +2,7 @@ package com.roland.android.odiyo.util
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -29,12 +30,23 @@ object Permissions {
 		}
 	}
 
-	fun Activity.storagePermission(
+	fun Activity.readStoragePermission(
 		permission: (String) -> Unit,
 		permissionGranted: (Boolean) -> Unit,
 	) {
 		permissionRequest(
 			permission = Manifest.permission.READ_EXTERNAL_STORAGE,
+			permissionGranted = permissionGranted,
+			showRational = permission
+		)
+	}
+
+	fun Context.writeStoragePermission(
+		permission: (String) -> Unit,
+		permissionGranted: (Boolean) -> Unit,
+	) {
+		(this as Activity).permissionRequest(
+			permission = Manifest.permission.WRITE_EXTERNAL_STORAGE,
 			permissionGranted = permissionGranted,
 			showRational = permission
 		)

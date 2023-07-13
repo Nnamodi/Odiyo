@@ -38,13 +38,13 @@ import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.notificationManager
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
-import com.roland.android.odiyo.service.Util.storagePermissionGranted
+import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.Permissions.storagePermission
+import com.roland.android.odiyo.util.Permissions.readStoragePermission
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 		val requestPermissionLauncher = registerForActivityResult(
 			ActivityResultContracts.RequestPermission()
 		) { isGranted: Boolean ->
-			storagePermissionGranted.value = isGranted
+			readStoragePermissionGranted.value = isGranted
 			Log.i("PermissionInfo", "Permission granted: $isGranted")
 		}
 
@@ -92,9 +92,9 @@ class MainActivity : ComponentActivity() {
 				requestPermission = { openPermissionDialog.value = true }
 			)
 
-			storagePermission(permission = { permission = it }) { isGranted ->
+			readStoragePermission(permission = { permission = it }) { isGranted ->
 				openPermissionDialog.value = !isGranted
-				storagePermissionGranted.value = isGranted
+				readStoragePermissionGranted.value = isGranted
 				if (!isGranted) audioIntent.value = null
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
 
 					if (openPermissionDialog.value) {
 						PermissionDialog(
-							permissionMessage = stringResource(R.string.storage_permission_message),
+							permissionMessage = stringResource(R.string.read_storage_permission_message),
 							requestPermission = { requestPermissionLauncher.launch(permission) },
 							openDialog = { openPermissionDialog.value = it }
 						)

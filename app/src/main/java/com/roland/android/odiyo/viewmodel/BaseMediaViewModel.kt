@@ -28,8 +28,8 @@ import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
 import com.roland.android.odiyo.service.Util.playingState
+import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.service.Util.songsOnQueue
-import com.roland.android.odiyo.service.Util.storagePermissionGranted
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.states.MediaUiState
@@ -116,7 +116,7 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
-			storagePermissionGranted.collectLatest {
+			readStoragePermissionGranted.collectLatest {
 				canAccessStorage = it
 				if (!it) return@collectLatest
 				getAllSongs(); restoreCurrentPlaylist()
