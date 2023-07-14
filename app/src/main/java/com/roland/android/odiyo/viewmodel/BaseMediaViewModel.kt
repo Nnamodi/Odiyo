@@ -330,6 +330,10 @@ open class BaseMediaViewModel(
 		mediaRepository.shareSong(context, songs)
 	}
 
+	fun setAsRingtone(context: Context, music: Music) {
+		mediaRepository.setAsRingtone(context, music)
+	}
+
 	private fun updateMusicInfo(song: Music) {
 		viewModelScope.launch(Dispatchers.IO) {
 			song.lastPlayed = Calendar.getInstance().time

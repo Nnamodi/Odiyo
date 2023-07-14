@@ -3,6 +3,8 @@ package com.roland.android.odiyo.repository
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.AlbumsSource
 import com.roland.android.odiyo.mediaSource.ArtistsSource
@@ -42,7 +44,8 @@ class MediaRepository(
 			getSongsFromAlbum(arrayOf(it.album)).value[inAlbum.indexOf(it)] = it
 			getSongsFromArtist(arrayOf(it.artist)).value[inArtist.indexOf(it)] = it
 		}
-		mediaAccessingObject.updateSong(songDetails)
+		try { mediaAccessingObject.updateSong(songDetails) }
+		catch (e: Exception) { Log.e("WriteStorageInfo", "Couldn't rename song", e) }
 	}
 
 	fun shareSong(context: Context, songs: List<Music>) {
@@ -58,12 +61,22 @@ class MediaRepository(
 		}
 	}
 
+	fun setAsRingtone(context: Context, music: Music) {
+		try {
+			mediaAccessingObject.setAsRingtone(music)
+		} catch (e: Exception) {
+			Toast.makeText(context, "Failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+			Log.e("RingtoneSettingInfo", "Couldn't set ringtone", e)
+		}
+	}
+
 	fun deleteSongFromSystem(songDetails: SongDetails) {
 		val songToDelete = getSongsFromSystem().value.find { it.id == songDetails.id }
 		songToDelete?.let {
 			getSongsFromAlbum(arrayOf(it.album)).value.remove(it)
 			getSongsFromArtist(arrayOf(it.artist)).value.remove(it)
 		}
-		mediaAccessingObject.deleteSong(songDetails)
+		try { mediaAccessingObject.deleteSong(songDetails) }
+		catch (e: Exception) { Log.e("WriteStorageInfo", "Couldn't delete song", e) }
 	}
 }

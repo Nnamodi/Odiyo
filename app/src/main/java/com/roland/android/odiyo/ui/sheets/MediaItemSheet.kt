@@ -105,6 +105,10 @@ fun MediaItemSheet(
 					}
 					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
+					SetAsRingtone -> {
+						openPermissionDialog.value = !writeStoragePermissionGranted.value
+						if (writeStoragePermissionGranted.value) { menuAction(MediaMenuActions.SetAsRingtone(song)); openBottomSheet(false) }
+					}
 					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
 					GoToArtist -> { goToCollection(song.artist, ARTISTS); openBottomSheet(false) }
@@ -197,6 +201,7 @@ enum class MenuItems(
 	Rename(Icons.Rounded.Edit, R.string.rename),
 	AddToFavorite(Icons.Rounded.Favorite, R.string.add_to_favorite),
 	AddToPlaylist(Icons.Rounded.PlaylistAdd, R.string.add_to_playlist),
+	SetAsRingtone(Icons.Rounded.SettingsPhone, R.string.set_as_ringtone),
 	Share(Icons.Rounded.Share, R.string.share),
 	GoToAlbum(Icons.Rounded.Album, R.string.go_to_album),
 	GoToArtist(Icons.Rounded.Person, R.string.go_to_artist),

@@ -75,6 +75,7 @@ class MediaViewModel @Inject constructor(
 			is MediaMenuActions.CreatePlaylist -> createPlaylist(action.playlist)
 			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.songs, action.playlist)
 			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.songs, action.playlistName)
+			is MediaMenuActions.SetAsRingtone -> setAsRingtone(context, action.music)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.songs)
 			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
 			is MediaMenuActions.DeleteSongs -> deleteSong(action.songs)

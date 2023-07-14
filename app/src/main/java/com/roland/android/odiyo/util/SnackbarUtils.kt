@@ -26,6 +26,7 @@ object SnackbarUtils {
 			is MediaMenuActions.RemoveFromPlaylist -> R.string.removed
 			is MediaMenuActions.PlayNext -> R.string.added_to_queue
 			is MediaMenuActions.RenameSong -> R.string.renamed
+			is MediaMenuActions.SetAsRingtone -> R.string.ringtone_set
 			else -> null
 		}
 		text?.let { scope.launch { snackbarHostState.showSnackbar(context.getString(it)) } }

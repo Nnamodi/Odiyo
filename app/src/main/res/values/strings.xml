@@ -91,6 +91,8 @@
     <string name="repeat_mode">change repeat mode</string>
     <string name="save_queue">Save queue</string>
     <string name="write_storage_permission_message">Allow Odiyo to modify and delete songs on your device storage.</string>
+    <string name="set_as_ringtone">Set as ringtone</string>
+    <string name="ringtone_set">Ringtone set!</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
