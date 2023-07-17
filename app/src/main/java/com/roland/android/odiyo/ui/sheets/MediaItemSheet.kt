@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.sheets
 
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +37,7 @@ import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.Permissions.launchWriteSettingsUi
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
 import com.roland.android.odiyo.util.sheetHeight
@@ -106,8 +108,9 @@ fun MediaItemSheet(
 					AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
 					SetAsRingtone -> {
-						openPermissionDialog.value = !writeStoragePermissionGranted.value
-						if (writeStoragePermissionGranted.value) { menuAction(MediaMenuActions.SetAsRingtone(song)); openBottomSheet(false) }
+						if (Settings.System.canWrite(context)) {
+							menuAction(MediaMenuActions.SetAsRingtone(song)); openBottomSheet(false)
+						} else { launchWriteSettingsUi(context) }
 					}
 					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }

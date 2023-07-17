@@ -3,7 +3,10 @@ package com.roland.android.odiyo.util
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -50,5 +53,11 @@ object Permissions {
 			permissionGranted = permissionGranted,
 			showRational = permission
 		)
+	}
+
+	fun launchWriteSettingsUi(context: Context) {
+		val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+		intent.data = Uri.parse("package:" + context.packageName)
+		context.startActivity(intent)
 	}
 }

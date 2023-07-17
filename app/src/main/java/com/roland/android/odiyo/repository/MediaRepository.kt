@@ -63,7 +63,7 @@ class MediaRepository(
 
 	fun setAsRingtone(context: Context, music: Music) {
 		try {
-			mediaAccessingObject.setAsRingtone(music)
+			mediaAccessingObject.setAsRingtone(context, music)
 		} catch (e: Exception) {
 			Toast.makeText(context, "Failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
 			Log.e("RingtoneSettingInfo", "Couldn't set ringtone", e)
