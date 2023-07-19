@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,6 +37,7 @@ import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.dark_tertiaryContainer
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.launchWriteSettingsUi
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
@@ -58,6 +60,7 @@ fun MediaItemSheet(
 	val openRenameDialog = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
+	val openWriteSettingsUi = remember { mutableStateOf(false) }
 	val openPermissionDialog = remember { mutableStateOf(false) }
 	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
 	var permission by remember { mutableStateOf("") }
@@ -110,7 +113,7 @@ fun MediaItemSheet(
 					SetAsRingtone -> {
 						if (Settings.System.canWrite(context)) {
 							menuAction(MediaMenuActions.SetAsRingtone(song)); openBottomSheet(false)
-						} else { launchWriteSettingsUi(context) }
+						} else { openWriteSettingsUi.value = true }
 					}
 					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
 					GoToAlbum -> { goToCollection(song.album, ALBUMS); openBottomSheet(false) }
@@ -166,11 +169,21 @@ fun MediaItemSheet(
 		)
 	}
 
-	if (openPermissionDialog.value) {
+	if (openPermissionDialog.value || openWriteSettingsUi.value) {
 		PermissionDialog(
-			permissionMessage = stringResource(R.string.write_storage_permission_message),
-			requestPermission = { requestPermissionLauncher.launch(permission) },
-			openDialog = { openPermissionDialog.value = it }
+			icon = if (openWriteSettingsUi.value) Icons.Rounded.AddAlert else Icons.Rounded.MusicNote,
+			iconColor = if (openWriteSettingsUi.value) dark_tertiaryContainer else Color.Blue,
+			permissionMessage = stringResource(
+				if (openWriteSettingsUi.value) {
+					R.string.write_settings_permission
+				} else R.string.write_storage_permission_message
+			),
+			requestPermission = {
+				if (openWriteSettingsUi.value) {
+					context.launchWriteSettingsUi(); openWriteSettingsUi.value = false
+				} else { requestPermissionLauncher.launch(permission) }
+			},
+			openDialog = { openPermissionDialog.value = it; openWriteSettingsUi.value = it }
 		)
 	}
 }
@@ -204,7 +217,7 @@ enum class MenuItems(
 	Rename(Icons.Rounded.Edit, R.string.rename),
 	AddToFavorite(Icons.Rounded.Favorite, R.string.add_to_favorite),
 	AddToPlaylist(Icons.Rounded.PlaylistAdd, R.string.add_to_playlist),
-	SetAsRingtone(Icons.Rounded.SettingsPhone, R.string.set_as_ringtone),
+	SetAsRingtone(Icons.Rounded.AddAlert, R.string.set_as_ringtone),
 	Share(Icons.Rounded.Share, R.string.share),
 	GoToAlbum(Icons.Rounded.Album, R.string.go_to_album),
 	GoToArtist(Icons.Rounded.Person, R.string.go_to_artist),

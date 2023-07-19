@@ -55,9 +55,9 @@ object Permissions {
 		)
 	}
 
-	fun launchWriteSettingsUi(context: Context) {
+	fun Context.launchWriteSettingsUi() {
 		val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-		intent.data = Uri.parse("package:" + context.packageName)
-		context.startActivity(intent)
+		intent.data = Uri.parse("package:$packageName")
+		startActivity(intent)
 	}
 }

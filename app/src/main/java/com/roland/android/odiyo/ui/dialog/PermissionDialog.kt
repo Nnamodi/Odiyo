@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,6 +23,8 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionDialog(
+	icon: ImageVector = Icons.Rounded.MusicNote,
+	iconColor: Color = Color.Blue,
 	permissionMessage: String,
 	requestPermission: () -> Unit,
 	openDialog: (Boolean) -> Unit
@@ -39,7 +42,7 @@ fun PermissionDialog(
 				.padding(20.dp),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			Icon(Icons.Rounded.MusicNote, null, Modifier.size(70.dp), Color.Blue)
+			Icon(icon, null, Modifier.size(70.dp), iconColor)
 			Text(
 				text = permissionMessage,
 				modifier = Modifier.padding(vertical = 20.dp),
