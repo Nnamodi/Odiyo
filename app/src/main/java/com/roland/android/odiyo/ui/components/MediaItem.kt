@@ -32,25 +32,30 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
 
+@kotlin.OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(UnstableApi::class)
 @Composable
 fun RecentSongItem(
 	itemIndex: Int,
 	song: Music,
-	currentSongUri: MediaItem,
-	playSong: (Uri, Int) -> Unit
+	currentMediaItem: MediaItem,
+	playSong: (Uri, Int) -> Unit,
+	openMenuSheet: () -> Unit
 ) {
 	val context = LocalContext.current
 	val imageSize = LocalConfiguration.current.screenWidthDp / 2.5
-	val isPlaying = song.uri.toMediaItem == currentSongUri
+	val isPlaying = song.uri.toMediaItem == currentMediaItem
 	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
 	Column(
 		modifier = Modifier
 			.width(imageSize.dp + 16.dp)
 			.clip(MaterialTheme.shapes.large)
-			.clickable { playSong(song.uri, itemIndex) }
+			.combinedClickable(
+				onClick = { playSong(song.uri, itemIndex) },
+				onLongClick = openMenuSheet
+			)
 			.padding(8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center

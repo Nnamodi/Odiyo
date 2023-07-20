@@ -65,8 +65,7 @@ fun AppRoute(
 		) {
 			composable(AppRoute.LibraryScreen.route) {
 				LibraryScreen(
-					songs = mediaViewModel.recentSongs,
-					currentSongUri = mediaViewModel.mediaScreenUiState.currentMediaItem,
+					uiState = mediaViewModel.mediaScreenUiState,
 					playSong = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(recentSongs)
@@ -74,6 +73,7 @@ fun AppRoute(
 						}
 						navActions.navigateToNowPlayingScreen()
 					},
+					menuAction = { mediaViewModel.menuAction(context, it) },
 					navigateToMediaScreen = navActions::navigateToMediaScreen,
 					navigateToMediaItemScreen = navActions::navigateToMediaItemScreen,
 					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen

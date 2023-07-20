@@ -15,48 +15,67 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.QueueMusic
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.ui.components.MainAppBar
 import com.roland.android.odiyo.ui.components.RecentSongItem
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.screens.Menus.*
+import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun LibraryScreen(
-	songs: List<Music>,
-	currentSongUri: MediaItem,
+	uiState: MediaUiState,
 	playSong: (Uri, Int) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 	navigateToMediaScreen: () -> Unit,
 	navigateToMediaItemScreen: (String, String) -> Unit,
 	navigateToPlaylistsScreen: () -> Unit
 ) {
+	val (currentMediaItem, _, songs, playlists) = uiState
+	val openMenuSheet = remember { mutableStateOf(false) }
+	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
+	var longClickedSong by remember { mutableStateOf<Music?>(null) }
+	val context = LocalContext.current
+	val snackbarHostState = remember { SnackbarHostState() }
+	val sheetState = rememberModalBottomSheetState(true)
+	val scope = rememberCoroutineScope()
+
 	Scaffold(
-		topBar = { MainAppBar() }
-	) {
+		topBar = { MainAppBar() },
+		snackbarHost = {
+			SnackbarHost(snackbarHostState) {
+				Snackbar(Modifier.padding(horizontal = 16.dp)) {
+					Text(it.visuals.message)
+				}
+			}
+		}
+	) { innerPadding ->
 		Column(
 			modifier = Modifier
-				.padding(it)
+				.padding(innerPadding)
 				.verticalScroll(rememberScrollState())
 		) {
 			val menus = Menus.values()
@@ -86,10 +105,39 @@ fun LibraryScreen(
 						items = songs,
 						key = { _, song -> song.id }
 					) { index, song ->
-						RecentSongItem(index, song, currentSongUri, playSong)
+						RecentSongItem(index, song, currentMediaItem, playSong) {
+							longClickedSong = song
+							openMenuSheet.value = true
+						}
 					}
 				}
 			}
+		}
+
+		if (openMenuSheet.value && longClickedSong != null) {
+			MediaItemSheet(
+				song = longClickedSong!!,
+				scaffoldState = sheetState,
+				goToCollection = navigateToMediaItemScreen,
+				openBottomSheet = { openMenuSheet.value = it },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openMenuSheet.value = false },
+				menuAction = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState, longClickedSong!!)
+				}
+			)
+		}
+
+		if (openAddToPlaylistDialog.value && longClickedSong != null) {
+			AddToPlaylistDialog(
+				songs = listOf(longClickedSong!!),
+				playlists = playlists,
+				addSongToPlaylist = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState)
+				},
+				openDialog = { openAddToPlaylistDialog.value = it }
+			)
 		}
 	}
 }
@@ -124,15 +172,14 @@ private enum class Menus(val icon: ImageVector?, val text: Int) {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview
 @Composable
 fun LibraryScreenPreview() {
 	OdiyoTheme {
 		LibraryScreen(
-			songs = previewData.shuffled(),
-			currentSongUri = previewData[4].uri.toMediaItem,
+			uiState = MediaUiState(songs = previewData.shuffled(), currentMediaItem = previewData[4].uri.toMediaItem),
 			playSong = { _, _ -> },
+			menuAction = {},
 			navigateToMediaScreen = {},
 			navigateToMediaItemScreen = { _, _ -> }
 		) {}

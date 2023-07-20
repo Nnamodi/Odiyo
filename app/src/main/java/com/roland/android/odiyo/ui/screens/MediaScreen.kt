@@ -63,6 +63,7 @@ fun MediaScreen(
 			HorizontalPager(
 				state = pagerState,
 				pageCount = tabTitles.size,
+				beyondBoundsPageCount = tabTitles.size,
 				userScrollEnabled = !inSelectMode
 			) { page ->
 				when (page) {
