@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.navigation.ALBUMS
@@ -127,7 +128,7 @@ fun NowPlayingTopAppBar(
 					modifier = Modifier
 						.padding(4.dp)
 						.clip(MaterialTheme.shapes.small)
-						.clickable { goToCollection(song.album, ALBUMS) }
+						.clickable(song.uri != "".toUri()) { goToCollection(song.album, ALBUMS) }
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
 					horizontalAlignment = Alignment.CenterHorizontally

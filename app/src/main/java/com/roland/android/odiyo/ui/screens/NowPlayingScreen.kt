@@ -84,12 +84,14 @@ fun NowPlayingScreen(
 	) { paddingValues ->
 		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
 			NowPlayingLandscapeView(
-				paddingValues, uiState, componentColor, mediaControl, goToCollection,
+				paddingValues, uiState, componentColor,
+				generatedColor, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
 		} else {
 			NowPlayingPortraitView(
-				paddingValues, uiState, componentColor, mediaControl, goToCollection,
+				paddingValues, uiState, componentColor,
+				generatedColor, mediaControl, goToCollection,
 				openMusicQueue = { openMusicQueue.value = it }
 			) { openDetailsDialog.value = it }
 		}
@@ -157,6 +159,7 @@ fun MediaDescription(
 	song: Music?,
 	artwork: Bitmap?,
 	componentColor: Color,
+	backgroundColor: Color,
 	portraitView: Boolean,
 	onFavorite: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit
@@ -164,6 +167,7 @@ fun MediaDescription(
 	val maxSize = LocalConfiguration.current.screenWidthDp - (30 * 2)
 	val minSize = LocalConfiguration.current.screenHeightDp / 2.3
 	val imageSize = min(minSize, maxSize.toDouble())
+	val songIsValid = song != null && song.uri != "".toUri()
 	var songIsFavorite by remember { mutableStateOf(song?.favorite == true) }
 	songIsFavorite = song?.favorite == true
 
@@ -193,16 +197,16 @@ fun MediaDescription(
 				color = componentColor,
 				modifier = Modifier
 					.clip(MaterialTheme.shapes.small)
-					.clickable(song != null) { goToCollection(song!!.artist, ARTISTS) }
+					.clickable(songIsValid) { goToCollection(song!!.artist, ARTISTS) }
 					.padding(4.dp),
 				style = MaterialTheme.typography.titleMedium,
 				overflow = TextOverflow.Ellipsis,
 				softWrap = false
 			)
 		}
-		if (song != null && song.uri != "".toUri()) {
+		if (songIsValid) {
 			IconButton(
-				onClick = { onFavorite(MediaControls.Favorite(song)); songIsFavorite = !songIsFavorite },
+				onClick = { onFavorite(MediaControls.Favorite(song!!)); songIsFavorite = !songIsFavorite },
 				modifier = Modifier
 					.size(50.dp)
 					.padding(start = 4.dp)
@@ -211,7 +215,7 @@ fun MediaDescription(
 					imageVector = if (songIsFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
 					contentDescription = stringResource(if (songIsFavorite) R.string.remove_from_favorite else R.string.add_to_favorite),
 					modifier = Modifier.fillMaxSize(0.75f),
-					tint = if (songIsFavorite) MaterialTheme.colorScheme.primary else componentColor
+					tint = if (songIsFavorite) componentColor(backgroundColor, true) else componentColor
 				)
 			}
 		}
@@ -223,6 +227,7 @@ fun MediaDescription(
 fun MediaControls(
 	uiState: NowPlayingUiState,
 	componentColor: Color,
+	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	showMusicQueue: (Boolean) -> Unit
 ) {
@@ -265,7 +270,7 @@ fun MediaControls(
 				imageVector = Icons.Rounded.Shuffle,
 				contentDescription = stringResource(R.string.shuffle),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (uiState.shuffleState) MaterialTheme.colorScheme.primary else componentColor
+				tint = if (uiState.shuffleState) componentColor(backgroundColor, true) else componentColor
 			)
 		}
 		IconButton(

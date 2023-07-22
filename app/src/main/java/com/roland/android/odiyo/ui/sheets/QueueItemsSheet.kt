@@ -79,7 +79,12 @@ fun QueueItemsSheet(
 				)
 				Spacer(Modifier.weight(1f))
 				if (songs.isNotEmpty()) {
-					TextButton(onClick = { saveQueue(); openBottomSheet(false) }) {
+					TextButton(
+						onClick = { saveQueue(); openBottomSheet(false) },
+						colors = ButtonDefaults.textButtonColors(
+							contentColor = componentColor(containerColor, componentIsToggleable = true)
+						)
+					) {
 						Text(stringResource(R.string.save_queue))
 					}
 				}
@@ -114,7 +119,8 @@ fun QueueItemsSheet(
 							itemIsLast = index == songs.size,
 							elevation = elevation,
 							cardColor = customContainerColor,
-							componentColor = componentColor
+							componentColor = componentColor,
+							containerColor = containerColor
 						) { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					}
 				}
@@ -138,10 +144,11 @@ fun QueueItem(
 	elevation: Dp,
 	cardColor: Color,
 	componentColor: Color,
+	containerColor: Color,
 	action: (QueueItemActions) -> Unit
 ) {
 	val isPlaying = itemIndex == currentSongIndex
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else componentColor
+	val color = if (isPlaying) componentColor(containerColor, true) else componentColor
 
 	Card(
 		colors = CardDefaults.cardColors(cardColor),

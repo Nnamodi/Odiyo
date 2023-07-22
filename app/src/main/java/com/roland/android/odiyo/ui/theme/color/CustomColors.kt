@@ -30,14 +30,20 @@ object CustomColors {
 		}
 	}
 
-	fun componentColor(generatedColor: Color): Color {
+	fun componentColor(generatedColor: Color, componentIsToggleable: Boolean = false): Color {
 		val isDark = ColorUtils.calculateLuminance(generatedColor.hashCode()) < 0.1
-		return if (isDark) light_background else light_onBackground
+		val componentColor = if (isDark) light_background else light_onBackground
+		val toggleableComponentColor = if (isDark) dark_primary else light_primary
+		return if (componentIsToggleable) toggleableComponentColor else componentColor
 	}
 
 	private fun dominantDarkColor(image: Bitmap): Int {
 		Palette.from(image).generate().let { palette: Palette ->
-			return palette.getDarkVibrantColor(palette.getDarkMutedColor(DKGRAY))
+			val dominantColor = palette.getDominantColor(DKGRAY)
+			val darkVibrantColor = palette.getDarkVibrantColor(palette.getDarkMutedColor(dominantColor))
+			val dominantColorIsLight = ColorUtils.calculateLuminance(dominantColor.hashCode()) > 0.1
+			val darkVibrantColorIsDarker = ColorUtils.calculateLuminance(darkVibrantColor.hashCode()) < 0.1
+			return if (dominantColorIsLight && darkVibrantColorIsDarker) darkVibrantColor else dominantColor
 		}
 	}
 }

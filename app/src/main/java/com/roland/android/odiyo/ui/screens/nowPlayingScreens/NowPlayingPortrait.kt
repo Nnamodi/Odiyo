@@ -8,7 +8,6 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.screens.MediaControls
 import com.roland.android.odiyo.ui.screens.MediaDescription
+import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.MediaControls
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -29,6 +29,7 @@ fun NowPlayingPortraitView(
 	paddingValues: PaddingValues,
 	uiState: NowPlayingUiState,
 	componentColor: Color,
+	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	openMusicQueue: (Boolean) -> Unit,
@@ -43,14 +44,15 @@ fun NowPlayingPortraitView(
 	) {
 		MediaDescription(
 			song = uiState.currentSong, artwork = uiState.artwork,
-			componentColor = componentColor, portraitView = true,
-			onFavorite = mediaControl, goToCollection = goToCollection
+			componentColor = componentColor, backgroundColor = backgroundColor,
+			portraitView = true, onFavorite = mediaControl, goToCollection = goToCollection
 		)
 
 		Spacer(Modifier.weight(1f))
 
 		MediaControls(
 			uiState = uiState, componentColor = componentColor,
+			backgroundColor = backgroundColor,
 			mediaControl = mediaControl, showMusicQueue = openMusicQueue,
 		)
 
@@ -58,6 +60,7 @@ fun NowPlayingPortraitView(
 
 		MediaUtilActionsPortrait(
 			uiState = uiState, componentColor = componentColor,
+			backgroundColor = backgroundColor,
 			mediaControl = mediaControl, openDetailsDialog = openDetailsDialog
 		)
 	}
@@ -67,10 +70,14 @@ fun NowPlayingPortraitView(
 fun MediaUtilActionsPortrait(
 	uiState: NowPlayingUiState,
 	componentColor: Color,
+	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	openDetailsDialog: (Boolean) -> Unit
 ) {
 	val buttonEnabled = uiState.currentSong != null && uiState.currentSong.uri != "".toUri()
+	val toggleableComponentColor = componentColor(
+		generatedColor = backgroundColor, componentIsToggleable = true
+	)
 
 	Row(
 		modifier = Modifier.fillMaxWidth(),
@@ -114,7 +121,7 @@ fun MediaUtilActionsPortrait(
 				imageVector = Icons.Rounded.VolumeOff,
 				contentDescription = stringResource(if (uiState.deviceMuted) R.string.unmute else R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (uiState.deviceMuted) MaterialTheme.colorScheme.primary else componentColor
+				tint = if (uiState.deviceMuted) toggleableComponentColor else componentColor
 			)
 		}
 		IconButton(
@@ -127,7 +134,7 @@ fun MediaUtilActionsPortrait(
 				imageVector = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
 				contentDescription = stringResource(R.string.repeat_mode),
 				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (uiState.repeatMode == Player.REPEAT_MODE_OFF) componentColor else MaterialTheme.colorScheme.primary
+				tint = if (uiState.repeatMode == Player.REPEAT_MODE_OFF) componentColor else toggleableComponentColor
 			)
 		}
 	}

@@ -93,7 +93,7 @@
     <string name="write_storage_permission_message">Allow Odiyo to modify and delete songs on your device storage.</string>
     <string name="set_as_ringtone">Set as ringtone</string>
     <string name="ringtone_set">Ringtone set!</string>
-    <string name="write_settings_permission">Odiyo requires permission to write device settings in order to set ringtone.</string>
+    <string name="write_settings_permission">Odiyo requires permission to modify device settings in order to set ringtone.</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
