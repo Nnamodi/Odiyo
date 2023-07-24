@@ -22,9 +22,9 @@ object CustomColors {
 	}
 
 	@Composable
-	fun nowPlayingBackgroundColor(artwork: Any?): Color {
+	fun nowPlayingBackgroundColor(artwork: Bitmap?): Color {
 		return if (artwork != null) {
-			Color(dominantDarkColor(artwork as Bitmap))
+			Color(dominantDarkColor(artwork))
 		} else {
 			MaterialTheme.colorScheme.outlineVariant
 		}

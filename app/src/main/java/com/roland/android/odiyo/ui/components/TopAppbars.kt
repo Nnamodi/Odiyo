@@ -109,7 +109,8 @@ fun NowPlayingTopAppBar(
 	song: Music?,
 	componentColor: Color,
 	goToCollection: (String, String) -> Unit,
-	navigateUp: () -> Unit
+	navigateUp: () -> Unit,
+	openMoreOptions: () -> Unit
 ) {
 	CenterAlignedTopAppBar(
 		navigationIcon = {
@@ -149,7 +150,18 @@ fun NowPlayingTopAppBar(
 				}
 			}
 		},
-		colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+		colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+		actions = {
+			if (!(song?.uri == "".toUri() || song == null)) {
+				IconButton(onClick = openMoreOptions) {
+					Icon(
+						imageVector = Icons.Rounded.MoreVert,
+						contentDescription = stringResource(R.string.more_options),
+						tint = componentColor
+					)
+				}
+			}
+		}
 	)
 }
 

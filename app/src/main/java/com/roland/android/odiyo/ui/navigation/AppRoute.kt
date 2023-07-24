@@ -170,6 +170,7 @@ fun AppRoute(
 				NowPlayingScreen(
 					uiState = nowPlayingViewModel.nowPlayingScreenUiState,
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
+					menuAction = { mediaViewModel.menuAction(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,
 					goToCollection = navActions::navigateToMediaItemScreen,
 					navigateUp = navController::navigateUp

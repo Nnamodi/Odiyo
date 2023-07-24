@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -36,28 +35,31 @@ import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingLandscapeView
 import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingPortraitView
+import com.roland.android.odiyo.ui.sheets.NowPlayingScreenSheet
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.*
+import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NowPlayingScreen(
 	uiState: NowPlayingUiState,
 	mediaControl: (MediaControls) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	val scaffoldState = rememberModalBottomSheetState(true)
+	val openMoreOptions = remember { mutableStateOf(false) }
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
@@ -73,7 +75,9 @@ fun NowPlayingScreen(
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
 		topBar = {
-			NowPlayingTopAppBar(uiState.currentSong, componentColor, goToCollection, navigateUp)
+			NowPlayingTopAppBar(uiState.currentSong, componentColor, goToCollection, navigateUp) {
+				openMoreOptions.value = true
+			}
 		},
 		snackbarHost = {
 			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-snackbarOffset).dp)) {
@@ -126,6 +130,17 @@ fun NowPlayingScreen(
 
 	if (openDetailsDialog.value && uiState.currentSong != null) {
 		SongDetailsDialog(uiState.currentSong, uiState.artwork) { openDetailsDialog.value = it }
+	}
+
+	if (openMoreOptions.value && uiState.currentSong != null) {
+		NowPlayingScreenSheet(
+			currentSong = uiState.currentSong, scaffoldState = scaffoldState,
+			componentColor = componentColor, containerColor = generatedColor,
+			openBottomSheet = { openMoreOptions.value = it },
+			openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true }
+		) {
+			menuAction(it); showSnackbar(it, context, scope, snackbarHostState)
+		}
 	}
 
 	val systemUiController = rememberSystemUiController()
@@ -350,7 +365,7 @@ private fun NowPlayingPreview() {
 					else -> {}
 				}
 			},
-			queueAction = {},
+			menuAction = {}, queueAction = {},
 			goToCollection = { _, _ -> }
 		) {}
 	}

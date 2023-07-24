@@ -12,14 +12,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Playlist
@@ -59,7 +57,7 @@ fun PlaylistItemSheet(
 		}
 	) {
 		val menuItems = PlaylistMenuItems.values().toMutableList()
-		if (playlist.numOfSongs() == 0) menuItems.removeAll(listOf(PlayNext, AddToQueue).toSet())
+		if (playlist.numOfSongs() == 0) menuItems.removeAll(setOf(PlayNext, AddToQueue))
 
 		Column(
 			modifier = Modifier
@@ -73,7 +71,7 @@ fun PlaylistItemSheet(
 					Rename -> openPlaylistDialog.value = true
 					Delete -> openDeleteDialog.value = true
 				} }
-				PlaylistSheetItem(menu.icon, stringResource(menu.menuText)) { action() }
+				SheetItem(menu.icon, stringResource(menu.menuText)) { action() }
 			}
 		}
 	}
@@ -99,21 +97,6 @@ fun PlaylistItemSheet(
 			openDialog = { openDeleteDialog.value = it },
 			itemIsPlaylist = true
 		)
-	}
-}
-
-@Composable
-fun PlaylistSheetItem(icon: ImageVector, menuText: String, action: () -> Unit) {
-	Row(
-		modifier = Modifier
-			.fillMaxWidth()
-			.clickable { action() }
-			.padding(horizontal = 20.dp, vertical = 16.dp),
-		verticalAlignment = Alignment.CenterVertically
-	) {
-		Icon(modifier = Modifier.padding(start = 14.dp), imageVector = icon, contentDescription = null)
-		Spacer(Modifier.width(20.dp))
-		Text(text = menuText, fontSize = 20.sp)
 	}
 }
 
