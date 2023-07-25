@@ -31,7 +31,6 @@ import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
-import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingLandscapeView
 import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingPortraitView
@@ -61,7 +60,6 @@ fun NowPlayingScreen(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val openMoreOptions = remember { mutableStateOf(false) }
 	val openMusicQueue = remember { mutableStateOf(false) }
-	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val screenLaunched = remember { mutableStateOf(false) }
 	val generatedColor = nowPlayingBackgroundColor(uiState.artwork)
@@ -89,15 +87,13 @@ fun NowPlayingScreen(
 		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
 			NowPlayingLandscapeView(
 				paddingValues, uiState, componentColor,
-				generatedColor, mediaControl, goToCollection,
-				openMusicQueue = { openMusicQueue.value = it }
-			) { openDetailsDialog.value = it }
+				generatedColor, mediaControl, goToCollection
+			) { openMusicQueue.value = it }
 		} else {
 			NowPlayingPortraitView(
 				paddingValues, uiState, componentColor,
-				generatedColor, mediaControl, goToCollection,
-				openMusicQueue = { openMusicQueue.value = it }
-			) { openDetailsDialog.value = it }
+				generatedColor, mediaControl, goToCollection
+			) { openMusicQueue.value = it }
 		}
 	}
 
@@ -128,14 +124,11 @@ fun NowPlayingScreen(
 		)
 	}
 
-	if (openDetailsDialog.value && uiState.currentSong != null) {
-		SongDetailsDialog(uiState.currentSong, uiState.artwork) { openDetailsDialog.value = it }
-	}
-
 	if (openMoreOptions.value && uiState.currentSong != null) {
 		NowPlayingScreenSheet(
-			currentSong = uiState.currentSong, scaffoldState = scaffoldState,
-			componentColor = componentColor, containerColor = generatedColor,
+			currentSong = uiState.currentSong, artwork = uiState.artwork,
+			scaffoldState = scaffoldState, componentColor = componentColor,
+			containerColor = generatedColor,
 			openBottomSheet = { openMoreOptions.value = it },
 			openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true }
 		) {

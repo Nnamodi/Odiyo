@@ -7,14 +7,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.media3.common.Player
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.NowPlayingUiState
@@ -32,8 +30,7 @@ fun NowPlayingPortraitView(
 	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit,
-	openMusicQueue: (Boolean) -> Unit,
-	openDetailsDialog: (Boolean) -> Unit
+	openMusicQueue: (Boolean) -> Unit
 ) {
 	Column(
 		modifier = Modifier
@@ -60,8 +57,7 @@ fun NowPlayingPortraitView(
 
 		MediaUtilActionsPortrait(
 			uiState = uiState, componentColor = componentColor,
-			backgroundColor = backgroundColor,
-			mediaControl = mediaControl, openDetailsDialog = openDetailsDialog
+			backgroundColor = backgroundColor, mediaControl = mediaControl
 		)
 	}
 }
@@ -71,51 +67,19 @@ fun MediaUtilActionsPortrait(
 	uiState: NowPlayingUiState,
 	componentColor: Color,
 	backgroundColor: Color,
-	mediaControl: (MediaControls) -> Unit,
-	openDetailsDialog: (Boolean) -> Unit
+	mediaControl: (MediaControls) -> Unit
 ) {
-	val buttonEnabled = uiState.currentSong != null && uiState.currentSong.uri != "".toUri()
 	val toggleableComponentColor = componentColor(
 		generatedColor = backgroundColor, componentIsToggleable = true
 	)
 
 	Row(
 		modifier = Modifier.fillMaxWidth(),
-		horizontalArrangement = Arrangement.SpaceEvenly,
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		IconButton(
-			onClick = { uiState.currentSong?.let { mediaControl(MediaControls.Share(it)) } },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f),
-			enabled = buttonEnabled
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Share,
-				contentDescription = stringResource(R.string.share),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (buttonEnabled) componentColor else LocalContentColor.current
-			)
-		}
-		IconButton(
-			onClick = { openDetailsDialog(true) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Info,
-				contentDescription = stringResource(R.string.details),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
-			)
-		}
-		IconButton(
 			onClick = { mediaControl(MediaControls.Mute) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
+			modifier = Modifier.size(50.dp)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
@@ -124,11 +88,10 @@ fun MediaUtilActionsPortrait(
 				tint = if (uiState.deviceMuted) toggleableComponentColor else componentColor
 			)
 		}
+		Spacer(Modifier.weight(1f))
 		IconButton(
 			onClick = { mediaControl(MediaControls.RepeatMode) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
+			modifier = Modifier.size(50.dp)
 		) {
 			Icon(
 				imageVector = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,

@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.sheets
 
+import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -18,7 +19,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +28,8 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
-import com.roland.android.odiyo.ui.sheets.SheetMenuItems.*
+import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.dark_tertiaryContainer
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -41,6 +42,7 @@ import com.roland.android.odiyo.util.SongDetails
 @Composable
 fun NowPlayingScreenSheet(
 	currentSong: Music,
+	artwork: Bitmap?,
 	scaffoldState: SheetState,
 	componentColor: Color,
 	containerColor: Color,
@@ -50,6 +52,7 @@ fun NowPlayingScreenSheet(
 ) {
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
+	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openRenameDialog = remember { mutableStateOf(false) }
 	val openWriteSettingsUi = remember { mutableStateOf(false) }
 	val openPermissionDialog = remember { mutableStateOf(false) }
@@ -76,7 +79,12 @@ fun NowPlayingScreenSheet(
 				.wrapContentHeight()
 				.verticalScroll(rememberScrollState())
 		) {
-			SheetMenuItems.values().forEach { menu ->
+			val sheetMenuItems = MenuItems.values()
+				.filter { menu ->
+					arrayOf(Rename, AddToPlaylist, SetAsRingtone, Share, Details).any { it == menu }
+				}
+
+			sheetMenuItems.forEach { menu ->
 				val action = { when (menu) {
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(currentSong)); openBottomSheet(false) }
 					SetAsRingtone -> {
@@ -88,6 +96,9 @@ fun NowPlayingScreenSheet(
 						openPermissionDialog.value = !writeStoragePermissionGranted.value
 						openRenameDialog.value = writeStoragePermissionGranted.value
 					}
+					Share -> menuAction(MediaMenuActions.ShareSong(listOf(currentSong)))
+					Details -> openDetailsDialog.value = true
+					else -> {}
 				} }
 				SheetItem(menu.icon, stringResource(menu.menuText), componentColor) { action() }
 			}
@@ -109,6 +120,10 @@ fun NowPlayingScreenSheet(
 		)
 	}
 
+	if (openDetailsDialog.value) {
+		SongDetailsDialog(currentSong, artwork) { openDetailsDialog.value = it }
+	}
+
 	if (openPermissionDialog.value || openWriteSettingsUi.value) {
 		PermissionDialog(
 			icon = if (openWriteSettingsUi.value) Icons.Rounded.AddAlert else Icons.Rounded.MusicNote,
@@ -128,12 +143,6 @@ fun NowPlayingScreenSheet(
 	}
 }
 
-private enum class SheetMenuItems(val icon: ImageVector, val menuText: Int) {
-	AddToPlaylist(Icons.Rounded.PlaylistAdd, R.string.add_to_playlist),
-	SetAsRingtone(Icons.Rounded.AddAlert, R.string.set_as_ringtone),
-	Rename(Icons.Rounded.Edit, R.string.rename)
-}
-
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -151,6 +160,7 @@ fun NowPlayingScreenSheetPreview() {
 			if (openBottomSheet.value) {
 				NowPlayingScreenSheet(
 					currentSong = previewData[5],
+					artwork = null,
 					scaffoldState = sheetState,
 					componentColor = MaterialTheme.colorScheme.onBackground,
 					containerColor = ContainerColor,

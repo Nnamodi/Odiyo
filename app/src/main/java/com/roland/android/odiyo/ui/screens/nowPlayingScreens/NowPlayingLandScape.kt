@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
@@ -36,8 +35,7 @@ fun NowPlayingLandscapeView(
 	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit,
-	openMusicQueue: (Boolean) -> Unit,
-	openDetailsDialog: (Boolean) -> Unit
+	openMusicQueue: (Boolean) -> Unit
 ) {
 	val imageSize = LocalConfiguration.current.screenWidthDp * 0.35
 	val inMultiWindowMode = false//rememberWindowSize().width == WindowType.Portrait
@@ -94,8 +92,7 @@ fun NowPlayingLandscapeView(
 
 		MediaUtilActionsLandscape(
 			uiState = uiState, componentColor = componentColor,
-			backgroundColor = backgroundColor,
-			mediaControl = mediaControl, openDetailsDialog = openDetailsDialog
+			backgroundColor = backgroundColor, mediaControl = mediaControl
 		)
 	}
 }
@@ -105,10 +102,8 @@ fun MediaUtilActionsLandscape(
 	uiState: NowPlayingUiState,
 	componentColor: Color,
 	backgroundColor: Color,
-	mediaControl: (MediaControls) -> Unit,
-	openDetailsDialog: (Boolean) -> Unit
+	mediaControl: (MediaControls) -> Unit
 ) {
-	val buttonEnabled = uiState.currentSong != null && uiState.currentSong.uri != "".toUri()
 	val toggleableComponentColor = componentColor(
 		generatedColor = backgroundColor, componentIsToggleable = true
 	)
@@ -117,41 +112,11 @@ fun MediaUtilActionsLandscape(
 		modifier = Modifier
 			.fillMaxHeight()
 			.padding(horizontal = 10.dp),
-		horizontalAlignment = Alignment.CenterHorizontally,
-		verticalArrangement = Arrangement.SpaceEvenly
+		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		IconButton(
-			onClick = { uiState.currentSong?.let { mediaControl(MediaControls.Share(it)) } },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f),
-			enabled = buttonEnabled
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Share,
-				contentDescription = stringResource(R.string.share),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (buttonEnabled) componentColor else LocalContentColor.current
-			)
-		}
-		IconButton(
-			onClick = { openDetailsDialog(true) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
-		) {
-			Icon(
-				imageVector = Icons.Rounded.Info,
-				contentDescription = stringResource(R.string.details),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = componentColor
-			)
-		}
-		IconButton(
 			onClick = { mediaControl(MediaControls.Mute) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
+			modifier = Modifier.size(50.dp)
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
@@ -160,11 +125,10 @@ fun MediaUtilActionsLandscape(
 				tint = if (uiState.deviceMuted) toggleableComponentColor else componentColor
 			)
 		}
+		Spacer(Modifier.weight(1f))
 		IconButton(
 			onClick = { mediaControl(MediaControls.RepeatMode) },
-			modifier = Modifier
-				.size(50.dp)
-				.weight(1f)
+			modifier = Modifier.size(50.dp)
 		) {
 			Icon(
 				imageVector = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
