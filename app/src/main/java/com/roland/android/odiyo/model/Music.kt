@@ -27,7 +27,8 @@ data class Music(
 	@PrimaryKey(autoGenerate = true)
 	val generatedId: Int = 0,
 	var favorite: Boolean = false,
-	var lastPlayed: Date = Date(0)
+	var lastPlayed: Date = Date(0),
+	var timesPlayed: Int? = 0
 ) {
 	fun duration(): String = time.time
 	fun size(): String = "${bytes.toMb} MB"

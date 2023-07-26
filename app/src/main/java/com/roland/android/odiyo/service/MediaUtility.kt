@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -22,7 +23,7 @@ import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.progress
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 class PlayerListener : Player.Listener {
 	override fun onEvents(player: Player, events: Player.Events) {
 		super.onEvents(player, events)

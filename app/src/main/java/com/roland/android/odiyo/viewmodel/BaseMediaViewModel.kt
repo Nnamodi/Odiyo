@@ -64,6 +64,7 @@ open class BaseMediaViewModel(
 	var sortOrder by mutableStateOf(SortOptions.NameAZ)
 	var songsFetched by mutableStateOf(false)
 	var canAccessStorage by mutableStateOf(false)
+	private var musicInfoUpdated by mutableStateOf(false)
 
 	val mediaUiState = MutableStateFlow(MediaUiState())
 	private val _mediaUiState: StateFlow<MediaUiState> = mediaUiState.asStateFlow()
@@ -213,7 +214,6 @@ open class BaseMediaViewModel(
 				}
 				delay(3000) // delay allows songs to completely load from device before further action
 				musicItem(item)?.let { music ->
-					updateMusicInfo(music)
 					val currentMediaItem = music.uri.toMediaItem
 					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
 					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
@@ -230,10 +230,14 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			nowPlayingMetadata.collect { metadata ->
 				if (!songsFetched && nowPlayingScreenUiState.currentSong in songs) return@collect
+				if (metadata == MediaMetadata.EMPTY) return@collect
 				val currentMediaItem = musicItem(metadata).uri.toMediaItem
 				mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
 				mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
 				nowPlayingUiState.update { it.copy(currentSong = musicItem(metadata)) }
+				if (!songsFetched) return@collect
+				delay(4000); updateMusicInfo()
+				delay(6000); musicInfoUpdated = false
 			}
 		}
 	}
@@ -334,10 +338,17 @@ open class BaseMediaViewModel(
 		mediaRepository.setAsRingtone(context, music)
 	}
 
-	private fun updateMusicInfo(song: Music) {
+	private fun updateMusicInfo() {
+		if (musicInfoUpdated) return
+		val song = musicItem(mediaSession?.player?.currentMediaItem)
 		viewModelScope.launch(Dispatchers.IO) {
-			song.lastPlayed = Calendar.getInstance().time
-			musicRepository.updateSongInCache(song)
+			song?.let {
+				it.lastPlayed = Calendar.getInstance().time
+				it.timesPlayed = it.timesPlayed?.inc()
+				musicRepository.updateSongInCache(it)
+				musicInfoUpdated = true
+			}
+			Log.i("UpdateMusicInfo", "Music info updated")
 		}
 	}
 
