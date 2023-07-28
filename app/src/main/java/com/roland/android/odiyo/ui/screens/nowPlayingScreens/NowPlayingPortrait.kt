@@ -32,6 +32,10 @@ fun NowPlayingPortraitView(
 	goToCollection: (String, String) -> Unit,
 	openMusicQueue: (Boolean) -> Unit
 ) {
+	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
+		uiState.musicQueue[uiState.currentSongIndex]
+	} else null
+
 	Column(
 		modifier = Modifier
 			.padding(paddingValues)
@@ -40,7 +44,7 @@ fun NowPlayingPortraitView(
 		verticalArrangement = Arrangement.SpaceBetween
 	) {
 		MediaDescription(
-			song = uiState.currentSong, artwork = uiState.artwork,
+			uiState = uiState, currentSong = currentSong,
 			componentColor = componentColor, backgroundColor = backgroundColor,
 			portraitView = true, onFavorite = mediaControl, goToCollection = goToCollection
 		)
@@ -48,8 +52,8 @@ fun NowPlayingPortraitView(
 		Spacer(Modifier.weight(1f))
 
 		MediaControls(
-			uiState = uiState, componentColor = componentColor,
-			backgroundColor = backgroundColor,
+			uiState = uiState, currentSong = currentSong,
+			componentColor = componentColor, backgroundColor = backgroundColor,
 			mediaControl = mediaControl, showMusicQueue = openMusicQueue,
 		)
 

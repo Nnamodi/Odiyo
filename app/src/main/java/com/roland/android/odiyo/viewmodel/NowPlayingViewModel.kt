@@ -111,8 +111,8 @@ class NowPlayingViewModel @Inject constructor(
 	private fun seek(previous: Boolean, next: Boolean) {
 		mediaSession?.player?.apply {
 			when {
-				previous -> seekToPrevious()
-				next -> seekToNext()
+				previous -> seekToPreviousMediaItem()
+				next -> seekToNextMediaItem()
 			}
 		}
 	}

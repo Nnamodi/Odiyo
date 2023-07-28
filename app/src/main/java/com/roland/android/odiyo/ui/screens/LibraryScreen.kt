@@ -54,7 +54,7 @@ fun LibraryScreen(
 	navigateToMediaItemScreen: (String, String) -> Unit,
 	navigateToPlaylistsScreen: () -> Unit
 ) {
-	val (currentMediaItem, _, songs, playlists) = uiState
+	val (currentMediaItem, _, _, recentSongs, playlists) = uiState
 	val openMenuSheet = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	var longClickedSong by remember { mutableStateOf<Music?>(null) }
@@ -93,7 +93,7 @@ fun LibraryScreen(
 				MenuItem(menu.icon, menu.text, action)
 			}
 
-			if (songs.isNotEmpty()) {
+			if (recentSongs.isNotEmpty()) {
 				Spacer(Modifier.height(16.dp))
 				Text(
 					text = stringResource(R.string.recently_added),
@@ -102,7 +102,7 @@ fun LibraryScreen(
 				)
 				LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
 					itemsIndexed(
-						items = songs,
+						items = recentSongs,
 						key = { _, song -> song.id }
 					) { index, song ->
 						RecentSongItem(index, song, currentMediaItem, playSong) {
@@ -177,7 +177,7 @@ private enum class Menus(val icon: ImageVector?, val text: Int) {
 fun LibraryScreenPreview() {
 	OdiyoTheme {
 		LibraryScreen(
-			uiState = MediaUiState(songs = previewData.shuffled(), currentMediaItem = previewData[4].uri.toMediaItem),
+			uiState = MediaUiState(allSongs = previewData.shuffled(), currentMediaItem = previewData[4].uri.toMediaItem),
 			playSong = { _, _ -> },
 			menuAction = {},
 			navigateToMediaScreen = {},

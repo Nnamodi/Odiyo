@@ -53,6 +53,9 @@ fun BottomAppBar(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val context = LocalContext.current
 	val scope = rememberCoroutineScope()
+	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
+		uiState.musicQueue[uiState.currentSongIndex]
+	} else null
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	var nowPlayingScreen by remember { mutableStateOf(false) }
@@ -60,10 +63,8 @@ fun BottomAppBar(
 
 	if (!nowPlayingScreen && !inSelectionMode) {
 		NowPlayingMinimizedView(
-			song = uiState.currentSong,
-			artwork = uiState.artwork,
-			isPlaying = uiState.playingState,
-			playPause = playPause,
+			song = currentSong, artwork = uiState.artwork,
+			isPlaying = uiState.playingState, playPause = playPause,
 			showMusicQueue = { openMusicQueue.value = it },
 			moveToNowPlayingScreen = moveToNowPlayingScreen
 		)
@@ -82,8 +83,7 @@ fun BottomAppBar(
 
 	if (openAddToPlaylistDialog.value) {
 		AddToPlaylistDialog(
-			songs = uiState.musicQueue,
-			playlists = uiState.playlists,
+			songs = uiState.musicQueue, playlists = uiState.playlists,
 			addSongToPlaylist = {
 				menuAction(it)
 				showSnackbar(it, context, scope, snackbarHostState)
@@ -174,7 +174,7 @@ fun BottomAppBarPreview() {
 	OdiyoTheme {
 		var uiState by remember {
 			mutableStateOf(
-				NowPlayingUiState(currentSong = previewData[4], musicQueue = previewData.take(8))
+				NowPlayingUiState(currentSongIndex = 4, musicQueue = previewData.take(8))
 			)
 		}
 		val concealBottomBar = remember { mutableStateOf(true) }

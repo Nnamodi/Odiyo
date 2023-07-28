@@ -39,8 +39,11 @@ fun NowPlayingLandscapeView(
 ) {
 	val imageSize = LocalConfiguration.current.screenWidthDp * 0.35
 	val inMultiWindowMode = false//rememberWindowSize().width == WindowType.Portrait
-	var songIsFavorite by remember { mutableStateOf(uiState.currentSong?.favorite == true) }
-	songIsFavorite = uiState.currentSong?.favorite == true
+	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
+		uiState.musicQueue[uiState.currentSongIndex]
+	} else null
+	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
+	songIsFavorite = currentSong?.favorite == true
 
 	Row(
 		modifier = Modifier
@@ -77,15 +80,15 @@ fun NowPlayingLandscapeView(
 				}
 
 				MediaDescription(
-					song = uiState.currentSong, artwork = uiState.artwork,
+					uiState = uiState, currentSong = currentSong,
 					componentColor = componentColor, backgroundColor = backgroundColor,
 					portraitView = false, onFavorite = mediaControl, goToCollection = goToCollection
 				)
 			}
 
 			MediaControls(
-				uiState = uiState, componentColor = componentColor,
-				backgroundColor = backgroundColor,
+				uiState = uiState, currentSong = currentSong,
+				componentColor = componentColor, backgroundColor = backgroundColor,
 				mediaControl = mediaControl, showMusicQueue = openMusicQueue,
 			)
 		}

@@ -93,7 +93,7 @@ fun MediaScreenPreview() {
 		MediaScreen(
 			songsTab = {
 				SongsScreen(
-					uiState = MediaUiState(songs = previewData),
+					uiState = MediaUiState(allSongs = previewData),
 					playAudio = { _, _ -> },
 					goToCollection = { _, _ -> },
 					menuAction = {}

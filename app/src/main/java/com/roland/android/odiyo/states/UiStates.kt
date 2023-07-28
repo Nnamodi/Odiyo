@@ -10,7 +10,6 @@ import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.ui.dialog.SortOptions
 
 data class NowPlayingUiState(
-	val currentSong: Music? = null,
 	val artwork: Bitmap? = null,
 	val currentDuration: String = "00:00",
 	val seekProgress: Float = 0f,
@@ -26,7 +25,8 @@ data class NowPlayingUiState(
 data class MediaUiState(
 	val currentMediaItem: MediaItem = NOTHING_PLAYING,
 	val sortOption: SortOptions = SortOptions.NameAZ,
-	val songs: List<Music> = emptyList(),
+	val allSongs: List<Music> = emptyList(),
+	val recentSongs: List<Music> = emptyList(),
 	val playlists: List<Playlist> = emptyList(),
 	val albums: List<Album> = emptyList(),
 	val artists: List<Artist> = emptyList(),

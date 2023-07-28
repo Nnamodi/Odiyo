@@ -132,13 +132,11 @@ open class BaseMediaViewModel(
 			musicRepository.getCachedSongs.collectLatest { musicList ->
 				cachedSongs = musicList
 				if (!songsFetched) {
-					fetchAndSyncSongs()
-					return@collectLatest
+					fetchAndSyncSongs(); return@collectLatest
 				}
 				songs = musicList
 					.filter { it.name.endsWith(".mp3") }
 					.sortList()
-				mediaUiState.update { it.copy(songs = songs) }
 				lastPlayedSongs = songs
 					.filter { it.lastPlayed != Date(0) }
 					.sortedByDescending { it.lastPlayed }
@@ -147,6 +145,7 @@ open class BaseMediaViewModel(
 				recentSongs = songs
 					.sortedByDescending { it.addedOn }
 					.take(45)
+				mediaUiState.update { it.copy(allSongs = songs, recentSongs = recentSongs) }
 				Log.i("DataInfo", "Cached songs: ${songs.size} | Songs fetched: $songsFetched")
 			}
 		}
@@ -209,19 +208,13 @@ open class BaseMediaViewModel(
 	private fun getCurrentSong() {
 		viewModelScope.launch {
 			nowPlaying.collect { item ->
-				musicItem(item)?.let { music ->
-					nowPlayingUiState.update { it.copy(currentSong = music) }
-				}
 				delay(3000) // delay allows songs to completely load from device before further action
 				musicItem(item)?.let { music ->
 					val currentMediaItem = music.uri.toMediaItem
 					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
 					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-					nowPlayingUiState.update { it.copy(currentSong = music) }
 				}
 				updateMusicQueue(queueEdited = false)
-				if (nowPlayingScreenUiState.currentSong == null) getNowPlayingMetadata()
-				if (mediaItems.value.isEmpty()) nowPlayingUiState.update { it.copy(currentSong = null) }
 			}
 		}
 	}
@@ -229,13 +222,7 @@ open class BaseMediaViewModel(
 	private fun getNowPlayingMetadata() {
 		viewModelScope.launch {
 			nowPlayingMetadata.collect { metadata ->
-				if (!songsFetched && nowPlayingScreenUiState.currentSong in songs) return@collect
-				if (metadata == MediaMetadata.EMPTY) return@collect
-				val currentMediaItem = musicItem(metadata).uri.toMediaItem
-				mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-				mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-				nowPlayingUiState.update { it.copy(currentSong = musicItem(metadata)) }
-				if (!songsFetched) return@collect
+				if (!songsFetched || metadata == MediaMetadata.EMPTY) return@collect
 				delay(4000); updateMusicInfo()
 				delay(6000); musicInfoUpdated = false
 			}
@@ -401,7 +388,6 @@ open class BaseMediaViewModel(
 		if (mediaItems.value.isNotEmpty()) return
 		mediaUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
 		mediaItemsUiState.update { it.copy(currentMediaItem = NOTHING_PLAYING) }
-		nowPlayingUiState.update { it.copy(currentSong = null) }
 	}
 
 	private fun cacheSongs(songs: List<Music>) {

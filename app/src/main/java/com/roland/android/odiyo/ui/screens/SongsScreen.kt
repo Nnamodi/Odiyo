@@ -63,7 +63,7 @@ fun SongsScreen(
 		},
 		bottomBar = {
 			SelectionModeBottomBar(inSelectMode) {
-				val selectedSongs = selectedSongs(selectedSongsId.value, uiState.songs)
+				val selectedSongs = selectedSongs(selectedSongsId.value, uiState.allSongs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
@@ -82,18 +82,18 @@ fun SongsScreen(
 			}
 		}
 	) { paddingValues ->
-		if (uiState.songs.isEmpty()) {
+		if (uiState.allSongs.isEmpty()) {
 			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 		} else {
 			LazyColumn(Modifier.padding(paddingValues)) {
 				item {
 					SongListHeader(
-						songs = uiState.songs, showSortAction = true, inSelectMode = inSelectMode,
+						songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
 						playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
 					)
 				}
 				itemsIndexed(
-					items = uiState.songs,
+					items = uiState.allSongs,
 					key = { _, song -> song.id }
 				) { index, song ->
 					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
@@ -140,7 +140,7 @@ fun SongsScreen(
 		if (openAddToPlaylistDialog.value &&
 			(songClicked != null || selectedSongsId.value.isNotEmpty())) {
 			val selectedSongs = if (inSelectMode) {
-				selectedSongs(selectedSongsId.value, uiState.songs)
+				selectedSongs(selectedSongsId.value, uiState.allSongs)
 			} else listOf(songClicked!!)
 
 			AddToPlaylistDialog(
@@ -158,7 +158,7 @@ fun SongsScreen(
 		if (openDeleteDialog.value) {
 			DeleteDialog(
 				delete = {
-					val selectedSongs = selectedSongs(selectedSongsId.value, uiState.songs)
+					val selectedSongs = selectedSongs(selectedSongsId.value, uiState.allSongs)
 					menuAction(
 						MediaMenuActions.DeleteSongs(
 							selectedSongs.map { SongDetails(it.id, it.uri) }
@@ -197,7 +197,7 @@ fun SongsScreenPreview() {
 			color = MaterialTheme.colorScheme.background
 		) {
 			SongsScreen(
-				uiState = MediaUiState(songs = previewData),
+				uiState = MediaUiState(allSongs = previewData),
 				playAudio = { _, _ -> },
 				goToCollection = { _, _ -> },
 				menuAction = {}

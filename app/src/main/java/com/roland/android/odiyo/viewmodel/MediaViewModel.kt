@@ -42,7 +42,7 @@ class MediaViewModel @Inject constructor(
 				sortOrder = option
 				songs = songs.sortList()
 				favoriteSongs = favoriteSongs.sortList()
-				mediaUiState.update { it.copy(songs = songs, sortOption = option) }
+				mediaUiState.update { it.copy(allSongs = songs, sortOption = option) }
 				mediaItemsUiState.update { it.copy(sortOption = option) }
 			}
 		}

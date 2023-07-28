@@ -26,7 +26,7 @@ fun SongsTab(
 		uiState = viewModel.mediaScreenUiState,
 		playAudio = { uri, index ->
 			viewModel.apply {
-				resetPlaylist(viewModel.mediaScreenUiState.songs)
+				resetPlaylist(viewModel.mediaScreenUiState.allSongs)
 				playAudio(uri, index)
 			}
 			index?.let { navActions.navigateToNowPlayingScreen() }
