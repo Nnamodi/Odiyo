@@ -8,10 +8,10 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
@@ -30,6 +31,7 @@ import androidx.media3.session.MediaSession
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.R.string.*
 import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.service.PlayerListener
 import com.roland.android.odiyo.service.Util.audioAttribute
@@ -44,7 +46,10 @@ import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
 import com.roland.android.odiyo.util.Permissions.readStoragePermission
+import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
+import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,13 +77,6 @@ class MainActivity : ComponentActivity() {
 		volumeControlStream = AudioManager.STREAM_MUSIC
 		audioIntent = mutableStateOf(intent.data)
 
-		val requestPermissionLauncher = registerForActivityResult(
-			ActivityResultContracts.RequestPermission()
-		) { isGranted: Boolean ->
-			readStoragePermissionGranted.value = isGranted
-			Log.i("PermissionInfo", "Permission granted: $isGranted")
-		}
-
 		setContent {
 			val context = LocalContext.current
 			val mediaViewModel: MediaViewModel = hiltViewModel()
@@ -92,10 +90,21 @@ class MainActivity : ComponentActivity() {
 				requestPermission = { openPermissionDialog.value = true }
 			)
 
+			val requestPermissionLauncher = rememberPermissionLauncher {
+				readStoragePermissionGranted.value = it
+				if (!it) mediaViewModel.savePermissionStatus(
+					!shouldShowRequestPermissionRationale(this, permission)
+				)
+			}
 			readStoragePermission(permission = { permission = it }) { isGranted ->
 				openPermissionDialog.value = !isGranted
 				readStoragePermissionGranted.value = isGranted
-				if (!isGranted) audioIntent.value = null
+				if (!isGranted) {
+					audioIntent.value = null
+					mediaViewModel.savePermissionStatus(
+						!shouldShowRequestPermissionRationale(this, permission)
+					)
+				}
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
@@ -114,8 +123,14 @@ class MainActivity : ComponentActivity() {
 
 					if (openPermissionDialog.value) {
 						PermissionDialog(
-							permissionMessage = stringResource(R.string.read_storage_permission_message),
-							requestPermission = { requestPermissionLauncher.launch(permission) },
+							permissionMessage = stringResource(
+								if (storagePermissionPermanentlyDenied) read_storage_request else read_storage_rationale
+							),
+							requestPermission = {
+								if (storagePermissionPermanentlyDenied) {
+									context.launchDeviceSettingsUi(ACTION_APPLICATION_DETAILS_SETTINGS)
+								} else requestPermissionLauncher.launch(permission)
+							},
 							openDialog = { openPermissionDialog.value = it }
 						)
 					}
@@ -156,6 +171,14 @@ class MainActivity : ComponentActivity() {
 					onDispose {}
 				}
 			}
+		}
+	}
+
+	override fun onResume() {
+		super.onResume()
+		readStoragePermission(permission = {}) { isGranted ->
+			readStoragePermissionGranted.value = isGranted
+			Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 		}
 	}
 

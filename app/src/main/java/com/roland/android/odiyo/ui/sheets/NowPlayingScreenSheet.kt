@@ -3,9 +3,8 @@ package com.roland.android.odiyo.ui.sheets
 import android.graphics.Bitmap
 import android.os.Build
 import android.provider.Settings
+import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,7 +32,8 @@ import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.dark_tertiaryContainer
 import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.Permissions.launchWriteSettingsUi
+import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
+import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
 
@@ -59,8 +59,7 @@ fun NowPlayingScreenSheet(
 	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
 	var permission by remember { mutableStateOf("") }
 	val context = LocalContext.current
-	val requestPermissionLauncher = rememberLauncherForActivityResult(
-		contract = ActivityResultContracts.RequestPermission(),
+	val requestPermissionLauncher = rememberPermissionLauncher(
 		onResult = { writeStoragePermissionGranted.value = it }
 	)
 
@@ -135,7 +134,7 @@ fun NowPlayingScreenSheet(
 			),
 			requestPermission = {
 				if (openWriteSettingsUi.value) {
-					context.launchWriteSettingsUi(); openWriteSettingsUi.value = false
+					context.launchDeviceSettingsUi(ACTION_MANAGE_WRITE_SETTINGS); openWriteSettingsUi.value = false
 				} else { requestPermissionLauncher.launch(permission) }
 			},
 			openDialog = { openPermissionDialog.value = it; openWriteSettingsUi.value = it }

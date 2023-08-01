@@ -36,6 +36,7 @@ import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,11 @@ open class BaseMediaViewModel(
 	var nowPlayingScreenUiState by mutableStateOf(NowPlayingUiState()); private set
 
 	init {
+		viewModelScope.launch {
+			appDataStore.getPermissionStatus().collectLatest {
+				storagePermissionPermanentlyDenied = it
+			}
+		}
 		viewModelScope.launch {
 			playlistRepository.getPlaylists.collectLatest { allPlaylists ->
 				mediaUiState.update { it.copy(playlists = allPlaylists) }
@@ -402,6 +408,12 @@ open class BaseMediaViewModel(
 			SortOptions.NameZA -> sortedByDescending { it.title }
 			SortOptions.NewestFirst -> sortedByDescending { it.addedOn }
 			SortOptions.OldestFirst -> sortedBy { it.addedOn }
+		}
+	}
+
+	fun savePermissionStatus(permanentlyDenied: Boolean) {
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.savePermissionStatus(permanentlyDenied)
 		}
 	}
 

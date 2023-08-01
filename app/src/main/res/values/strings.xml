@@ -80,7 +80,8 @@
     <string name="added_to_playlist">Added to playlist</string>
     <string name="removed">Removed</string>
     <string name="continue_button">Continue</string>
-    <string name="read_storage_permission_message">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
+    <string name="read_storage_rationale">Allow access to your local storage so that Odiyo can fetch and play your offline songs.</string>
+    <string name="read_storage_request">Allow access to your local storage so that Odiyo can fetch and play your offline songs.\nTap Continue > Permissions, and turn Storage on.</string>
     <string name="queue_up">Queue up</string>
     <string name="this_playlist">this playlist</string>
     <string name="these_songs">these songs</string>
@@ -94,6 +95,7 @@
     <string name="set_as_ringtone">Set as ringtone</string>
     <string name="ringtone_set">Ringtone set!</string>
     <string name="write_settings_permission">Odiyo requires permission to modify device settings in order to set ringtone.</string>
+    <string name="permission_granted">Permission granted!</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>

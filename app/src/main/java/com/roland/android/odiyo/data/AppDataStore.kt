@@ -8,6 +8,7 @@ import com.roland.android.odiyo.ui.dialog.SortOptions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+private val PERMISSION_STATUS = booleanPreferencesKey("permission_status")
 private val CURRENT_PLAYLIST = stringPreferencesKey("current_playlist")
 private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
@@ -16,6 +17,18 @@ private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
 private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
+	suspend fun savePermissionStatus(permanentlyDenied: Boolean) {
+		dataStore.edit { preference ->
+			preference[PERMISSION_STATUS] = permanentlyDenied
+		}
+	}
+
+	fun getPermissionStatus(): Flow<Boolean> {
+		return dataStore.data.map { preference ->
+			preference[PERMISSION_STATUS] ?: false
+		}
+	}
+
 	suspend fun saveCurrentPlaylist(
 		playlist: List<Uri>,
 		currentPosition: Int,

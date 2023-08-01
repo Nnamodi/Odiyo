@@ -175,7 +175,7 @@ fun MediaDescription(
 	val maxSize = LocalConfiguration.current.screenWidthDp - (30 * 2)
 	val minSize = LocalConfiguration.current.screenHeightDp / 2.3
 	val imageSize = min(minSize, maxSize.toDouble())
-	val songIsValid = currentSong?.uri != "".toUri()
+	val songIsValid = !(currentSong == null || currentSong.uri == "".toUri())
 	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
 	songIsFavorite = currentSong?.favorite == true
 
