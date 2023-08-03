@@ -6,11 +6,13 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PauseCircleOutline
 import androidx.compose.material.icons.rounded.PlayCircleOutline
 import androidx.compose.material.icons.rounded.QueueMusic
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,7 @@ import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -112,7 +115,8 @@ fun NowPlayingMinimizedView(
 	moveToNowPlayingScreen: () -> Unit
 ) {
 	val generatedColor = nowPlayingBackgroundColor(artwork)
-	val componentColor = componentColor(generatedColor)
+	val indication = rememberRipple(color = CustomColors.rippleColor(generatedColor))
+	val interactionSource = remember { MutableInteractionSource() }
 
 	Row(
 		modifier = Modifier
@@ -120,7 +124,7 @@ fun NowPlayingMinimizedView(
 			.padding(10.dp)
 			.clip(MaterialTheme.shapes.large)
 			.background(generatedColor)
-			.clickable { moveToNowPlayingScreen() },
+			.clickable(interactionSource, indication) { moveToNowPlayingScreen() },
 		horizontalArrangement = Arrangement.Start,
 		verticalAlignment = Alignment.CenterVertically
 	) {
@@ -132,34 +136,34 @@ fun NowPlayingMinimizedView(
 		)
 		Text(
 			text = song?.title ?: stringResource(R.string.nothing_to_play),
-			color = componentColor,
+			color = componentColor(generatedColor),
 			overflow = TextOverflow.Ellipsis,
 			modifier = Modifier.weight(1.0f),
 			softWrap = false
 		)
-		IconButton(
+		NowPlayingIconButton(
 			onClick = { song?.uri?.let { playPause(it, null) } },
 			modifier = Modifier
 				.padding(start = 24.dp)
-				.size(30.dp)
+				.size(30.dp),
+			color = generatedColor
 		) {
 			Icon(
 				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
 				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
-				tint = componentColor,
 				modifier = Modifier.fillMaxSize()
 			)
 		}
-		IconButton(
+		NowPlayingIconButton(
 			onClick = { showMusicQueue(true) },
 			modifier = Modifier
 				.padding(horizontal = 12.dp)
-				.size(30.dp)
+				.size(30.dp),
+			color = generatedColor
 		) {
 			Icon(
 				imageVector = Icons.Rounded.QueueMusic,
 				contentDescription = stringResource(R.string.music_queue),
-				tint = componentColor,
 				modifier = Modifier.fillMaxSize()
 			)
 		}

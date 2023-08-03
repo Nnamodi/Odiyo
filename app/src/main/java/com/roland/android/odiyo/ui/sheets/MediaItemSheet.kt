@@ -6,11 +6,13 @@ import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +38,7 @@ import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.dark_tertiaryContainer
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
@@ -185,18 +188,23 @@ fun MediaItemSheet(
 	}
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetItem(
 	icon: ImageVector,
 	menuText: String,
 	componentColor: Color = MaterialTheme.colorScheme.onBackground,
+	backgroundColor: Color = BottomSheetDefaults.ContainerColor,
 	modifier: Modifier = Modifier,
 	action: () -> Unit
 ) {
+	val interactionSource = remember { MutableInteractionSource() }
+	val ripple = rememberRipple(color = CustomColors.rippleColor(backgroundColor))
+
 	Row(
 		modifier = modifier
 			.fillMaxWidth()
-			.clickable { action() }
+			.clickable(interactionSource, ripple) { action() }
 			.padding(horizontal = 20.dp, vertical = 16.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {

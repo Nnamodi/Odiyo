@@ -20,9 +20,9 @@ import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.components.NowPlayingIconButton
 import com.roland.android.odiyo.ui.screens.MediaControls
 import com.roland.android.odiyo.ui.screens.MediaDescription
-import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.MediaControls
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -88,14 +88,14 @@ fun NowPlayingLandscapeView(
 
 			MediaControls(
 				uiState = uiState, currentSong = currentSong,
-				componentColor = componentColor, backgroundColor = backgroundColor,
+				backgroundColor = backgroundColor,
 				mediaControl = mediaControl, showMusicQueue = openMusicQueue,
 			)
 		}
 
 		MediaUtilActionsLandscape(
-			uiState = uiState, componentColor = componentColor,
-			backgroundColor = backgroundColor, mediaControl = mediaControl
+			uiState = uiState, backgroundColor = backgroundColor,
+			mediaControl = mediaControl
 		)
 	}
 }
@@ -103,41 +103,36 @@ fun NowPlayingLandscapeView(
 @Composable
 fun MediaUtilActionsLandscape(
 	uiState: NowPlayingUiState,
-	componentColor: Color,
 	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit
 ) {
-	val toggleableComponentColor = componentColor(
-		generatedColor = backgroundColor, componentIsToggleable = true
-	)
-
 	Column(
 		modifier = Modifier
 			.fillMaxHeight()
 			.padding(horizontal = 10.dp),
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
-		IconButton(
+		NowPlayingIconButton(
 			onClick = { mediaControl(MediaControls.Mute) },
-			modifier = Modifier.size(50.dp)
+			modifier = Modifier.size(50.dp),
+			toggled = uiState.deviceMuted, color = backgroundColor
 		) {
 			Icon(
 				imageVector = Icons.Rounded.VolumeOff,
 				contentDescription = stringResource(if (uiState.deviceMuted) R.string.unmute else R.string.mute),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (uiState.deviceMuted) toggleableComponentColor else componentColor
+				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
 		Spacer(Modifier.weight(1f))
-		IconButton(
+		NowPlayingIconButton(
 			onClick = { mediaControl(MediaControls.RepeatMode) },
-			modifier = Modifier.size(50.dp)
+			modifier = Modifier.size(50.dp), color = backgroundColor,
+			toggled = uiState.repeatMode != Player.REPEAT_MODE_OFF
 		) {
 			Icon(
 				imageVector = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
 				contentDescription = stringResource(R.string.repeat_mode),
-				modifier = Modifier.fillMaxSize(0.75f),
-				tint = if (uiState.repeatMode == Player.REPEAT_MODE_OFF) componentColor else toggleableComponentColor
+				modifier = Modifier.fillMaxSize(0.75f)
 			)
 		}
 	}

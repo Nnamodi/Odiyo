@@ -99,7 +99,10 @@ fun NowPlayingScreenSheet(
 					Details -> openDetailsDialog.value = true
 					else -> {}
 				} }
-				SheetItem(menu.icon, stringResource(menu.menuText), componentColor) { action() }
+				SheetItem(
+					icon = menu.icon, menuText = stringResource(menu.menuText),
+					componentColor = componentColor, backgroundColor = customContainerColor
+				) { action() }
 			}
 		}
 	}

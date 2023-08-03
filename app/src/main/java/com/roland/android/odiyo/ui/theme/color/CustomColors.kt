@@ -30,11 +30,11 @@ object CustomColors {
 		}
 	}
 
-	fun componentColor(generatedColor: Color, componentIsToggleable: Boolean = false): Color {
+	fun componentColor(generatedColor: Color, toggled: Boolean = false): Color {
 		val isDark = ColorUtils.calculateLuminance(generatedColor.hashCode()) < 0.1
 		val componentColor = if (isDark) light_background else light_onBackground
 		val toggleableComponentColor = if (isDark) dark_primary else light_primary
-		return if (componentIsToggleable) toggleableComponentColor else componentColor
+		return if (toggled) toggleableComponentColor else componentColor
 	}
 
 	private fun dominantDarkColor(image: Bitmap): Int {
@@ -45,5 +45,10 @@ object CustomColors {
 			val darkVibrantColorIsDarker = ColorUtils.calculateLuminance(darkVibrantColor.hashCode()) < 0.1
 			return if (dominantColorIsLight && darkVibrantColorIsDarker) darkVibrantColor else dominantColor
 		}
+	}
+
+	fun rippleColor(backgroundColor: Color): Color {
+		val isDark = ColorUtils.calculateLuminance(backgroundColor.hashCode()) < 0.1
+		return if (isDark) Color.White else Color.Black
 	}
 }

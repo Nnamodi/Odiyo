@@ -3,9 +3,11 @@ package com.roland.android.odiyo.ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +26,7 @@ import androidx.core.net.toUri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.navigation.ALBUMS
+import com.roland.android.odiyo.ui.theme.color.CustomColors
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,19 +110,22 @@ fun SearchBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun NowPlayingTopAppBar(
 	song: Music?,
+	backgroundColor: Color,
 	componentColor: Color,
 	goToCollection: (String, String) -> Unit,
 	navigateUp: () -> Unit,
 	openMoreOptions: () -> Unit
 ) {
+	val interactionSource = remember { MutableInteractionSource() }
+	val ripple = rememberRipple(color = CustomColors.rippleColor(backgroundColor))
+
 	CenterAlignedTopAppBar(
 		navigationIcon = {
-			IconButton(onClick = navigateUp) {
+			NowPlayingIconButton(onClick = navigateUp, color = backgroundColor) {
 				Icon(
 					imageVector = Icons.Rounded.ArrowBackIosNew,
 					contentDescription = stringResource(R.string.back_icon_desc),
-					modifier = Modifier.rotate(-90f),
-					tint = componentColor
+					modifier = Modifier.rotate(-90f)
 				)
 			}
 		},
@@ -129,22 +135,19 @@ fun NowPlayingTopAppBar(
 					modifier = Modifier
 						.padding(4.dp)
 						.clip(MaterialTheme.shapes.small)
-						.clickable(song.uri != "".toUri()) { goToCollection(song.album, ALBUMS) }
+						.clickable(interactionSource, ripple, song.uri != "".toUri()) { goToCollection(song.album, ALBUMS) }
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
 				) {
 					Text(
 						text = stringResource(R.string.playing_from_album),
-						color = componentColor,
-						modifier = Modifier.alpha(0.8f),
+						color = componentColor, modifier = Modifier.alpha(0.8f),
 						style = MaterialTheme.typography.titleSmall
 					)
 					Text(
-						text = song.album,
-						color = componentColor,
-						overflow = TextOverflow.Ellipsis,
-						softWrap = false,
+						text = song.album, color = componentColor,
+						overflow = TextOverflow.Ellipsis, softWrap = false,
 						style = MaterialTheme.typography.titleMedium
 					)
 				}
@@ -153,12 +156,8 @@ fun NowPlayingTopAppBar(
 		colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
 		actions = {
 			if (!(song?.uri == "".toUri() || song == null)) {
-				IconButton(onClick = openMoreOptions) {
-					Icon(
-						imageVector = Icons.Rounded.MoreVert,
-						contentDescription = stringResource(R.string.more_options),
-						tint = componentColor
-					)
+				NowPlayingIconButton(onClick = openMoreOptions, color = backgroundColor) {
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
 				}
 			}
 		}

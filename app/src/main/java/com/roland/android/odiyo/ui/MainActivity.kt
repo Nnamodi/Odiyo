@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
-			OdiyoTheme(true) {
+			OdiyoTheme(false) {
 				Surface(
 					modifier = Modifier.fillMaxSize(),
 					color = MaterialTheme.colorScheme.background
@@ -160,7 +160,7 @@ class MainActivity : ComponentActivity() {
 				}
 
 				val systemUiController = rememberSystemUiController()
-				val useDarkIcons = isSystemInDarkTheme()
+				val useDarkIcons = !isSystemInDarkTheme()
 				val color = MaterialTheme.colorScheme.background
 
 				DisposableEffect(systemUiController, useDarkIcons) {

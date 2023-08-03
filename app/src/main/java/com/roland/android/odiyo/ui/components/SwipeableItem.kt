@@ -29,6 +29,7 @@ import com.roland.android.odiyo.util.QueueMediaItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeableItem(
+	componentColor: Color,
 	dismissState: DismissState,
 	defaultBackgroundColor: Color,
 	content: @Composable () -> Unit
@@ -53,7 +54,7 @@ fun SwipeableItem(
 				EndToStart -> Icons.Rounded.AddCircle
 			}
 			val iconColor by animateColorAsState(
-				if (dismissState.targetValue == Default) MaterialTheme.colorScheme.onBackground else Color.White
+				if (dismissState.targetValue == Default) componentColor else Color.White
 			)
 			val scale by animateFloatAsState(
 				if (dismissState.targetValue == Default) 0.75f else 1f

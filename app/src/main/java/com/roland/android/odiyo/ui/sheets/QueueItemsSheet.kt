@@ -4,11 +4,13 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.material3.BottomSheetDefaults.ContainerColor
 import androidx.compose.runtime.*
@@ -34,6 +36,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.components.SwipeableItem
 import com.roland.android.odiyo.ui.components.rememberSwipeToDismissState
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
@@ -82,7 +85,7 @@ fun QueueItemsSheet(
 					TextButton(
 						onClick = { saveQueue(); openBottomSheet(false) },
 						colors = ButtonDefaults.textButtonColors(
-							contentColor = componentColor(containerColor, componentIsToggleable = true)
+							contentColor = componentColor(containerColor, toggled = true)
 						)
 					) {
 						Text(stringResource(R.string.save_queue))
@@ -109,6 +112,7 @@ fun QueueItemsSheet(
 					val backgroundColor = if (containerColor == ContainerColor) containerColor else Color(colorBlend)
 
 					SwipeableItem(
+						componentColor = componentColor,
 						dismissState = dismissState,
 						defaultBackgroundColor = backgroundColor
 					) {
@@ -147,6 +151,8 @@ fun QueueItem(
 	containerColor: Color,
 	action: (QueueItemActions) -> Unit
 ) {
+	val interactionSource = remember { MutableInteractionSource() }
+	val ripple = rememberRipple(color = CustomColors.rippleColor(cardColor))
 	val isPlaying = itemIndex == currentSongIndex
 	val color = if (isPlaying) componentColor(containerColor, true) else componentColor
 
@@ -158,7 +164,7 @@ fun QueueItem(
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
-				.clickable {
+				.clickable(interactionSource, ripple) {
 					action(
 						QueueItemActions.Play(
 							QueueMediaItem(itemIndex, song.uri)
@@ -186,7 +192,7 @@ fun QueueItem(
 				color = color
 			)
 		}
-		if (!itemIsLast) Divider(color = Color.White.copy(alpha = 0.5f))
+		if (!itemIsLast) Divider(color = containerColor)
 	}
 }
 
