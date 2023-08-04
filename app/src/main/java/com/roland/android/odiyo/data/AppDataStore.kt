@@ -14,6 +14,7 @@ private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
 private val SORT_PREFERENCE = stringPreferencesKey("sort_preference")
 private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
+private val RANDOM_SEED = intPreferencesKey("random_seed")
 private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
@@ -65,15 +66,19 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 		}
 	}
 
-	suspend fun saveShuffleState(shuffleState: Boolean) {
+	suspend fun saveShuffleState(shuffleState: Boolean, randomSeed: Int) {
 		dataStore.edit { preference ->
 			preference[SHUFFLE_STATE] = shuffleState
+			preference[RANDOM_SEED] = randomSeed
 		}
 	}
 
-	fun getShuffleState(): Flow<Boolean> {
+	fun getShuffleState(): Flow<ShuffleState> {
 		return dataStore.data.map { preference ->
-			preference[SHUFFLE_STATE] ?: false
+			ShuffleState(
+				state = preference[SHUFFLE_STATE] ?: false,
+				randomSeed = preference[RANDOM_SEED] ?: 5
+			)
 		}
 	}
 

@@ -2,8 +2,6 @@ package com.roland.android.odiyo.ui
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -30,15 +28,11 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.roland.android.odiyo.R
 import com.roland.android.odiyo.R.string.*
 import com.roland.android.odiyo.service.OdiyoNotificationManager
 import com.roland.android.odiyo.service.PlayerListener
-import com.roland.android.odiyo.service.Util.audioAttribute
-import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.notificationManager
-import com.roland.android.odiyo.service.Util.nowPlaying
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
@@ -53,7 +47,7 @@ import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalAnimationApi::class)
@@ -61,17 +55,15 @@ import kotlinx.coroutines.flow.collectLatest
 @androidx.annotation.OptIn(UnstableApi::class)
 class MainActivity : ComponentActivity() {
 	private lateinit var audioIntent: MutableState<Uri?>
+	@Inject lateinit var player: ExoPlayer
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		// player, mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
-		val player = ExoPlayer.Builder(this)
-			.setAudioAttributes(audioAttribute, true)
-			.build()
+		// mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
 		mediaSession = MediaSession.Builder(this, player)
 			.setSessionActivity(this.pendingIntent)
 			.build()
-		mediaSession?.player?.addListener(PlayerListener())
+		mediaSession?.player?.addListener(PlayerListener(this))
 		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
 		notificationManager.showNotification(player)
 		volumeControlStream = AudioManager.STREAM_MUSIC
@@ -147,16 +139,6 @@ class MainActivity : ComponentActivity() {
 							audioIntent.value = null
 						}
 					}
-
-					LaunchedEffect(true) {
-						nowPlaying.collectLatest {
-							val mediaArt: Bitmap = it?.getBitmap(context) ?:
-							BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-
-							mediaViewModel.updateMediaArtwork(mediaArt)
-							nowPlayingViewModel.updateMediaArtwork(mediaArt)
-						}
-					}
 				}
 
 				val systemUiController = rememberSystemUiController()
@@ -192,7 +174,7 @@ class MainActivity : ComponentActivity() {
 	override fun onDestroy() {
 		notificationManager.hideNotification()
 		mediaSession?.apply {
-			player.apply { removeListener(PlayerListener()); release() }
+			player.apply { removeListener(PlayerListener(this@MainActivity)); release() }
 			release()
 			mediaSession = null
 		}

@@ -10,8 +10,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
@@ -37,16 +35,13 @@ import java.util.*
 
 @androidx.annotation.OptIn(UnstableApi::class)
 object Util {
-	val audioAttribute = AudioAttributes.Builder()
-		.setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-		.setUsage(C.USAGE_MEDIA)
-		.build()
-
 	lateinit var notificationManager: OdiyoNotificationManager
 
 	var mediaSession: MediaSession? = null
 
 	val nowPlaying = MutableStateFlow<MediaItem?>(null)
+
+	val currentMediaArt = MutableStateFlow<Bitmap?>(null)
 
 	val nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
 

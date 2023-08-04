@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -185,7 +186,7 @@ fun MediaDescription(
 	val minSize = LocalConfiguration.current.screenHeightDp / 2.3
 	val imageSize = min(minSize, maxSize.toDouble())
 	val songIsValid = !(currentSong == null || currentSong.uri == "".toUri())
-	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
+	var songIsFavorite by rememberSaveable { mutableStateOf(currentSong?.favorite == true) }
 	songIsFavorite = currentSong?.favorite == true
 
 	if (portraitView) {

@@ -6,15 +6,20 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ShuffleOrder.DefaultShuffleOrder
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util.deviceMuteState
+import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.progress
@@ -29,8 +34,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.Q)
+@OptIn(UnstableApi::class)
 class NowPlayingViewModel @Inject constructor(
 	private val appDataStore: AppDataStore,
+	exoPlayer: ExoPlayer,
 	mediaRepository: MediaRepository,
 	musicRepository: MusicRepository,
 	playlistRepository: PlaylistRepository
@@ -53,10 +60,12 @@ class NowPlayingViewModel @Inject constructor(
 			}
 		}
 		viewModelScope.launch {
-			appDataStore.getShuffleState().collect { state ->
-				shuffleState = state
-				nowPlayingUiState.update { it.copy(shuffleState = state) }
-				mediaSession?.player?.shuffleModeEnabled = state
+			appDataStore.getShuffleState().collect { shuffle ->
+				shuffleState = shuffle.state
+				nowPlayingUiState.update { it.copy(shuffleState = shuffle.state) }
+				val shuffleOrder = DefaultShuffleOrder(mediaItems.value.size, shuffle.randomSeed.toLong())
+				exoPlayer.setShuffleOrder(shuffleOrder)
+				mediaSession?.player?.shuffleModeEnabled = shuffle.state
 			}
 		}
 		viewModelScope.launch {
@@ -98,6 +107,7 @@ class NowPlayingViewModel @Inject constructor(
 			is MediaControls.Share -> shareSong(context, listOf(action.music))
 			MediaControls.Shuffle -> shuffle()
 		}
+		updateMusicQueue(queueEdited = false)
 	}
 
 	private fun playPause() {
@@ -110,8 +120,9 @@ class NowPlayingViewModel @Inject constructor(
 
 	private fun seek(previous: Boolean, next: Boolean) {
 		mediaSession?.player?.apply {
+			val songHasStarted = currentPosition >= 5000
 			when {
-				previous -> seekToPreviousMediaItem()
+				previous -> if (songHasStarted) seekToPrevious() else seekToPreviousMediaItem()
 				next -> seekToNextMediaItem()
 			}
 		}
@@ -134,7 +145,8 @@ class NowPlayingViewModel @Inject constructor(
 
 	private fun shuffle() {
 		viewModelScope.launch(Dispatchers.IO) {
-			appDataStore.saveShuffleState(!shuffleState)
+			val randomSeed = (0..mediaItems.value.size).random()
+			appDataStore.saveShuffleState(!shuffleState, randomSeed)
 		}
 	}
 

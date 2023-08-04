@@ -65,7 +65,8 @@ fun QueueItemsSheet(
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
-		containerColor = customContainerColor
+		containerColor = customContainerColor,
+		dragHandle = { BottomSheetDefaults.DragHandle(color = componentColor) }
 	) {
 		Column(Modifier.heightIn(min = 10.dp, max = sheetHeight().dp)) {
 			Row(

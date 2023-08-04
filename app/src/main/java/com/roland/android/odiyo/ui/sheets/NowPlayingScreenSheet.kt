@@ -71,7 +71,8 @@ fun NowPlayingScreenSheet(
 	ModalBottomSheet(
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
-		containerColor = customContainerColor
+		containerColor = customContainerColor,
+		dragHandle = { BottomSheetDefaults.DragHandle(color = componentColor) }
 	) {
 		Column(
 			modifier = Modifier

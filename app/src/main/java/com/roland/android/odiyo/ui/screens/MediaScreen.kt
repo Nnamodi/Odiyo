@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalFoundationApi::class)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun MediaScreen(
 	songsTab: @Composable () -> Unit,

@@ -78,9 +78,7 @@ fun LibraryScreen(
 				.padding(innerPadding)
 				.verticalScroll(rememberScrollState())
 		) {
-			val menus = Menus.values()
-
-			menus.forEach { menu ->
+			Menus.values().forEach { menu ->
 				val collectionName = stringResource(
 					if (menu == Favorites) R.string.favorites else R.string.last_played
 				)

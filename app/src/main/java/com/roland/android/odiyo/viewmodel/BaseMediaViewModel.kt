@@ -1,7 +1,6 @@
 package com.roland.android.odiyo.viewmodel
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
 import androidx.annotation.OptIn
@@ -22,6 +21,7 @@ import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.service.Util.EMPTY_MEDIA_ITEM
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
+import com.roland.android.odiyo.service.Util.currentMediaArt
 import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
@@ -100,6 +100,11 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			playingState.collect { playingState ->
 				nowPlayingUiState.update { it.copy(playingState = playingState) }
+			}
+		}
+		viewModelScope.launch {
+			currentMediaArt.collectLatest { bitmap ->
+				nowPlayingUiState.update { it.copy(artwork = bitmap) }
 			}
 		}
 		viewModelScope.launch {
@@ -252,10 +257,6 @@ open class BaseMediaViewModel(
 			time = if (time < 0) 0 else time, bytes = 0,
 			addedOn = 0, album = "Unknown", path = "Unknown"
 		)
-	}
-
-	fun updateMediaArtwork(artwork: Bitmap) {
-		nowPlayingUiState.update { it.copy(artwork = artwork) }
 	}
 
 	fun preparePlaylist() {
