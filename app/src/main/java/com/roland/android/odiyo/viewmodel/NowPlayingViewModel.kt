@@ -18,11 +18,10 @@ import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
-import com.roland.android.odiyo.service.Util.deviceMuteState
 import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaSession
+import com.roland.android.odiyo.service.Util.nowPlayingUiState
 import com.roland.android.odiyo.service.Util.playingState
-import com.roland.android.odiyo.service.Util.progress
 import com.roland.android.odiyo.service.Util.time
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.util.MediaControls
@@ -50,14 +49,7 @@ class NowPlayingViewModel @Inject constructor(
 
 	init {
 		viewModelScope.launch {
-			playingState.collect {
-				updateProgress()
-			}
-		}
-		viewModelScope.launch {
-			deviceMuteState.collect { deviceMuted ->
-				nowPlayingUiState.update { it.copy(deviceMuted = deviceMuted) }
-			}
+			playingState.collect { updateProgress() }
 		}
 		viewModelScope.launch {
 			appDataStore.getShuffleState().collect { shuffle ->
@@ -73,13 +65,6 @@ class NowPlayingViewModel @Inject constructor(
 				repeatMode = mode
 				nowPlayingUiState.update { it.copy(repeatMode = mode) }
 				mediaSession?.player?.repeatMode = mode
-			}
-		}
-		viewModelScope.launch {
-			progress.collect { progress ->
-				nowPlayingUiState.update {
-					it.copy(currentDuration = progress.time, seekProgress = progress.toFloat())
-				}
 			}
 		}
 	}

@@ -23,6 +23,9 @@ import com.roland.android.odiyo.service.Constants.DATE
 import com.roland.android.odiyo.service.Constants.MB_DIVISOR
 import com.roland.android.odiyo.service.Constants.MB_FORMAT
 import com.roland.android.odiyo.service.Constants.TIME
+import com.roland.android.odiyo.states.MediaItemsUiState
+import com.roland.android.odiyo.states.MediaUiState
+import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.DecimalFormat
@@ -39,19 +42,15 @@ object Util {
 
 	var mediaSession: MediaSession? = null
 
-	val nowPlaying = MutableStateFlow<MediaItem?>(null)
+	val mediaUiState = MutableStateFlow(MediaUiState())
 
-	val currentMediaArt = MutableStateFlow<Bitmap?>(null)
+	val mediaItemsUiState = MutableStateFlow(MediaItemsUiState())
+
+	val nowPlayingUiState = MutableStateFlow(NowPlayingUiState())
 
 	val nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
 
 	val playingState = MutableStateFlow(false)
-
-	val deviceMuteState = MutableStateFlow(false)
-
-	val progress = MutableStateFlow(0L)
-
-	val currentMediaIndex = MutableStateFlow(0)
 
 	val readStoragePermissionGranted = MutableStateFlow(false)
 
@@ -131,6 +130,4 @@ object Util {
 			)
 
 	val NOTHING_PLAYING = MediaItem.Builder().setUri("null".toUri()).build()
-
-	val EMPTY_MEDIA_ITEM = MediaItem.Builder().setUri("".toUri()).build()
 }

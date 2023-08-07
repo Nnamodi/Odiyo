@@ -23,7 +23,7 @@ data class NowPlayingUiState(
 )
 
 data class MediaUiState(
-	val currentMediaItem: MediaItem = NOTHING_PLAYING,
+	val currentMediaItem: MediaItem? = NOTHING_PLAYING,
 	val sortOption: SortOptions = SortOptions.NameAZ,
 	val allSongs: List<Music> = emptyList(),
 	val recentSongs: List<Music> = emptyList(),
@@ -33,7 +33,7 @@ data class MediaUiState(
 )
 
 data class MediaItemsUiState(
-	val currentMediaItem: MediaItem = NOTHING_PLAYING,
+	val currentMediaItem: MediaItem? = NOTHING_PLAYING,
 	val collectionName: String = "",
 	val collectionType: String = "",
 	val searchQuery: String = "",

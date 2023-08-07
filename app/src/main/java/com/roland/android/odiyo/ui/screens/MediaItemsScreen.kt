@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
@@ -128,7 +129,7 @@ fun MediaItemsScreen(
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						),
 						song = song,
-						currentMediaItem = currentMediaItem,
+						currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
 						inSelectionMode = inSelectMode,
 						selected = selected,
 						openMenuSheet = { songClicked = it; openBottomSheet.value = true }

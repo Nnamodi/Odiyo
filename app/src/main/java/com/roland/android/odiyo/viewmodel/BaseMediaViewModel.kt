@@ -19,15 +19,13 @@ import com.roland.android.odiyo.repository.MediaRepository
 import com.roland.android.odiyo.repository.MusicRepository
 import com.roland.android.odiyo.repository.PlaylistRepository
 import com.roland.android.odiyo.service.Util
-import com.roland.android.odiyo.service.Util.EMPTY_MEDIA_ITEM
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.currentMediaArt
-import com.roland.android.odiyo.service.Util.currentMediaIndex
 import com.roland.android.odiyo.service.Util.mediaItems
+import com.roland.android.odiyo.service.Util.mediaItemsUiState
 import com.roland.android.odiyo.service.Util.mediaSession
-import com.roland.android.odiyo.service.Util.nowPlaying
+import com.roland.android.odiyo.service.Util.mediaUiState
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
-import com.roland.android.odiyo.service.Util.playingState
+import com.roland.android.odiyo.service.Util.nowPlayingUiState
 import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.service.Util.songsOnQueue
 import com.roland.android.odiyo.service.Util.toMediaItem
@@ -67,16 +65,8 @@ open class BaseMediaViewModel(
 	var canAccessStorage by mutableStateOf(false)
 	private var musicInfoUpdated by mutableStateOf(false)
 
-	val mediaUiState = MutableStateFlow(MediaUiState())
-	private val _mediaUiState: StateFlow<MediaUiState> = mediaUiState.asStateFlow()
 	var mediaScreenUiState by mutableStateOf(MediaUiState()); private set
-
-	val mediaItemsUiState = MutableStateFlow(MediaItemsUiState())
-	private val _mediaItemsUiState: StateFlow<MediaItemsUiState> = mediaItemsUiState.asStateFlow()
 	var mediaItemsScreenUiState by mutableStateOf(MediaItemsUiState()); private set
-
-	val nowPlayingUiState = MutableStateFlow(NowPlayingUiState())
-	private val _nowPlayingUiState: StateFlow<NowPlayingUiState> = nowPlayingUiState.asStateFlow()
 	var nowPlayingScreenUiState by mutableStateOf(NowPlayingUiState()); private set
 
 	init {
@@ -113,17 +103,17 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
-			_mediaUiState.collectLatest {
+			mediaUiState.collectLatest {
 				mediaScreenUiState = it
 			}
 		}
 		viewModelScope.launch {
-			_mediaItemsUiState.collectLatest {
+			mediaItemsUiState.collectLatest {
 				mediaItemsScreenUiState = it
 			}
 		}
 		viewModelScope.launch {
-			_nowPlayingUiState.collectLatest {
+			nowPlayingUiState.collectLatest {
 				nowPlayingScreenUiState = it
 			}
 		}
@@ -132,8 +122,7 @@ open class BaseMediaViewModel(
 				canAccessStorage = it
 				if (!it) return@collectLatest
 				getAllSongs(); restoreCurrentPlaylist()
-				getCurrentSong(); getNowPlayingMetadata()
-				getAlbums(); getArtists()
+				getNowPlayingMetadata(); getAlbums(); getArtists()
 			}
 		}
 	}
@@ -186,7 +175,7 @@ open class BaseMediaViewModel(
 			appDataStore.getCurrentPlaylist().collect {
 				if (mediaItems.value.isEmpty()) {
 					val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
-					mediaItems.value = if (items.size == 1 && items[0] == EMPTY_MEDIA_ITEM) mutableListOf() else items
+					mediaItems.value = if (items.size == 1 && items[0] == MediaItem.EMPTY) mutableListOf() else items
 					mediaSession?.player?.apply {
 						setMediaItems(mediaItems.value); prepare()
 						if (mediaItems.value.isNotEmpty()) {
@@ -216,25 +205,13 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	private fun getCurrentSong() {
-		viewModelScope.launch {
-			nowPlaying.collect { item ->
-				delay(3000) // delay allows songs to completely load from device before further action
-				musicItem(item)?.let { music ->
-					val currentMediaItem = music.uri.toMediaItem
-					mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-					mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-				}
-				updateMusicQueue(queueEdited = false)
-			}
-		}
-	}
-
 	private fun getNowPlayingMetadata() {
 		viewModelScope.launch {
 			nowPlayingMetadata.collect { metadata ->
 				if (!songsFetched || metadata == MediaMetadata.EMPTY) return@collect
-				delay(4000); updateMusicInfo()
+				// The delay allows songs to completely load from device before further action
+				delay(3000); updateMusicQueue(queueEdited = false)
+				delay(1000); updateMusicInfo()
 				delay(6000); musicInfoUpdated = false
 			}
 		}

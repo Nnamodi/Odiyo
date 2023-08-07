@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.components
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -41,7 +42,6 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun BottomAppBar(
 	uiState: NowPlayingUiState,
@@ -104,7 +104,7 @@ fun BottomAppBar(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun NowPlayingMinimizedView(
 	song: Music?,
@@ -117,6 +117,8 @@ fun NowPlayingMinimizedView(
 	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val indication = rememberRipple(color = CustomColors.rippleColor(generatedColor))
 	val interactionSource = remember { MutableInteractionSource() }
+	val context = LocalContext.current
+	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 
 	Row(
 		modifier = Modifier
@@ -132,7 +134,7 @@ fun NowPlayingMinimizedView(
 			modifier = Modifier
 				.padding(8.dp)
 				.size(44.dp),
-			artwork = artwork
+			artwork = artwork ?: defaultMediaArt
 		)
 		Text(
 			text = song?.title ?: stringResource(R.string.nothing_to_play),
@@ -171,7 +173,6 @@ fun NowPlayingMinimizedView(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview(showBackground = true)
 @Composable
 fun BottomAppBarPreview() {
