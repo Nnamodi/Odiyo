@@ -76,7 +76,7 @@ fun SongsScreen(
 			}
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}

@@ -18,9 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
 import androidx.media3.common.util.UnstableApi
@@ -68,6 +70,8 @@ class MainActivity : ComponentActivity() {
 		notificationManager.showNotification(player)
 		volumeControlStream = AudioManager.STREAM_MUSIC
 		audioIntent = mutableStateOf(intent.data)
+
+		WindowCompat.setDecorFitsSystemWindows(window, false)
 
 		setContent {
 			val context = LocalContext.current
@@ -143,14 +147,12 @@ class MainActivity : ComponentActivity() {
 
 				val systemUiController = rememberSystemUiController()
 				val useDarkIcons = !isSystemInDarkTheme()
-				val color = MaterialTheme.colorScheme.background
 
-				DisposableEffect(systemUiController, useDarkIcons) {
+				SideEffect {
 					systemUiController.setSystemBarsColor(
-						color = color,
+						color = Color.Transparent,
 						darkIcons = useDarkIcons
 					)
-					onDispose {}
 				}
 			}
 		}

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
@@ -69,6 +70,7 @@ fun NowPlayingScreenSheet(
 	}
 
 	ModalBottomSheet(
+		modifier = Modifier.absoluteOffset(y = 16.dp),
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
 		containerColor = customContainerColor,

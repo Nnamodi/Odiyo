@@ -7,7 +7,7 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.core.graphics.ColorUtils
+import androidx.compose.ui.graphics.luminance
 import androidx.palette.graphics.Palette
 
 object CustomColors {
@@ -31,7 +31,7 @@ object CustomColors {
 	}
 
 	fun componentColor(generatedColor: Color, toggled: Boolean = false): Color {
-		val isDark = ColorUtils.calculateLuminance(generatedColor.hashCode()) < 0.1
+		val isDark = generatedColor.luminance() < 0.1
 		val componentColor = if (isDark) light_background else light_onBackground
 		val toggleableComponentColor = if (isDark) dark_primary else light_primary
 		return if (toggled) toggleableComponentColor else componentColor
@@ -41,14 +41,14 @@ object CustomColors {
 		Palette.from(image).generate().let { palette: Palette ->
 			val dominantColor = palette.getDominantColor(DKGRAY)
 			val darkVibrantColor = palette.getDarkVibrantColor(palette.getDarkMutedColor(dominantColor))
-			val dominantColorIsLight = ColorUtils.calculateLuminance(dominantColor.hashCode()) > 0.1
-			val darkVibrantColorIsDarker = ColorUtils.calculateLuminance(darkVibrantColor.hashCode()) < 0.1
+			val dominantColorIsLight = Color(dominantColor).luminance() > 0.1
+			val darkVibrantColorIsDarker = Color(darkVibrantColor).luminance() < 0.1
 			return if (dominantColorIsLight && darkVibrantColorIsDarker) darkVibrantColor else dominantColor
 		}
 	}
 
 	fun rippleColor(backgroundColor: Color): Color {
-		val isDark = ColorUtils.calculateLuminance(backgroundColor.hashCode()) < 0.1
+		val isDark = backgroundColor.luminance() < 0.1
 		return if (isDark) Color.White else Color.Black
 	}
 }

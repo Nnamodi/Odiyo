@@ -63,6 +63,7 @@ fun QueueItemsSheet(
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
 
 	ModalBottomSheet(
+		modifier = Modifier.absoluteOffset(y = 16.dp),
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
 		containerColor = customContainerColor,

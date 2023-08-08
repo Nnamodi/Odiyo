@@ -3,7 +3,7 @@ package com.roland.android.odiyo.ui.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -51,17 +51,16 @@ fun AppRoute(
 			)
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}
 			}
 		}
-	) { innerPadding ->
+	) {
 		AnimatedNavHost(
 			navController = navController,
-			startDestination = AppRoute.LibraryScreen.route,
-			modifier = Modifier.padding(innerPadding)
+			startDestination = AppRoute.LibraryScreen.route
 		) {
 			composable(AppRoute.LibraryScreen.route) {
 				LibraryScreen(

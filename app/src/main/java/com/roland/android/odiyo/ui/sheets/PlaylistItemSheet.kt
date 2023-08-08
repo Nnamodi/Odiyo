@@ -43,6 +43,7 @@ fun PlaylistItemSheet(
 	val openDeleteDialog = remember { mutableStateOf(false) }
 
 	ModalBottomSheet(
+		modifier = Modifier.absoluteOffset(y = 16.dp),
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
 		dragHandle = {

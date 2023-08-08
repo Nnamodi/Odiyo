@@ -38,6 +38,7 @@ fun SelectionModeBottomBar(
 	if (inSelectionMode) {
 		Row(
 			modifier = Modifier
+				.safeDrawingPadding()
 				.fillMaxWidth()
 				.background(containerColor)
 				.padding(vertical = 10.dp)

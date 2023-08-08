@@ -17,13 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -147,21 +147,20 @@ fun NowPlayingScreen(
 
 	val systemUiController = rememberSystemUiController()
 	val useDarkIcons = !isSystemInDarkTheme()
-	val color = MaterialTheme.colorScheme.background
 
 	DisposableEffect(systemUiController, useDarkIcons, generatedColor) {
-		val isLight = ColorUtils.calculateLuminance(generatedColor.hashCode()) > 0.1
+		val isLight = generatedColor.luminance() > 0.1
 		scope.launch {
 			if (!screenLaunched.value) delay(700)
 			systemUiController.setSystemBarsColor(
-				color = generatedColor,
+				color = Color.Transparent,
 				darkIcons = isLight
 			)
 			screenLaunched.value = true
 		}
 		onDispose {
 			systemUiController.setSystemBarsColor(
-				color = color,
+				color = Color.Transparent,
 				darkIcons = useDarkIcons
 			)
 		}

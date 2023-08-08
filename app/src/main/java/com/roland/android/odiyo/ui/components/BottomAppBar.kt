@@ -122,6 +122,7 @@ fun NowPlayingMinimizedView(
 
 	Row(
 		modifier = Modifier
+			.safeDrawingPadding()
 			.fillMaxWidth()
 			.padding(10.dp)
 			.clip(MaterialTheme.shapes.large)
