@@ -62,6 +62,8 @@ fun MediaItemsScreen(
 	val scope = rememberCoroutineScope()
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
+	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
+	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
 	closeSelectionMode(!inSelectMode)
 
 	Scaffold(
@@ -91,7 +93,7 @@ fun MediaItemsScreen(
 			}
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = -snackbarYOffset)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}
@@ -106,7 +108,7 @@ fun MediaItemsScreen(
 				addSongs = { moveToAddSongsScreen(collectionName) }
 			)
 		} else {
-			LazyColumn(Modifier.padding(innerPadding)) {
+			LazyColumn(Modifier.padding(innerPadding), contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
 				item {
 					SongListHeader(
 						songs = songs,

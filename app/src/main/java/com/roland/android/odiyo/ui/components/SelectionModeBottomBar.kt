@@ -30,18 +30,20 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @Composable
 fun SelectionModeBottomBar(
 	inSelectionMode: Boolean,
+	isSongsScreen: Boolean = false,
 	collectionIsPlaylist: Boolean = false,
 	onClick: (SelectionModeItems) -> Unit
 ) {
 	val items = SelectionModeItems.values()
+	val navigationBarHeight = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 10.dp
+	val bottomPadding = if (inSelectionMode && isSongsScreen) 10.dp else navigationBarHeight
 
 	if (inSelectionMode) {
 		Row(
 			modifier = Modifier
-				.safeDrawingPadding()
 				.fillMaxWidth()
 				.background(containerColor)
-				.padding(vertical = 10.dp)
+				.padding(top = 10.dp, bottom = bottomPadding)
 				.horizontalScroll(rememberScrollState()),
 			horizontalArrangement = Arrangement.SpaceAround
 		) {

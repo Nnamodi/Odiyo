@@ -10,6 +10,7 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -69,12 +70,14 @@ fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
 fun SearchBar(
 	query: String,
 	editSearchQuery: (String?, Boolean) -> Unit,
+	songsIsNotEmpty: Boolean,
+	openMenu: () -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
 	TopAppBar(
 		title = {
 			OutlinedTextField(
-				modifier = Modifier.fillMaxWidth(),
+				modifier = Modifier.fillMaxWidth(1f),
 				value = query,
 				onValueChange = { editSearchQuery(it, false) },
 				placeholder = {
@@ -101,6 +104,13 @@ fun SearchBar(
 		navigationIcon = {
 			IconButton(onClick = closeSearchScreen) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
+			}
+		},
+		actions = {
+			if (songsIsNotEmpty) {
+				IconButton(onClick = openMenu) {
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+				}
 			}
 		}
 	)
@@ -209,6 +219,7 @@ fun MediaItemsAppBar(
 fun SelectionModeTopBar(
 	numOfSelectedSongs: Int,
 	showAddButton: Boolean = false,
+	isSongsScreen: Boolean = false,
 	addSongs: () -> Unit = {},
 	closeSelectionMode: () -> Unit
 ) {
@@ -230,6 +241,7 @@ fun SelectionModeTopBar(
 					contentPadding = PaddingValues(12.dp, 0.dp)
 				) { Text(stringResource(R.string.add)) }
 			}
-		}
+		},
+		windowInsets = if (isSongsScreen) WindowInsets(0, 0, 0, 0) else TopAppBarDefaults.windowInsets
 	)
 }

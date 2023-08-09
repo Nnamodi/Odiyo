@@ -51,13 +51,14 @@ fun SearchScreen(
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
-	val yOffset by remember { mutableStateOf(160) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
-	closeSelectionMode(!inSelectMode)
+	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
+	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
+	closeSelectionMode(!inSelectMode); editSearchQuery(null, false)
 
 	Scaffold(
 		topBar = {
@@ -65,8 +66,9 @@ fun SearchScreen(
 				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
 			} else {
 				SearchBar(
-					query = searchQuery,
-					editSearchQuery = editSearchQuery,
+					query = searchQuery, editSearchQuery = editSearchQuery,
+					songsIsNotEmpty = uiState.songs.isNotEmpty(),
+					openMenu = { openMenu.value = true },
 					closeSearchScreen = closeSearchScreen
 				)
 			}
@@ -85,7 +87,7 @@ fun SearchScreen(
 			}
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = -snackbarYOffset)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}
@@ -98,14 +100,13 @@ fun SearchScreen(
 				modifier = Modifier.padding(paddingValues)
 			)
 		} else {
-			LazyColumn(Modifier.padding(paddingValues)) {
+			LazyColumn(Modifier.padding(paddingValues), contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
 				item {
 					SongListHeader(
 						songs = songs,
 						songsFromSearch = true,
 						inSelectMode = inSelectMode,
-						playAllSongs = { _, _ -> },
-						openMenu = { openMenu.value = true }
+						playAllSongs = { _, _ -> }
 					)
 				}
 				itemsIndexed(
@@ -152,8 +153,7 @@ fun SearchScreen(
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)
-				},
-				yOffset = yOffset,
+				}
 			) { openMenu.value = it }
 		}
 

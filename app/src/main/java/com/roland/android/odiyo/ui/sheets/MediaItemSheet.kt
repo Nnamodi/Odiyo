@@ -51,6 +51,7 @@ import com.roland.android.odiyo.util.sheetHeight
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaItemSheet(
+	modifier: Modifier = Modifier,
 	song: Music,
 	scaffoldState: SheetState,
 	collectionIsPlaylist: Boolean = false,
@@ -78,7 +79,7 @@ fun MediaItemSheet(
 	}
 
 	ModalBottomSheet(
-		modifier = Modifier.absoluteOffset(y = 16.dp),
+		modifier = modifier.absoluteOffset(y = 16.dp),
 		onDismissRequest = { openBottomSheet(false) },
 		sheetState = scaffoldState,
 		dragHandle = {

@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Playlist
@@ -51,7 +52,7 @@ fun AddSongsScreen(
 		if (songs.isEmpty()) {
 			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 		} else {
-			LazyColumn(Modifier.padding(paddingValues)) {
+			LazyColumn(Modifier.padding(paddingValues), contentPadding = PaddingValues(bottom = 24.dp)) {
 				itemsIndexed(
 					items = songs,
 					key = { _, song -> song.id }

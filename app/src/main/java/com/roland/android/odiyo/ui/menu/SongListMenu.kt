@@ -26,7 +26,6 @@ fun SongListMenu(
 	songs: List<Music>,
 	menuAction: (MediaMenuActions) -> Unit,
 	showSortAction: Boolean = false,
-	yOffset: Int = 0,
 	openSortDialog: (Boolean) -> Unit = {},
 	openMenu: (Boolean) -> Unit
 ) {
@@ -35,7 +34,7 @@ fun SongListMenu(
 
 	DropdownMenu(
 		expanded = true,
-		offset = DpOffset(positionX.dp, (yOffset - positionY).dp),
+		offset = DpOffset(positionX.dp, (-positionY).dp),
 		onDismissRequest = { openMenu(false) },
 		modifier = Modifier.fillMaxWidth(0.5f)
 	) {

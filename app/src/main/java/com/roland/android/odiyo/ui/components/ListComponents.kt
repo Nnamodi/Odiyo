@@ -3,7 +3,6 @@ package com.roland.android.odiyo.ui.components
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material3.*
@@ -66,8 +65,7 @@ fun SongListHeader(
 	songsFromSearch: Boolean = false,
 	inSelectMode: Boolean,
 	playAllSongs: (Uri, Int) -> Unit,
-	openSortDialog: () -> Unit = {},
-	openMenu: () -> Unit = {}
+	openSortDialog: () -> Unit = {}
 ) {
 	Row(
 		modifier = Modifier
@@ -81,12 +79,6 @@ fun SongListHeader(
 				text = pluralStringResource(R.plurals.search_result_size, songs.size, songs.size),
 				modifier = Modifier.padding(vertical = 16.dp)
 			)
-			Spacer(Modifier.weight(1f))
-			if (songs.isNotEmpty()) {
-				IconButton(onClick = openMenu, enabled = !inSelectMode) {
-					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
-				}
-			}
 		} else {
 			TextButton(enabled = !inSelectMode, onClick = {
 				playAllSongs(songs.first().uri, 0)

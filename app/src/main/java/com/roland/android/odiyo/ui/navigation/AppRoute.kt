@@ -51,7 +51,7 @@ fun AppRoute(
 			)
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (34).dp)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}

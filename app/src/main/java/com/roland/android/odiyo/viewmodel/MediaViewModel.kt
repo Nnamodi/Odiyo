@@ -42,9 +42,8 @@ class MediaViewModel @Inject constructor(
 		viewModelScope.launch {
 			appDataStore.getSortPreference().collectLatest { option ->
 				sortOrder = option
-				songs = songs.sortList()
 				favoriteSongs = favoriteSongs.sortList()
-				mediaUiState.update { it.copy(allSongs = songs, sortOption = option) }
+				mediaUiState.update { it.copy(allSongs = songs.sortList(), sortOption = option) }
 				mediaItemsUiState.update { it.copy(sortOption = option) }
 			}
 		}
@@ -202,8 +201,8 @@ class MediaViewModel @Inject constructor(
 				music.title, music.artist, music.album
 			)
 			matchingCombinations.any { it.contains(mediaItemsScreenUiState.searchQuery, ignoreCase = true) }
-		}
-		mediaItemsUiState.update { it.copy(songs = result) }
+		}.takeIf { mediaItemsScreenUiState.searchQuery.isNotEmpty() }
+		mediaItemsUiState.update { it.copy(songs = result ?: emptyList()) }
 	}
 
 	private fun songsToAddToPlaylist(playlistName: String?): List<Music> {

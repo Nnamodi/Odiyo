@@ -33,7 +33,7 @@ fun SongsTab(
 		},
 		goToCollection = navActions::navigateToMediaItemScreen,
 		menuAction = { viewModel.menuAction(context, it) },
-		inSelectionMode = inSelectionMode
+		closeSelectionMode = inSelectionMode
 	)
 }
 

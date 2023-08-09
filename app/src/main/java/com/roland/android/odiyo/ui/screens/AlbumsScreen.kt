@@ -38,7 +38,7 @@ fun AlbumsScreen(
 	if (albums.isEmpty()) {
 		EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 	} else {
-		LazyColumn {
+		LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 			itemsIndexed(
 				items = albums,
 				key = { _, album -> album.uri }

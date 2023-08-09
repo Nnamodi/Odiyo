@@ -41,7 +41,7 @@ fun SongsScreen(
 	playAudio: (Uri, Int?) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
-	inSelectionMode: (Boolean) -> Unit
+	closeSelectionMode: (Boolean) -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
@@ -54,16 +54,18 @@ fun SongsScreen(
 	val scope = rememberCoroutineScope()
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
-	inSelectionMode(!inSelectMode)
+	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
+	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
+	closeSelectionMode(!inSelectMode)
 
 	Scaffold(
 		topBar = {
 			if (inSelectMode) {
-				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
+				SelectionModeTopBar(selectedSongsId.value.size, isSongsScreen = true) { selectedSongsId.value = emptySet() }
 			}
 		},
 		bottomBar = {
-			SelectionModeBottomBar(inSelectMode) {
+			SelectionModeBottomBar(inSelectMode, isSongsScreen = true) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, uiState.allSongs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
@@ -76,7 +78,7 @@ fun SongsScreen(
 			}
 		},
 		snackbarHost = {
-			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = -snackbarYOffset)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
 					Text(it.visuals.message)
 				}
@@ -86,39 +88,42 @@ fun SongsScreen(
 		if (uiState.allSongs.isEmpty()) {
 			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 		} else {
-			LazyColumn(Modifier.padding(paddingValues)) {
-				item {
-					SongListHeader(
-						songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
-						playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
-					)
-				}
-				itemsIndexed(
-					items = uiState.allSongs,
-					key = { _, song -> song.id }
-				) { index, song ->
-					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
+			Column(Modifier.padding(top = if (inSelectMode) paddingValues.calculateTopPadding() else 0.dp)) {
+				SongListHeader(
+					songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
+					playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
+				)
+				LazyColumn(contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
+					itemsIndexed(
+						items = uiState.allSongs,
+						key = { _, song -> song.id }
+					) { index, song ->
+						val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
 
-					MediaItem(
-						modifier = Modifier.selectSemantics(
+						MediaItem(
+							modifier = Modifier.selectSemantics(
+								inSelectionMode = inSelectMode,
+								selected = selected,
+								onClick = { playAudio(song.uri, index) },
+								onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
+								toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
+							),
+							song = song,
+							currentMediaItem = uiState.currentMediaItem ?: MediaItem.EMPTY,
 							inSelectionMode = inSelectMode,
 							selected = selected,
-							onClick = { playAudio(song.uri, index) },
-							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
-							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
-						),
-						song = song,
-						currentMediaItem = uiState.currentMediaItem ?: MediaItem.EMPTY,
-						inSelectionMode = inSelectMode,
-						selected = selected,
-						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
-					)
+							openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+						)
+					}
 				}
 			}
 		}
 
 		if (openBottomSheet.value && songClicked != null) {
+			val systemBarHeight = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 16.dp
+
 			MediaItemSheet(
+				modifier = Modifier.absoluteOffset(y = -systemBarHeight),
 				song = songClicked!!,
 				scaffoldState = sheetState,
 				goToCollection = goToCollection,

@@ -69,7 +69,7 @@ fun PlaylistsScreen(
 		}
 	) { paddingValues ->
 		Column(Modifier.padding(paddingValues)) {
-			LazyColumn {
+			LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 				item { CreatePlaylistButton { openPlaylistDialog.value = true } }
 				itemsIndexed(
 					items = playlists,
