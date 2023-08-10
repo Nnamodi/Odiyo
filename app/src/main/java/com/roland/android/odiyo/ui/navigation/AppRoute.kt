@@ -78,7 +78,7 @@ fun AppRoute(
 					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen
 				)
 			}
-			composable(AppRoute.MediaScreen.route) {
+			composableI(AppRoute.MediaScreen.route) {
 				MediaScreen(
 					songsTab = { SongsTab(mediaViewModel, navActions) { selectionModeClosed = it } },
 					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
@@ -88,7 +88,7 @@ fun AppRoute(
 					navigateUp = navController::navigateUp
 				)
 			}
-			composable(AppRoute.PlaylistsScreen.route) {
+			composableI(AppRoute.PlaylistsScreen.route) {
 				PlaylistsScreen(
 					playlists = mediaViewModel.mediaScreenUiState.playlists,
 					playlistAction = playlistViewModel::playlistActions,
@@ -96,13 +96,7 @@ fun AppRoute(
 					navigateUp = navController::navigateUp
 				)
 			}
-			composable(
-				AppRoute.SearchScreen.route,
-				enterTransition = { slideIntoContainer(LEFT, tween(700)) },
-				exitTransition = null,
-				popEnterTransition = null,
-				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
-			) {
+			composableI(AppRoute.SearchScreen.route) {
 				SearchScreen(
 					uiState = mediaViewModel.mediaItemsScreenUiState,
 					editSearchQuery = mediaViewModel::editSearchQuery,
@@ -119,16 +113,12 @@ fun AppRoute(
 					closeSearchScreen = navController::navigateUp
 				)
 			}
-			composable(
+			composableI(
 				route = AppRoute.MediaItemsScreen.route,
 				arguments = listOf(
 					navArgument("collectionName") { type = NavType.StringType },
 					navArgument("collectionType") { type = NavType.StringType }
-				),
-				enterTransition = { slideIntoContainer(LEFT, tween(700)) },
-				exitTransition = null,
-				popEnterTransition = null,
-				popExitTransition = { slideOutOfContainer(RIGHT, tween(700)) }
+				)
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
 				val collectionType = backStackEntry.arguments?.getString("collectionType") ?: ""
@@ -150,7 +140,7 @@ fun AppRoute(
 					navigateUp = navController::navigateUp
 				)
 			}
-			composable(AppRoute.AddSongsScreen.route) { backStackEntry ->
+			composableI(AppRoute.AddSongsScreen.route) { backStackEntry ->
 				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo") ?: ""
 				mediaViewModel.prepareMediaItems(playlistName, ADD_TO_PLAYLIST)
 
@@ -159,13 +149,7 @@ fun AppRoute(
 					menuAction = { mediaViewModel.menuAction(context, it) }
 				) { if (it) navController.navigateUp(); selectionModeClosed = it }
 			}
-			composable(
-				AppRoute.NowPlayingScreen.route,
-				enterTransition = { slideIntoContainer(UP, tween(700)) },
-				exitTransition = null,
-				popEnterTransition = null,
-				popExitTransition = { slideOutOfContainer(DOWN, tween(700)) }
-			) {
+			composableII(AppRoute.NowPlayingScreen.route) {
 				NowPlayingScreen(
 					uiState = nowPlayingViewModel.nowPlayingScreenUiState,
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },

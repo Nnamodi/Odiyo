@@ -104,11 +104,7 @@ fun QueueItemsSheet(
 					items = songs,
 					key = { index, song -> "$index-${song.id}" }
 				) { index, song ->
-					val dismissState = rememberSwipeToDismissState(
-						index = index,
-						songUri = song.uri,
-						queueAction = queueAction
-					)
+					val dismissState = rememberSwipeToDismissState(index, song.uri, queueAction)
 					val elevation by animateDpAsState(targetValue = if (dismissState.dismissDirection != null) 4.dp else 0.dp)
 					val colorBlend = ColorUtils.blendARGB(Color.Black.toArgb(), containerColor.toArgb(), 0.75f)
 					val backgroundColor = if (containerColor == ContainerColor) containerColor else Color(colorBlend)
@@ -119,14 +115,9 @@ fun QueueItemsSheet(
 						defaultBackgroundColor = backgroundColor
 					) {
 						QueueItem(
-							itemIndex = index,
-							song = song,
-							currentSongIndex = currentSongIndex,
-							itemIsLast = index == songs.size,
-							elevation = elevation,
-							cardColor = customContainerColor,
-							componentColor = componentColor,
-							containerColor = containerColor
+							index, song, currentSongIndex, itemIsLast = index == songs.size,
+							elevation = elevation, cardColor = customContainerColor,
+							componentColor = componentColor, containerColor = containerColor
 						) { queueAction(it); if (songs.size == 1) openBottomSheet(false) }
 					}
 				}

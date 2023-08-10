@@ -2,6 +2,8 @@ package com.roland.android.odiyo.ui.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.*
@@ -39,7 +41,9 @@ fun PermissionDialog(
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(20.dp),
+				.wrapContentHeight()
+				.padding(20.dp)
+				.verticalScroll(rememberScrollState()),
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Icon(icon, null, Modifier.size(70.dp), iconColor)

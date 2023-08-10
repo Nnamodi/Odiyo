@@ -55,7 +55,6 @@ fun SongsScreen(
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
-	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
 	closeSelectionMode(!inSelectMode)
 
 	Scaffold(
@@ -93,7 +92,7 @@ fun SongsScreen(
 					songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
 					playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
 				)
-				LazyColumn(contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
+				LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 					itemsIndexed(
 						items = uiState.allSongs,
 						key = { _, song -> song.id }

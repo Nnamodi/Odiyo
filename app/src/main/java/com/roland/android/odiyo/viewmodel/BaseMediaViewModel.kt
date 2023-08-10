@@ -173,8 +173,8 @@ open class BaseMediaViewModel(
 	private fun restoreCurrentPlaylist() {
 		viewModelScope.launch {
 			appDataStore.getCurrentPlaylist().collect {
-				if (mediaItems.value.isEmpty()) {
-					val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
+				val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
+				if (mediaItems.value != items) {
 					mediaItems.value = if (items.size == 1 && items[0] == MediaItem.EMPTY) mutableListOf() else items
 					mediaSession?.player?.apply {
 						setMediaItems(mediaItems.value); prepare()
