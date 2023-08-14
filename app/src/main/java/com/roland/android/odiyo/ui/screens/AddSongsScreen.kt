@@ -29,7 +29,7 @@ fun AddSongsScreen(
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit
 ) {
-	val (_, playlistToAddTo, _, _, songs, playlists) = uiState
+	val (_, playlistToAddTo, _, _, songs, _, playlists) = uiState
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	closeSelectionMode(false)
 

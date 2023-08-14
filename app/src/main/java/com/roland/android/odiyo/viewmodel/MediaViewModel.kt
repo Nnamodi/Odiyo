@@ -42,8 +42,9 @@ class MediaViewModel @Inject constructor(
 		viewModelScope.launch {
 			appDataStore.getSortPreference().collectLatest { option ->
 				sortOrder = option
+				songs = songs.sortList()
 				favoriteSongs = favoriteSongs.sortList()
-				mediaUiState.update { it.copy(allSongs = songs.sortList(), sortOption = option) }
+				mediaUiState.update { it.copy(allSongs = songs, sortOption = option) }
 				mediaItemsUiState.update { it.copy(sortOption = option) }
 			}
 		}
@@ -185,9 +186,8 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	fun editSearchQuery(query: String?, clearQuery: Boolean) {
-		query?.let { text -> mediaItemsUiState.update { it.copy(searchQuery = text) } }
-		if (clearQuery) mediaItemsUiState.update { it.copy(searchQuery = "") }
+	fun onSearch(query: String) {
+		mediaItemsUiState.update { it.copy(searchQuery = query) }
 		songsFromSearch()
 	}
 

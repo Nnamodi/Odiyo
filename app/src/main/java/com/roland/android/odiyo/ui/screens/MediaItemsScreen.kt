@@ -49,7 +49,7 @@ fun MediaItemsScreen(
 	moveToAddSongsScreen: (String) -> Unit,
 	navigateUp: () -> Unit
 ) {
-	val (currentMediaItem, collectionName, collectionType, _, songs, playlists, sortOption) = uiState
+	val (currentMediaItem, collectionName, collectionType, _, songs, _, playlists, sortOption) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openMenu = rememberSaveable { mutableStateOf(false) }

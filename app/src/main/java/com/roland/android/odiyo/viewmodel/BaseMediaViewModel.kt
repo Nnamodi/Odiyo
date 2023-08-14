@@ -146,6 +146,7 @@ open class BaseMediaViewModel(
 					.sortedByDescending { it.addedOn }
 					.take(45)
 				mediaUiState.update { it.copy(allSongs = songs, recentSongs = recentSongs) }
+				mediaItemsUiState.update { it.copy(allSongs = songs) }
 				Log.i("DataInfo", "Cached songs: ${songs.size} | Songs fetched: $songsFetched")
 			}
 		}

@@ -25,8 +25,8 @@ import com.roland.android.odiyo.util.MediaMenuActions
 fun SongListMenu(
 	songs: List<Music>,
 	menuAction: (MediaMenuActions) -> Unit,
-	showSortAction: Boolean = false,
-	openSortDialog: (Boolean) -> Unit = {},
+	showSortAction: Boolean = true,
+	openSortDialog: (Boolean) -> Unit,
 	openMenu: (Boolean) -> Unit
 ) {
 	val positionX = LocalConfiguration.current.screenWidthDp

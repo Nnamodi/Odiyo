@@ -1,8 +1,7 @@
 package com.roland.android.odiyo.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -26,8 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.theme.color.CustomColors
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,57 +68,6 @@ fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
 	)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@Composable
-fun SearchBar(
-	query: String,
-	editSearchQuery: (String?, Boolean) -> Unit,
-	songsIsNotEmpty: Boolean,
-	openMenu: () -> Unit,
-	closeSearchScreen: () -> Unit
-) {
-	TopAppBar(
-		title = {
-			OutlinedTextField(
-				modifier = Modifier.fillMaxWidth(1f),
-				value = query,
-				onValueChange = { editSearchQuery(it, false) },
-				placeholder = {
-					Row(
-						Modifier
-							.alpha(0.6f)
-							.basicMarquee(), Arrangement.Center, Alignment.CenterVertically
-					) {
-						Icon(Icons.Rounded.Search, null)
-						Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
-					}
-				},
-				trailingIcon = {
-					if (query.isNotEmpty()) {
-						IconButton(onClick = { editSearchQuery(null, true) }) {
-							Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
-						}
-					}
-				},
-				singleLine = true,
-				shape = MaterialTheme.shapes.large
-			)
-		},
-		navigationIcon = {
-			IconButton(onClick = closeSearchScreen) {
-				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
-			}
-		},
-		actions = {
-			if (songsIsNotEmpty) {
-				IconButton(onClick = openMenu) {
-					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
-				}
-			}
-		}
-	)
-}
-
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun NowPlayingTopAppBar(
@@ -145,7 +97,11 @@ fun NowPlayingTopAppBar(
 					modifier = Modifier
 						.padding(4.dp)
 						.clip(MaterialTheme.shapes.small)
-						.clickable(interactionSource, ripple, song.uri != "".toUri()) { goToCollection(song.album, ALBUMS) }
+						.clickable(
+							interactionSource = interactionSource,
+							indication = ripple,
+							enabled = song.uri != "".toUri()
+						) { goToCollection(song.album, ALBUMS) }
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
@@ -244,4 +200,87 @@ fun SelectionModeTopBar(
 		},
 		windowInsets = if (isSongsScreen) WindowInsets(0, 0, 0, 0) else TopAppBarDefaults.windowInsets
 	)
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun SearchBar(
+	uiState: MediaItemsUiState,
+	onSearch: (String) -> Unit,
+	closeSearchScreen: () -> Unit,
+	openMenu: () -> Unit
+) {
+	val (_, _, _, searchQuery, searchResult, allSongs) = uiState
+	var active by rememberSaveable { mutableStateOf(false) }
+	var query by rememberSaveable { mutableStateOf(searchQuery) }
+	val paddingValue by animateDpAsState(if (active) 0.dp else 10.dp)
+	val scope = rememberCoroutineScope()
+	val search: (String) -> Job = {
+		scope.launch {
+			query = it.trim(); active = false
+			delay(1500); onSearch(query)
+		}
+	}
+
+	SearchBar(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(horizontal = paddingValue),
+		query = query,
+		onQueryChange = { query = it },
+		onSearch = { search(it) },
+		active = active,
+		onActiveChange = { active = it; if (!it && query.isEmpty()) query = searchQuery },
+		placeholder = {
+			Row(
+				Modifier
+					.alpha(0.6f)
+					.basicMarquee(), Arrangement.Center, Alignment.CenterVertically
+			) {
+				Icon(Icons.Rounded.Search, null)
+				Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
+			}
+		},
+		leadingIcon = {
+			IconButton(onClick = { if (active) active = false else closeSearchScreen() }) {
+				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
+			}
+		},
+		trailingIcon = {
+			if (query.isNotEmpty() && active) {
+				IconButton(onClick = { query = "" }) {
+					Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
+				}
+			}
+			if (!active && searchResult.isNotEmpty()) {
+				IconButton(onClick = openMenu) {
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+				}
+			}
+		}
+	) {
+		val trimmedQuery = query.trim()
+		val suggestions = allSongs.filter {
+			it.name.contains(trimmedQuery, true)
+					|| it.title.contains(trimmedQuery, true)
+					|| it.artist.contains(trimmedQuery, true)
+		}.map {
+			if (it.artist.contains(trimmedQuery, true)) it.artist else it.title
+		}.toSet()
+
+		Column(Modifier.verticalScroll(rememberScrollState())) {
+			if (query.isNotEmpty()) {
+				suggestions.take(15).forEach {
+					ListItem(
+						headlineContent = { Text(it) },
+						modifier = Modifier
+							.fillMaxWidth()
+							.clickable { search(it) }
+							.padding(horizontal = 16.dp, vertical = 4.dp)
+					)
+				}
+			}
+			Spacer(Modifier.height(100.dp))
+		}
+	}
 }

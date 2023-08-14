@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,6 +25,7 @@ import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -37,19 +39,20 @@ import com.roland.android.odiyo.util.SongDetails
 @Composable
 fun SearchScreen(
 	uiState: MediaItemsUiState,
-	editSearchQuery: (String?, Boolean) -> Unit,
+	onSearch: (String) -> Unit,
 	playAudio: (Uri, Int?) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
-	val (currentMediaItem, _, _, searchQuery, songs, playlists) = uiState
+	val (currentMediaItem, _, _, searchQuery, songs, _, playlists, sortOption) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val openMenu = remember { mutableStateOf(false) }
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
+	val openSortDialog = remember { mutableStateOf(false) }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -57,20 +60,12 @@ fun SearchScreen(
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
-	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
-	closeSelectionMode(!inSelectMode); editSearchQuery(null, false)
+	closeSelectionMode(!inSelectMode); onSearch(searchQuery)
 
 	Scaffold(
 		topBar = {
 			if (inSelectMode) {
 				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
-			} else {
-				SearchBar(
-					query = searchQuery, editSearchQuery = editSearchQuery,
-					songsIsNotEmpty = uiState.songs.isNotEmpty(),
-					openMenu = { openMenu.value = true },
-					closeSearchScreen = closeSearchScreen
-				)
 			}
 		},
 		bottomBar = {
@@ -94,41 +89,55 @@ fun SearchScreen(
 			}
 		}
 	) { paddingValues ->
-		if (searchQuery.isEmpty()) {
-			EmptyListScreen(
-				text = stringResource(R.string.type_to_search),
-				modifier = Modifier.padding(paddingValues)
-			)
-		} else {
-			LazyColumn(Modifier.padding(paddingValues), contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
-				item {
-					SongListHeader(
-						songs = songs,
-						songsFromSearch = true,
-						inSelectMode = inSelectMode,
-						playAllSongs = { _, _ -> }
-					)
-				}
-				itemsIndexed(
-					items = songs,
-					key = { _, song -> song.id }
-				) { index, song ->
-					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
+		Column(Modifier.fillMaxSize()) {
+			if (!inSelectMode) SearchBar(uiState, onSearch, closeSearchScreen) { openMenu.value = true }
+			if (searchQuery.isEmpty()) {
+				EmptyListScreen(
+					text = stringResource(R.string.type_to_search),
+					modifier = Modifier.padding(paddingValues)
+				)
+			} else {
+				LazyColumn(
+					modifier = Modifier.padding(
+						top = if (inSelectMode) paddingValues.calculateTopPadding() else 0.dp,
+						bottom = paddingValues.calculateBottomPadding()
+					),
+					contentPadding = PaddingValues(bottom = if (inSelectMode) 24.dp else 100.dp)
+				) {
+					item {
+						SongListHeader(
+							songs = songs,
+							songsFromSearch = true,
+							inSelectMode = inSelectMode,
+							playAllSongs = { _, _ -> }
+						)
+					}
+					itemsIndexed(
+						items = songs,
+						key = { _, song -> song.id }
+					) { index, song ->
+						val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
 
-					MediaItem(
-						modifier = Modifier.selectSemantics(
+						MediaItem(
+							modifier = Modifier
+								.selectSemantics(
+									inSelectionMode = inSelectMode,
+									selected = selected,
+									onClick = { playAudio(song.uri, index) },
+									onLongClick = {
+										if (!inSelectMode) {
+											selectedSongsId.value += song.id
+										}
+									},
+									toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
+								),
+							song = song,
+							currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
 							inSelectionMode = inSelectMode,
 							selected = selected,
-							onClick = { playAudio(song.uri, index) },
-							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
-							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
-						),
-						song = song,
-						currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
-						inSelectionMode = inSelectMode,
-						selected = selected,
-						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
-					)
+							openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+						)
+					}
 				}
 			}
 		}
@@ -153,7 +162,8 @@ fun SearchScreen(
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)
-				}
+				},
+				openSortDialog = { openSortDialog.value = it }
 			) { openMenu.value = it }
 		}
 
@@ -190,6 +200,13 @@ fun SearchScreen(
 				multipleSongs = selectedSongsId.value.size > 1
 			)
 		}
+
+		if (openSortDialog.value) {
+			SortDialog(
+				selectedOption = sortOption,
+				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
+			) { openSortDialog.value = it }
+		}
 	}
 
 	if (inSelectMode) {
@@ -205,11 +222,8 @@ fun SearchScreenPreview() {
 	OdiyoTheme {
 		SearchScreen(
 			uiState = MediaItemsUiState(searchQuery = "a", songs = previewData.take(7)),
-			editSearchQuery = { _, _ -> },
-			playAudio = { _, _ -> },
-			menuAction = {},
-			closeSelectionMode = {},
-			goToCollection = { _, _ -> },
+			onSearch = {}, playAudio = { _, _ -> }, menuAction = {},
+			closeSelectionMode = {}, goToCollection = { _, _ -> },
 		) {}
 	}
 }

@@ -110,6 +110,7 @@ fun LibraryScreen(
 						}
 					}
 				}
+				Spacer(Modifier.padding(bottom = 100.dp))
 			}
 		}
 

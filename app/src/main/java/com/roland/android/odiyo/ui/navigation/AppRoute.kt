@@ -99,7 +99,7 @@ fun AppRoute(
 			composableI(AppRoute.SearchScreen.route) {
 				SearchScreen(
 					uiState = mediaViewModel.mediaItemsScreenUiState,
-					editSearchQuery = mediaViewModel::editSearchQuery,
+					onSearch = mediaViewModel::onSearch,
 					playAudio = { uri, index ->
 						mediaViewModel.apply {
 							resetPlaylist(mediaItemsScreenUiState.songs)
