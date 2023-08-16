@@ -23,6 +23,8 @@ class AlbumsSource(
 	private val albums = MutableStateFlow<List<Album>>(mutableListOf())
 
 	fun albums(): MutableStateFlow<List<Album>> {
+		// empty list of albums previously fetched and re-fetch
+		albums.value = mutableListOf()
 		query()?.use { cursor ->
 			val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
 			val numberOfSongsColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)

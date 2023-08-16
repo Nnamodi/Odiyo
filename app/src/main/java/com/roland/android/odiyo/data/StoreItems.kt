@@ -10,3 +10,5 @@ data class ShuffleState(
 	val state: Boolean,
 	val randomSeed: Int
 )
+
+const val LIST_SEPARATOR = "[-]"

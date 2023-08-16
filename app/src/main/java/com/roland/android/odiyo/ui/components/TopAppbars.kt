@@ -210,7 +210,7 @@ fun SearchBar(
 	closeSearchScreen: () -> Unit,
 	openMenu: () -> Unit
 ) {
-	val (_, _, _, searchQuery, searchResult, allSongs) = uiState
+	val (_, _, _, searchQuery, history, searchResult, allSongs) = uiState
 	var active by rememberSaveable { mutableStateOf(false) }
 	var query by rememberSaveable { mutableStateOf(searchQuery) }
 	val paddingValue by animateDpAsState(if (active) 0.dp else 10.dp)
@@ -259,28 +259,57 @@ fun SearchBar(
 			}
 		}
 	) {
-		val trimmedQuery = query.trim()
-		val suggestions = allSongs.filter {
-			it.name.contains(trimmedQuery, true)
-					|| it.title.contains(trimmedQuery, true)
-					|| it.artist.contains(trimmedQuery, true)
-		}.map {
-			if (it.artist.contains(trimmedQuery, true)) it.artist else it.title
-		}.toSet()
+		val (searchHistory, suggestions) = searchSuggestions(query, history, allSongs)
+		val bottomPadding = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
-		Column(Modifier.verticalScroll(rememberScrollState())) {
+		Column(
+			modifier = Modifier
+				.padding(bottom = bottomPadding)
+				.verticalScroll(rememberScrollState())
+		) {
+			searchHistory.forEach {
+				ListItem(
+					headlineContent = { Text(it) },
+					modifier = Modifier
+						.fillMaxWidth()
+						.clickable { search(it) },
+					leadingContent = { Icon(Icons.Rounded.History, null) }
+				)
+			}
 			if (query.isNotEmpty()) {
 				suggestions.take(15).forEach {
 					ListItem(
 						headlineContent = { Text(it) },
 						modifier = Modifier
 							.fillMaxWidth()
-							.clickable { search(it) }
-							.padding(horizontal = 16.dp, vertical = 4.dp)
+							.clickable { search(it) },
+						leadingContent = { Icon(Icons.Rounded.Search, null) }
 					)
 				}
 			}
 			Spacer(Modifier.height(100.dp))
 		}
 	}
+}
+
+private fun searchSuggestions(
+	query: String,
+	history: List<String>,
+	allSongs: List<Music>,
+): Pair<List<String>, List<String>> {
+	val trimmedQuery = query.trim()
+	val searchHistory = history.filter {
+		it.contains(trimmedQuery, ignoreCase = true)
+	}.take(5)
+
+	val suggestions = allSongs.filter {
+		it.name.contains(trimmedQuery, true)
+				|| it.title.contains(trimmedQuery, true)
+				|| it.artist.contains(trimmedQuery, true)
+	}
+		.map {
+			if (it.artist.contains(trimmedQuery, true)) it.artist else it.title
+		}
+		.toSet().filterNot { it in searchHistory }
+	return Pair(searchHistory, suggestions)
 }

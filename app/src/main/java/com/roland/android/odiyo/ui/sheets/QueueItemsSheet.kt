@@ -38,9 +38,7 @@ import com.roland.android.odiyo.ui.components.rememberSwipeToDismissState
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
-import com.roland.android.odiyo.util.QueueItemActions
-import com.roland.android.odiyo.util.QueueMediaItem
-import com.roland.android.odiyo.util.sheetHeight
+import com.roland.android.odiyo.util.*
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -57,7 +55,7 @@ fun QueueItemsSheet(
 	queueAction: (QueueItemActions) -> Unit
 ) {
 	val scope = rememberCoroutineScope()
-	val scrollState = rememberLazyListState()
+	val lazyListState = rememberLazyListState()
 	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
@@ -98,7 +96,7 @@ fun QueueItemsSheet(
 			LazyColumn(
 				modifier = Modifier.wrapContentHeight(),
 				contentPadding = PaddingValues(bottom = 14.dp),
-				state = scrollState
+				state = lazyListState
 			) {
 				itemsIndexed(
 					items = songs,
@@ -106,13 +104,12 @@ fun QueueItemsSheet(
 				) { index, song ->
 					val dismissState = rememberSwipeToDismissState(index, song.uri, queueAction)
 					val elevation by animateDpAsState(targetValue = if (dismissState.dismissDirection != null) 4.dp else 0.dp)
-					val colorBlend = ColorUtils.blendARGB(Color.Black.toArgb(), containerColor.toArgb(), 0.75f)
-					val backgroundColor = if (containerColor == ContainerColor) containerColor else Color(colorBlend)
+					val backgroundColorBlend = ColorUtils.blendARGB(Color.Black.toArgb(), containerColor.toArgb(), 0.75f)
 
 					SwipeableItem(
 						componentColor = componentColor,
 						dismissState = dismissState,
-						defaultBackgroundColor = backgroundColor
+						defaultBackgroundColor = Color(backgroundColorBlend)
 					) {
 						QueueItem(
 							index, song, currentSongIndex, itemIsLast = index == songs.size,
@@ -126,7 +123,7 @@ fun QueueItemsSheet(
 	}
 	if (currentSongIndex > 0) {
 		LaunchedEffect(key1 = true) {
-			scope.launch { scrollState.scrollToItem(currentSongIndex) }
+			scope.launch { lazyListState.scrollToItem(currentSongIndex) }
 		}
 	}
 }

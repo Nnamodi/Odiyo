@@ -4,6 +4,8 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -37,8 +39,8 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.SongDetails
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(ExperimentalMaterial3Api::class)
-@UnstableApi
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun MediaItemsScreen(
 	uiState: MediaItemsUiState,
@@ -49,7 +51,7 @@ fun MediaItemsScreen(
 	moveToAddSongsScreen: (String) -> Unit,
 	navigateUp: () -> Unit
 ) {
-	val (currentMediaItem, collectionName, collectionType, _, songs, _, playlists, sortOption) = uiState
+	val (currentMediaItem, collectionName, collectionType, _, _, songs, _, playlists, sortOption) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openMenu = rememberSaveable { mutableStateOf(false) }
@@ -78,7 +80,7 @@ fun MediaItemsScreen(
 			}
 		},
 		bottomBar = {
-			SelectionModeBottomBar(inSelectMode, collectionType == PLAYLISTS) {
+			SelectionModeBottomBar(inSelectMode, collectionIsPlaylist = collectionType == PLAYLISTS) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
@@ -129,7 +131,7 @@ fun MediaItemsScreen(
 							onClick = { playAudio(song.uri, index) },
 							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
-						),
+						).animateItemPlacement(tween(1000)),
 						song = song,
 						currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
 						inSelectionMode = inSelectMode,

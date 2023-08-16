@@ -37,6 +37,7 @@ data class MediaItemsUiState(
 	val collectionName: String = "",
 	val collectionType: String = "",
 	val searchQuery: String = "",
+	val searchHistory: List<String> = emptyList(),
 	val songs: List<Music> = emptyList(),
 	val allSongs: List<Music> = emptyList(),
 	val playlists: List<Playlist> = emptyList(),

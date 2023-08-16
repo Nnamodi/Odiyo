@@ -14,6 +14,7 @@ private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
 private val SORT_PREFERENCE = stringPreferencesKey("sort_preference")
 private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
+private val SEARCH_HISTORY = stringPreferencesKey("search_history")
 private val RANDOM_SEED = intPreferencesKey("random_seed")
 private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 
@@ -36,7 +37,7 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 		seekPosition: Long,
 	) {
 		dataStore.edit { preferences ->
-			preferences[CURRENT_PLAYLIST] = playlist.joinToString(",")
+			preferences[CURRENT_PLAYLIST] = playlist.joinToString(LIST_SEPARATOR)
 			preferences[CURRENT_SONG_POSITION] = currentPosition
 			preferences[CURRENT_SONG_SEEK_POSITION] = seekPosition
 		}
@@ -45,7 +46,7 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	fun getCurrentPlaylist(): Flow<CurrentPlaylist> {
 		return dataStore.data.map { preferences ->
 			CurrentPlaylist(
-				playlist = preferences[CURRENT_PLAYLIST]?.split(",") ?: emptyList(),
+				playlist = preferences[CURRENT_PLAYLIST]?.split(LIST_SEPARATOR) ?: emptyList(),
 				currentSongPosition = preferences[CURRENT_SONG_POSITION] ?: 0,
 				currentSongSeekPosition = preferences[CURRENT_SONG_SEEK_POSITION] ?: 0
 			)
@@ -79,6 +80,18 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 				state = preference[SHUFFLE_STATE] ?: false,
 				randomSeed = preference[RANDOM_SEED] ?: 5
 			)
+		}
+	}
+
+	fun getSearchHistory(): Flow<List<String>> {
+		return dataStore.data.map { preference ->
+			preference[SEARCH_HISTORY]?.split(LIST_SEPARATOR) ?: emptyList()
+		}
+	}
+
+	suspend fun saveSearchHistory(history: List<String>) {
+		dataStore.edit { preference ->
+			preference[SEARCH_HISTORY] = history.toSet().joinToString(LIST_SEPARATOR)
 		}
 	}
 

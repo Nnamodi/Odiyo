@@ -48,6 +48,11 @@ class MediaViewModel @Inject constructor(
 				mediaItemsUiState.update { it.copy(sortOption = option) }
 			}
 		}
+		viewModelScope.launch {
+			appDataStore.getSearchHistory().collect { history ->
+				mediaItemsUiState.update { it.copy(searchHistory = history.asReversed()) }
+			}
+		}
 	}
 
 	fun resetPlaylist(newPlaylist: List<Music>) {
@@ -186,12 +191,19 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	fun onSearch(query: String) {
-		mediaItemsUiState.update { it.copy(searchQuery = query) }
-		songsFromSearch()
+	fun onSearch(query: String?) {
+		viewModelScope.launch(Dispatchers.IO) {
+			query?.let {
+				val history = mediaItemsScreenUiState.searchHistory
+				mediaItemsUiState.update { it.copy(searchQuery = query) }
+				appDataStore.saveSearchHistory(history + query)
+			}
+			songsFromSearch()
+		}
 	}
 
 	private fun songsFromSearch() {
+		val searchQuery = mediaItemsScreenUiState.searchQuery
 		val result = songs.filter { music ->
 			val matchingCombinations = listOf(
 				"${music.artist}${music.title}",
@@ -200,8 +212,8 @@ class MediaViewModel @Inject constructor(
 				"${music.title} ${music.artist}",
 				music.title, music.artist, music.album
 			)
-			matchingCombinations.any { it.contains(mediaItemsScreenUiState.searchQuery, ignoreCase = true) }
-		}.takeIf { mediaItemsScreenUiState.searchQuery.isNotEmpty() }
+			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
+		}.takeIf { searchQuery.isNotEmpty() }
 		mediaItemsUiState.update { it.copy(songs = result ?: emptyList()) }
 	}
 

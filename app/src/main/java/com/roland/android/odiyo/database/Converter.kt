@@ -3,6 +3,7 @@ package com.roland.android.odiyo.database
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.room.TypeConverter
+import com.roland.android.odiyo.data.LIST_SEPARATOR
 import java.util.*
 
 class Converter {
@@ -20,11 +21,11 @@ class Converter {
 
 	@TypeConverter
 	fun fromListOfSongs(songs: List<Uri>): String {
-		return songs.toSet().joinToString("|") // changed collection to Set to avoid duplicate elements.
+		return songs.toSet().joinToString(LIST_SEPARATOR) // changed collection to Set to avoid duplicate elements.
 	}
 
 	@TypeConverter
 	fun toListOfSongs(songs: String): List<Uri> {
-		return songs.split("|").map { it.toUri() }
+		return songs.split(LIST_SEPARATOR).map { it.toUri() }
 	}
 }

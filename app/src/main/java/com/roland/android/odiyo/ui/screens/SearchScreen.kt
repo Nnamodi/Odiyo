@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,19 +35,19 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.SongDetails
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @UnstableApi
 @Composable
 fun SearchScreen(
 	uiState: MediaItemsUiState,
-	onSearch: (String) -> Unit,
+	onSearch: (String?) -> Unit,
 	playAudio: (Uri, Int?) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	closeSearchScreen: () -> Unit
 ) {
-	val (currentMediaItem, _, _, searchQuery, songs, _, playlists, sortOption) = uiState
+	val (currentMediaItem, _, _, searchQuery, _, songs, _, playlists, sortOption) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val openMenu = remember { mutableStateOf(false) }
@@ -60,7 +61,7 @@ fun SearchScreen(
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
-	closeSelectionMode(!inSelectMode); onSearch(searchQuery)
+	closeSelectionMode(!inSelectMode); onSearch(null)
 
 	Scaffold(
 		topBar = {
@@ -130,7 +131,7 @@ fun SearchScreen(
 										}
 									},
 									toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
-								),
+								).animateItemPlacement(tween(1000)),
 							song = song,
 							currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
 							inSelectionMode = inSelectMode,
