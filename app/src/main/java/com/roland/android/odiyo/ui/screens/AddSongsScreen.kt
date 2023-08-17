@@ -50,7 +50,9 @@ fun AddSongsScreen(
 		}
 	) { paddingValues ->
 		if (songs.isEmpty()) {
-			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+			if (uiState.isLoading) { LoadingListUi(Modifier.padding(paddingValues)) } else {
+				EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+			}
 		} else {
 			LazyColumn(Modifier.padding(paddingValues), contentPadding = PaddingValues(bottom = 24.dp)) {
 				itemsIndexed(

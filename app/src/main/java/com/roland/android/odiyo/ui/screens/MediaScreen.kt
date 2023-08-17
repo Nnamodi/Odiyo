@@ -83,9 +83,7 @@ enum class MediaScreen(val nameRes: Int) {
 	Artists(R.string.artists)
 }
 
-@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview
 @Composable
 fun MediaScreenPreview() {
@@ -99,8 +97,8 @@ fun MediaScreenPreview() {
 					menuAction = {}
 				) {}
 			},
-			albumsTab = { AlbumsScreen(previewAlbum) {} },
-			artistsTab = { ArtistsScreen(previewArtist) {} },
+			albumsTab = { AlbumsScreen(MediaUiState(albums = previewAlbum)) {} },
+			artistsTab = { ArtistsScreen(MediaUiState(artists = previewArtist)) {} },
 			inSelectMode = false,
 			navigateToSearch = {}
 		) {}

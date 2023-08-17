@@ -92,21 +92,25 @@ fun LibraryScreen(
 				MenuItem(menu.icon, menu.text, action)
 			}
 
-			if (recentSongs.isNotEmpty()) {
+			if (recentSongs.isNotEmpty() || uiState.isLoading) {
 				Spacer(Modifier.height(16.dp))
 				Text(
 					text = stringResource(R.string.recently_added),
 					modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
 					style = MaterialTheme.typography.titleLarge
 				)
-				LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
-					itemsIndexed(
-						items = recentSongs,
-						key = { _, song -> song.id }
-					) { index, song ->
-						RecentSongItem(index, song, currentMediaItem ?: MediaItem.EMPTY, playSong) {
-							longClickedSong = song
-							openMenuSheet.value = true
+				if (uiState.isLoading) {
+					LoadingRowUi()
+				} else {
+					LazyRow(contentPadding = PaddingValues(horizontal = 16.dp)) {
+						itemsIndexed(
+							items = recentSongs,
+							key = { _, song -> song.id }
+						) { index, song ->
+							RecentSongItem(index, song, currentMediaItem ?: MediaItem.EMPTY, playSong) {
+								longClickedSong = song
+								openMenuSheet.value = true
+							}
 						}
 					}
 				}

@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.screens
 
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,23 +25,25 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.service.Util.getBitmap
+import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Composable
 fun ArtistsScreen(
-	artists: List<Artist>,
+	uiState: MediaUiState,
 	prepareAndViewSongs: (String) -> Unit,
 ) {
-	if (artists.isEmpty()) {
-		EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+	if (uiState.artists.isEmpty() || uiState.isLoading) {
+		if (uiState.isLoading) { LoadingListUi(isSongList = false) } else {
+			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+		}
 	} else {
 		LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 			itemsIndexed(
-				items = artists,
+				items = uiState.artists,
 				key = { _, artist -> artist.uri }
 			) { _, artist ->
 				ArtistItem(artist, prepareAndViewSongs)
@@ -50,7 +53,7 @@ fun ArtistsScreen(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
+@OptIn(UnstableApi::class)
 @Composable
 fun ArtistItem(
 	artist: Artist,
@@ -92,7 +95,6 @@ fun ArtistItem(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Preview
 @Composable
 fun ArtistsScreenPreview() {
@@ -100,7 +102,7 @@ fun ArtistsScreenPreview() {
 		Surface(
 			color = MaterialTheme.colorScheme.background
 		) {
-			ArtistsScreen(previewArtist) {}
+			ArtistsScreen(MediaUiState(artists = previewArtist)) {}
 		}
 	}
 }

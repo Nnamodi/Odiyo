@@ -92,11 +92,13 @@ fun SearchScreen(
 	) { paddingValues ->
 		Column(Modifier.fillMaxSize()) {
 			if (!inSelectMode) SearchBar(uiState, onSearch, closeSearchScreen) { openMenu.value = true }
-			if (searchQuery.isEmpty()) {
-				EmptyListScreen(
-					text = stringResource(R.string.type_to_search),
-					modifier = Modifier.padding(paddingValues)
-				)
+			if (searchQuery.isEmpty() || uiState.isLoading) {
+				if (uiState.isLoading) { LoadingListUi(Modifier.padding(paddingValues)) } else {
+					EmptyListScreen(
+						text = stringResource(R.string.type_to_search),
+						modifier = Modifier.padding(paddingValues)
+					)
+				}
 			} else {
 				LazyColumn(
 					modifier = Modifier.padding(

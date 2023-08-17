@@ -86,8 +86,10 @@ fun SongsScreen(
 			}
 		}
 	) { paddingValues ->
-		if (uiState.allSongs.isEmpty()) {
-			EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+		if (uiState.allSongs.isEmpty() || uiState.isLoading) {
+			if (uiState.isLoading) { LoadingListUi() } else {
+				EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
+			}
 		} else {
 			Column(Modifier.padding(top = if (inSelectMode) paddingValues.calculateTopPadding() else 0.dp)) {
 				SongListHeader(

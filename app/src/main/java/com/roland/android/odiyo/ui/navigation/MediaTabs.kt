@@ -2,18 +2,14 @@ package com.roland.android.odiyo.ui.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.ui.screens.AlbumsScreen
 import com.roland.android.odiyo.ui.screens.ArtistsScreen
 import com.roland.android.odiyo.ui.screens.SongsScreen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
-@ExperimentalMaterial3Api
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Composable
 fun SongsTab(
 	viewModel: MediaViewModel,
@@ -38,11 +34,10 @@ fun SongsTab(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Composable
 fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	AlbumsScreen(
-		albums = viewModel.mediaScreenUiState.albums,
+		uiState = viewModel.mediaScreenUiState,
 		prepareAndViewSongs = {
 			navActions.navigateToMediaItemScreen(it, ALBUMS)
 		}
@@ -50,11 +45,10 @@ fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-@UnstableApi
 @Composable
 fun ArtistsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	ArtistsScreen(
-		artists = viewModel.mediaScreenUiState.artists,
+		uiState = viewModel.mediaScreenUiState,
 		prepareAndViewSongs = {
 			navActions.navigateToMediaItemScreen(it, ARTISTS)
 		}

@@ -118,9 +118,11 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
-			readStoragePermissionGranted.collectLatest {
-				canAccessStorage = it
-				if (!it) return@collectLatest
+			readStoragePermissionGranted.collectLatest { isGranted ->
+				canAccessStorage = isGranted
+				mediaUiState.update { it.copy(isLoading = isGranted) }
+				mediaItemsUiState.update { it.copy(isLoading = isGranted) }
+				if (!isGranted) return@collectLatest
 				getAllSongs(); restoreCurrentPlaylist()
 				getNowPlayingMetadata(); getAlbums(); getArtists()
 			}
@@ -145,8 +147,8 @@ open class BaseMediaViewModel(
 				recentSongs = songs
 					.sortedByDescending { it.addedOn }
 					.take(45)
-				mediaUiState.update { it.copy(allSongs = songs, recentSongs = recentSongs) }
-				mediaItemsUiState.update { it.copy(allSongs = songs) }
+				mediaUiState.update { it.copy(allSongs = songs, recentSongs = recentSongs, isLoading = !songsFetched) }
+				mediaItemsUiState.update { it.copy(allSongs = songs, isLoading = !songsFetched) }
 				Log.i("DataInfo", "Cached songs: ${songs.size} | Songs fetched: $songsFetched")
 			}
 		}

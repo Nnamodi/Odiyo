@@ -24,6 +24,7 @@ import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -193,33 +194,45 @@ class MediaViewModel @Inject constructor(
 
 	fun onSearch(query: String?) {
 		viewModelScope.launch(Dispatchers.IO) {
+			val newQueryEntered = mediaItemsScreenUiState.searchQuery != query
+			val queryEntered = mediaItemsScreenUiState.searchQuery.isNotEmpty() || (query?.isNotEmpty() == true)
+			mediaItemsUiState.update { it.copy(isLoading = queryEntered) }
 			query?.let {
-				val history = mediaItemsScreenUiState.searchHistory
-				mediaItemsUiState.update { it.copy(searchQuery = query) }
-				appDataStore.saveSearchHistory(history + query)
+				mediaItemsUiState.update { it.copy(songs = emptyList(), searchQuery = query) }
+				saveSearchHistory(query)
 			}
-			songsFromSearch()
+			songsFromSearch(newQueryEntered)
 		}
 	}
 
-	private fun songsFromSearch() {
-		val searchQuery = mediaItemsScreenUiState.searchQuery
-		val result = songs.filter { music ->
-			val matchingCombinations = listOf(
-				"${music.artist}${music.title}",
-				"${music.artist} ${music.title}",
-				"${music.title}${music.artist}",
-				"${music.title} ${music.artist}",
-				music.title, music.artist, music.album
-			)
-			matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
-		}.takeIf { searchQuery.isNotEmpty() }
-		mediaItemsUiState.update { it.copy(songs = result ?: emptyList()) }
+	private fun songsFromSearch(newQueryEntered: Boolean) {
+		viewModelScope.launch(Dispatchers.IO) {
+			val searchQuery = mediaItemsScreenUiState.searchQuery
+			val result = songs.filter { music ->
+				val matchingCombinations = listOf(
+					"${music.artist}${music.title}",
+					"${music.artist} ${music.title}",
+					"${music.title}${music.artist}",
+					"${music.title} ${music.artist}",
+					music.title, music.artist, music.album
+				)
+				matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
+			}.takeIf { searchQuery.isNotEmpty() }
+			if (result?.isNotEmpty() == true || newQueryEntered) delay(1500) // simulate search
+			mediaItemsUiState.update { it.copy(songs = result ?: emptyList(), isLoading = false) }
+		}
 	}
 
 	private fun songsToAddToPlaylist(playlistName: String?): List<Music> {
 		val playlist = mediaScreenUiState.playlists.find { it.name == playlistName }
 		return songs.filterNot { playlist?.songs?.contains(it.uri) == true }
+	}
+
+	private fun saveSearchHistory(searchQuery: String) {
+		viewModelScope.launch(Dispatchers.IO) {
+			val history = mediaItemsScreenUiState.searchHistory
+			appDataStore.saveSearchHistory(history + searchQuery)
+		}
 	}
 
 	fun audioIntentAction(action: AudioIntentActions) {

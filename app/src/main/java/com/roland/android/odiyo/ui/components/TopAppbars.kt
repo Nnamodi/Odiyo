@@ -29,7 +29,6 @@ import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -218,7 +217,7 @@ fun SearchBar(
 	val search: (String) -> Job = {
 		scope.launch {
 			query = it.trim(); active = false
-			delay(1500); onSearch(query)
+			onSearch(query)
 		}
 	}
 
@@ -242,7 +241,11 @@ fun SearchBar(
 			}
 		},
 		leadingIcon = {
-			IconButton(onClick = { if (active) active = false else closeSearchScreen() }) {
+			IconButton(
+				onClick = { if (active) {
+					active = false; if (query.isEmpty()) query = searchQuery
+				} else closeSearchScreen() }
+			) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
 		},
@@ -254,7 +257,7 @@ fun SearchBar(
 			}
 			if (!active && searchResult.isNotEmpty()) {
 				IconButton(onClick = openMenu) {
-					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options))
+					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options), tint = MaterialTheme.colorScheme.onSurface)
 				}
 			}
 		}
@@ -295,7 +298,7 @@ fun SearchBar(
 private fun searchSuggestions(
 	query: String,
 	history: List<String>,
-	allSongs: List<Music>,
+	allSongs: List<Music>
 ): Pair<List<String>, List<String>> {
 	val trimmedQuery = query.trim()
 	val searchHistory = history.filter {

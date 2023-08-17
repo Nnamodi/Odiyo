@@ -102,13 +102,15 @@ fun MediaItemsScreen(
 			}
 		}
 	) { innerPadding ->
-		if (songs.isEmpty()) {
-			EmptyListScreen(
-				text = stringResource(R.string.nothing_here),
-				modifier = Modifier.padding(innerPadding),
-				playlistCollection = collectionType == PLAYLISTS,
-				addSongs = { moveToAddSongsScreen(collectionName) }
-			)
+		if (songs.isEmpty() || uiState.isLoading) {
+			if (uiState.isLoading) { LoadingListUi(Modifier.padding(innerPadding)) } else {
+				EmptyListScreen(
+					text = stringResource(R.string.nothing_here),
+					modifier = Modifier.padding(innerPadding),
+					playlistCollection = collectionType == PLAYLISTS,
+					addSongs = { moveToAddSongsScreen(collectionName) }
+				)
+			}
 		} else {
 			LazyColumn(Modifier.padding(innerPadding), contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)) {
 				item {
