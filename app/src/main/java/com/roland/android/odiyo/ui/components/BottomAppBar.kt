@@ -5,6 +5,10 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,7 +42,6 @@ import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackground
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -61,10 +64,15 @@ fun BottomAppBar(
 	} else null
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
-	var nowPlayingScreen by remember { mutableStateOf(false) }
-	if (concealBottomBar) nowPlayingScreen = true
 
-	if (!nowPlayingScreen && !inSelectionMode) {
+	AnimatedVisibility(
+		visible = !concealBottomBar && !inSelectionMode,
+		enter = slideInVertically(
+			initialOffsetY = { it },
+			animationSpec = tween(durationMillis = 700, delayMillis = 1000)
+		),
+		exit = ExitTransition.None
+	) {
 		NowPlayingMinimizedView(
 			song = currentSong, artwork = uiState.artwork,
 			isPlaying = uiState.playingState, playPause = playPause,
@@ -93,13 +101,6 @@ fun BottomAppBar(
 			},
 			openDialog = { openAddToPlaylistDialog.value = it }
 		)
-	}
-
-	LaunchedEffect(!concealBottomBar) {
-		if (!concealBottomBar) {
-			delay(1500)
-			nowPlayingScreen = false
-		}
 	}
 }
 

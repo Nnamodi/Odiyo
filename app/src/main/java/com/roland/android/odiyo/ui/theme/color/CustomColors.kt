@@ -2,15 +2,22 @@ package com.roland.android.odiyo.ui.theme.color
 
 import android.graphics.Bitmap
 import android.graphics.Color.DKGRAY
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.palette.graphics.Palette
+import kotlinx.coroutines.launch
 
 object CustomColors {
+	private var currentColor = default_background
 
 	@Composable
 	fun sliderColor(componentColor: Color): SliderColors {
@@ -23,11 +30,22 @@ object CustomColors {
 
 	@Composable
 	fun nowPlayingBackgroundColor(artwork: Bitmap?): Color {
-		return if (artwork != null) {
+		val scope = rememberCoroutineScope()
+		val newColor = remember { Animatable(currentColor) }
+		val generatedColor = if (artwork != null) {
 			Color(dominantDarkColor(artwork))
-		} else {
-			MaterialTheme.colorScheme.outlineVariant
+		} else MaterialTheme.colorScheme.outlineVariant
+
+		LaunchedEffect(artwork) {
+			scope.launch {
+				newColor.animateTo(
+					targetValue = generatedColor,
+					animationSpec = tween(durationMillis = 2000, delayMillis = 500)
+				)
+				currentColor = newColor.value
+			}
 		}
+		return newColor.value
 	}
 
 	fun componentColor(generatedColor: Color, toggled: Boolean = false): Color {
