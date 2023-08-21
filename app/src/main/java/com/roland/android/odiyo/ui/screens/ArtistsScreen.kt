@@ -1,8 +1,5 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.os.Build
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewArtist
 import com.roland.android.odiyo.model.Artist
@@ -30,7 +26,6 @@ import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun ArtistsScreen(
 	uiState: MediaUiState,
@@ -52,8 +47,6 @@ fun ArtistsScreen(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 @Composable
 fun ArtistItem(
 	artist: Artist,
@@ -94,7 +87,6 @@ fun ArtistItem(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun ArtistsScreenPreview() {

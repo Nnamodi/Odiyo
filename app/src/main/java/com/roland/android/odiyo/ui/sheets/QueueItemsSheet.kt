@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.sheets
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,7 +27,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
@@ -41,9 +38,7 @@ import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.*
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun QueueItemsSheet(
 	songs: List<Music>,
@@ -128,7 +123,6 @@ fun QueueItemsSheet(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun QueueItem(
 	itemIndex: Int,
@@ -187,7 +181,6 @@ fun QueueItem(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun QueueItemsPreview() {

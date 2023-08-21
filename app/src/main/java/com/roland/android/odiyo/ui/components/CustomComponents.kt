@@ -1,9 +1,6 @@
 package com.roland.android.odiyo.ui.components
 
 import android.graphics.Bitmap
-import android.os.Build
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,13 +22,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import coil.compose.AsyncImage
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 @Composable
 fun MediaImage(
 	modifier: Modifier = Modifier,

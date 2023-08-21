@@ -303,7 +303,7 @@ private fun searchSuggestions(
 	val trimmedQuery = query.trim()
 	val searchHistory = history.filter {
 		it.contains(trimmedQuery, ignoreCase = true)
-	}.take(5)
+	}.take(15)
 
 	val suggestions = allSongs.filter {
 		it.name.contains(trimmedQuery, true)

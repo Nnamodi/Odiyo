@@ -1,9 +1,6 @@
 package com.roland.android.odiyo.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Playlist
@@ -17,7 +14,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@RequiresApi(Build.VERSION_CODES.Q)
 class PlaylistViewModel @Inject constructor(
 	appDataStore: AppDataStore,
 	musicRepository: MusicRepository,

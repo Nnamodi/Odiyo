@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.components
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -9,8 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults.containerColor
+import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,13 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.SelectionModeItems.Delete
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun SelectionModeBottomBar(
 	inSelectionMode: Boolean,
@@ -96,7 +94,6 @@ enum class SelectionModeItems(val titleRes: Int, val icon: ImageVector) {
 	Delete(R.string.delete, Icons.Rounded.Delete)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun SelectionModeBottomBarPreview() {

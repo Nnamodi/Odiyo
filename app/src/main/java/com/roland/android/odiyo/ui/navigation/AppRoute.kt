@@ -1,30 +1,25 @@
 package com.roland.android.odiyo.ui.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
-import com.roland.android.odiyo.ui.*
 import com.roland.android.odiyo.ui.components.BottomAppBar
 import com.roland.android.odiyo.ui.screens.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.PlaylistViewModel
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
-@androidx.annotation.OptIn(UnstableApi::class)
-@RequiresApi(Build.VERSION_CODES.Q)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppRoute(
 	navActions: NavActions,

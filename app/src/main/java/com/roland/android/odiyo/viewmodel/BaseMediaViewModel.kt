@@ -1,17 +1,15 @@
 package com.roland.android.odiyo.viewmodel
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
@@ -39,14 +37,13 @@ import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 open class BaseMediaViewModel(
 	private val appDataStore: AppDataStore,
 	private val mediaRepository: MediaRepository,

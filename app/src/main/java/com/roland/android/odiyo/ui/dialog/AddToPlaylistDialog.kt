@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.dialog
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +29,6 @@ import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AddToPlaylistDialog(
 	songs: List<Music>,
@@ -113,7 +110,6 @@ fun AddToPlaylistDialog(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun AddToPlaylistDialogPreview() {

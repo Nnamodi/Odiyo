@@ -1,14 +1,11 @@
 package com.roland.android.odiyo.mediaSource
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 
-@RequiresApi(Build.VERSION_CODES.Q)
 val previewData = listOf(
 	Music(
 		id = 0,
@@ -202,7 +199,6 @@ val previewArtist = listOf(
 	),
 )
 
-@RequiresApi(Build.VERSION_CODES.Q)
 val previewPlaylist = listOf(
 	Playlist(
 		id = 0,

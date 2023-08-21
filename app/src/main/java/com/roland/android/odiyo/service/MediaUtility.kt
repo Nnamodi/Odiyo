@@ -4,11 +4,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
@@ -27,8 +25,6 @@ import com.roland.android.odiyo.service.Util.playingState
 import com.roland.android.odiyo.service.Util.time
 import kotlinx.coroutines.flow.update
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 class PlayerListener(private val context: Context) : Player.Listener {
 	override fun onEvents(player: Player, events: Player.Events) {
 		super.onEvents(player, events)
@@ -70,7 +66,7 @@ class PlayerListener(private val context: Context) : Player.Listener {
 	}
 }
 
-@UnstableApi
+@OptIn(UnstableApi::class)
 class PlayerNotificationAdapter(
 	private val context: Context,
 	private val session: MediaSession?
@@ -79,7 +75,6 @@ class PlayerNotificationAdapter(
 		return player.mediaMetadata.title ?: "Unknown"
 	}
 
-	@RequiresApi(Build.VERSION_CODES.Q)
 	override fun createCurrentContentIntent(player: Player): PendingIntent? {
 		return session?.sessionActivity
 	}

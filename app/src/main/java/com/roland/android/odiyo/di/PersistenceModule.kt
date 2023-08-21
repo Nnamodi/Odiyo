@@ -1,8 +1,6 @@
 package com.roland.android.odiyo.di
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -22,7 +20,6 @@ private val Context.datastore: DataStore<Preferences> by preferencesDataStore("a
 
 @Module
 @InstallIn(SingletonComponent::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 object PersistenceModule {
 
 	@Provides

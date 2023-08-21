@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.dialog
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -87,7 +85,6 @@ fun CreateOrRenamePlaylistDialog(
 	)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun CreateOrRenamePlaylistDialogPreview() {

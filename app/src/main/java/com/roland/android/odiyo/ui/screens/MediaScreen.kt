@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -11,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewAlbum
 import com.roland.android.odiyo.mediaSource.previewArtist
@@ -23,9 +20,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.light_outline
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalFoundationApi::class)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun MediaScreen(
 	songsTab: @Composable () -> Unit,
@@ -83,7 +78,6 @@ enum class MediaScreen(val nameRes: Int) {
 	Artists(R.string.artists)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun MediaScreenPreview() {

@@ -1,11 +1,9 @@
 package com.roland.android.odiyo.ui.sheets
 
 import android.graphics.Bitmap
-import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -39,7 +37,6 @@ import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun NowPlayingScreenSheet(
 	currentSong: Music,
@@ -148,7 +145,6 @@ fun NowPlayingScreenSheet(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable

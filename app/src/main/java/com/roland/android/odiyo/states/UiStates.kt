@@ -30,7 +30,7 @@ data class MediaUiState(
 	val playlists: List<Playlist> = emptyList(),
 	val albums: List<Album> = emptyList(),
 	val artists: List<Artist> = emptyList(),
-	val isLoading: Boolean = true
+	val isLoading: Boolean = false
 )
 
 data class MediaItemsUiState(
@@ -43,5 +43,5 @@ data class MediaItemsUiState(
 	val allSongs: List<Music> = emptyList(),
 	val playlists: List<Playlist> = emptyList(),
 	val sortOption: SortOptions = SortOptions.NameAZ,
-	val isLoading: Boolean = true
+	val isLoading: Boolean = false
 )

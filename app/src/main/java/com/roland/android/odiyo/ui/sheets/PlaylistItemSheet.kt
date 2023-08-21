@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.sheets
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,7 +27,6 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun PlaylistItemSheet(
 	playlist: Playlist,
@@ -108,7 +105,6 @@ enum class PlaylistMenuItems(val icon: ImageVector, val menuText: Int) {
 	Delete(Icons.Rounded.Delete, R.string.delete)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable

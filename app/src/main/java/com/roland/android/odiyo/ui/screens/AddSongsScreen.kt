@@ -1,12 +1,11 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -18,11 +17,13 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.states.MediaItemsUiState
-import com.roland.android.odiyo.ui.components.*
+import com.roland.android.odiyo.ui.components.EmptyListScreen
+import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.SelectionModeTopBar
+import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AddSongsScreen(
 	uiState: MediaItemsUiState,
@@ -80,7 +81,6 @@ fun AddSongsScreen(
 
 fun getPlaylist(name: String?, playlists: List<Playlist>): Playlist = playlists.find { it.name == name }!!
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun AddSongsScreenPreview() {

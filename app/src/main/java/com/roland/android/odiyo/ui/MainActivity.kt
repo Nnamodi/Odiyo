@@ -4,13 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +23,6 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -53,8 +50,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalAnimationApi::class)
-@RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 class MainActivity : ComponentActivity() {
 	private lateinit var audioIntent: MutableState<Uri?>
 	@Inject lateinit var player: ExoPlayer

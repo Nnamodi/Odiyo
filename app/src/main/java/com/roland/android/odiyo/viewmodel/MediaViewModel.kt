@@ -2,10 +2,10 @@ package com.roland.android.odiyo.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.model.Music
@@ -31,7 +31,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@RequiresApi(Build.VERSION_CODES.Q)
 class MediaViewModel @Inject constructor(
 	private val appDataStore: AppDataStore,
 	private val musicRepository: MusicRepository,
@@ -67,6 +66,7 @@ class MediaViewModel @Inject constructor(
 			index?.let {
 				preparePlaylist()
 				seekTo(it, 0)
+				updateMusicQueue()
 			}
 			if (isPlaying) pause() else play()
 			Log.d("ViewModelInfo", "playAudio: $index\n${musicItem(uri.toMediaItem)}")
@@ -196,10 +196,10 @@ class MediaViewModel @Inject constructor(
 		viewModelScope.launch(Dispatchers.IO) {
 			val newQueryEntered = mediaItemsScreenUiState.searchQuery != query
 			val queryEntered = mediaItemsScreenUiState.searchQuery.isNotEmpty() || (query?.isNotEmpty() == true)
-			mediaItemsUiState.update { it.copy(isLoading = queryEntered) }
+			mediaItemsUiState.update { it.copy(isLoading = queryEntered && newQueryEntered) }
 			query?.let {
 				mediaItemsUiState.update { it.copy(songs = emptyList(), searchQuery = query) }
-				saveSearchHistory(query)
+				if (query.isNotEmpty()) saveSearchHistory(query)
 			}
 			songsFromSearch(newQueryEntered)
 		}

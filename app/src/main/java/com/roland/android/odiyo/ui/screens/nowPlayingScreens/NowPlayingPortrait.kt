@@ -1,10 +1,10 @@
 package com.roland.android.odiyo.ui.screens.nowPlayingScreens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.RepeatOne
+import androidx.compose.material.icons.rounded.VolumeOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,7 +20,6 @@ import com.roland.android.odiyo.ui.screens.MediaControls
 import com.roland.android.odiyo.ui.screens.MediaDescription
 import com.roland.android.odiyo.util.MediaControls
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun NowPlayingPortraitView(
 	paddingValues: PaddingValues,

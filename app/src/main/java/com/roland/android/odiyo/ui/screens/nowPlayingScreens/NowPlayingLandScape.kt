@@ -1,13 +1,11 @@
 package com.roland.android.odiyo.ui.screens.nowPlayingScreens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.RepeatOne
+import androidx.compose.material.icons.rounded.VolumeOff
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +14,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
@@ -25,8 +22,6 @@ import com.roland.android.odiyo.ui.screens.MediaControls
 import com.roland.android.odiyo.ui.screens.MediaDescription
 import com.roland.android.odiyo.util.MediaControls
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun NowPlayingLandscapeView(
 	paddingValues: PaddingValues,

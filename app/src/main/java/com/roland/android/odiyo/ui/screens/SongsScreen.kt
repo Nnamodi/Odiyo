@@ -1,10 +1,7 @@
 package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -19,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
@@ -34,9 +30,7 @@ import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.SongDetails
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SongsScreen(
 	uiState: MediaUiState,
@@ -196,7 +190,6 @@ fun selectedSongs(songsId: Set<Long>, songs: List<Music>): List<Music> {
 	return matchingSongs
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun SongsScreenPreview() {

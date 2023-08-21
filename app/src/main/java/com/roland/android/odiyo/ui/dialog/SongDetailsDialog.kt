@@ -1,9 +1,6 @@
 package com.roland.android.odiyo.ui.dialog
 
 import android.graphics.Bitmap
-import android.os.Build
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
@@ -27,8 +23,6 @@ import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.SongDetailText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 @Composable
 fun SongDetailsDialog(
 	song: Music,
@@ -72,7 +66,6 @@ fun SongDetailsDialog(
 	)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun SongDetailsDialogPreview() {

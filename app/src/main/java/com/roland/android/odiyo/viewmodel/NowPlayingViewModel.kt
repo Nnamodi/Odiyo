@@ -2,12 +2,10 @@ package com.roland.android.odiyo.viewmodel
 
 import android.content.Context
 import android.media.AudioManager
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
@@ -32,7 +30,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(UnstableApi::class)
 class NowPlayingViewModel @Inject constructor(
 	private val appDataStore: AppDataStore,

@@ -1,10 +1,8 @@
 package com.roland.android.odiyo.ui.sheets
 
-import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -47,7 +45,6 @@ import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
 import com.roland.android.odiyo.util.sheetHeight
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaItemSheet(
@@ -236,7 +233,6 @@ enum class MenuItems(
 	Delete(Icons.Rounded.Delete, R.string.delete)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable

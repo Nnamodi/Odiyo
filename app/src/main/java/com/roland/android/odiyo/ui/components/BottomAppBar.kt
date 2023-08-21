@@ -3,8 +3,6 @@ package com.roland.android.odiyo.ui.components
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -28,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
@@ -44,7 +41,6 @@ import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun BottomAppBar(
 	uiState: NowPlayingUiState,
@@ -104,8 +100,6 @@ fun BottomAppBar(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun NowPlayingMinimizedView(
 	song: Music?,
@@ -174,7 +168,6 @@ fun NowPlayingMinimizedView(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(showBackground = true)
 @Composable
 fun BottomAppBarPreview() {

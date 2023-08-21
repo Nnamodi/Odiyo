@@ -1,7 +1,5 @@
 package com.roland.android.odiyo.ui.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.roland.android.odiyo.ui.screens.AlbumsScreen
@@ -9,7 +7,6 @@ import com.roland.android.odiyo.ui.screens.ArtistsScreen
 import com.roland.android.odiyo.ui.screens.SongsScreen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun SongsTab(
 	viewModel: MediaViewModel,
@@ -33,7 +30,6 @@ fun SongsTab(
 	)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	AlbumsScreen(
@@ -44,7 +40,6 @@ fun AlbumsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	)
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun ArtistsTab(viewModel: MediaViewModel, navActions: NavActions) {
 	ArtistsScreen(

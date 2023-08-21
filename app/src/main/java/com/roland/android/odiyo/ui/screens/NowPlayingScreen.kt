@@ -1,8 +1,6 @@
 package com.roland.android.odiyo.ui.screens
 
 import android.graphics.BitmapFactory
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -25,7 +23,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.media3.common.util.UnstableApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
@@ -52,7 +49,6 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun NowPlayingScreen(
 	uiState: NowPlayingUiState,
@@ -168,8 +164,6 @@ fun NowPlayingScreen(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@RequiresApi(Build.VERSION_CODES.Q)
-@androidx.annotation.OptIn(UnstableApi::class)
 @Composable
 fun MediaDescription(
 	uiState: NowPlayingUiState,
@@ -242,7 +236,6 @@ fun MediaDescription(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun MediaControls(
 	uiState: NowPlayingUiState,
@@ -349,7 +342,6 @@ fun MediaControls(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 private fun NowPlayingPreview() {
@@ -377,14 +369,12 @@ private fun NowPlayingPreview() {
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(widthDp = 340, heightDp = 280)
 @Composable
 private fun NowPlayingMultiWindowPreview() {
 	NowPlayingPreview()
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview(widthDp = 700, heightDp = 340)
 @Composable
 private fun NowPlayingLandscapePreview() {

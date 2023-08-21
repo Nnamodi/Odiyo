@@ -1,8 +1,5 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.os.Build
-import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.util.UnstableApi
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Playlist
@@ -36,8 +32,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
 import com.roland.android.odiyo.util.SnackbarUtils
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.Q)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistsScreen(
 	playlists: List<Playlist>,
@@ -142,8 +137,6 @@ fun CreatePlaylistButton(openDialog: () -> Unit) {
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
-@OptIn(UnstableApi::class)
 @Composable
 fun PlaylistItem(
 	modifier: Modifier = Modifier,
@@ -193,7 +186,6 @@ fun PlaylistItem(
 	}
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @Preview
 @Composable
 fun PlaylistsScreenPreview() {

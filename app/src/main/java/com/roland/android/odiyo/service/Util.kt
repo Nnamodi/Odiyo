@@ -6,13 +6,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Album
@@ -22,7 +19,6 @@ import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Constants.DATE
 import com.roland.android.odiyo.service.Constants.MB_DIVISOR
 import com.roland.android.odiyo.service.Constants.MB_FORMAT
-import com.roland.android.odiyo.service.Constants.TIME
 import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.states.NowPlayingUiState
@@ -30,13 +26,8 @@ import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.*
 
-@androidx.annotation.OptIn(UnstableApi::class)
 object Util {
 	lateinit var notificationManager: OdiyoNotificationManager
 
@@ -61,16 +52,15 @@ object Util {
 	val songsOnQueue = MutableStateFlow<MutableList<Music>>(mutableListOf())
 
 	val Long.time: String
-		@RequiresApi(Build.VERSION_CODES.O)
-		get() = LocalDateTime.ofInstant(
-			Instant.ofEpochMilli(this),
-			ZoneId.systemDefault()
-		).format(
-			DateTimeFormatter.ofPattern(
-				TIME,
-				Locale.getDefault()
-			)
-		)
+		get() {
+			val hour = ((this / 1000) / 60) / 60
+			val minute = ((this / 1000) / 60) % 60
+			val second = (this / 1000) % 60
+			val hours = if (hour > 0) "$hour:" else ""
+			val minutes = if (minute < 10) "0$minute:" else "$minute:"
+			val seconds = if (second < 10) "0$second" else "$second"
+			return "$hours$minutes$seconds"
+		}
 
 	val Long.date: String
 		get() = SimpleDateFormat(DATE, Locale.getDefault()).format(this * 1000)
@@ -121,7 +111,6 @@ object Util {
 
 	// an intent to launch UI from player notification.
 	val Context.pendingIntent: PendingIntent
-		@RequiresApi(Build.VERSION_CODES.Q)
 		get() = PendingIntent.getActivity(
 				this,
 				0,
