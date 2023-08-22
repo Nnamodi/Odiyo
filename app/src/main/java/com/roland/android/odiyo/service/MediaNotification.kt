@@ -32,7 +32,7 @@ import com.roland.android.odiyo.service.Constants.MUSIC_NOTIFICATION_ID
 		}
 		notificationManager = builder.build()
 		notificationManager.apply {
-			setSmallIcon(R.drawable.play_icon)
+			setSmallIcon(R.drawable.player_notification_icon)
 			setUseFastForwardAction(false)
 			setUseNextActionInCompactView(true)
 			setUsePreviousActionInCompactView(true)
