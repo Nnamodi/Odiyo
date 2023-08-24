@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="primary_color">#1B1B16</color>
+
+    // App theme
     <style name="Theme.Odiyo" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:colorPrimary">#FF1F1B16</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+    </style>
+
+    // Splash screen theme
+    <style name="Theme.Splash" parent="Theme.SplashScreen">
+        <item name="android:colorPrimary">@color/primary_color</item>
+        <item name="windowSplashScreenBackground">@color/primary_color</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/app_icon</item>
+        <item name="android:windowSplashScreenBehavior" tools:targetApi="tiramisu">icon_preferred</item>
+        <item name="postSplashScreenTheme">@style/Theme.Odiyo</item>
     </style>
 </resources>

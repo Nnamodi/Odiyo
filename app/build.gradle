@@ -98,6 +98,9 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
+    // splash screen
+    implementation "androidx.core:core-splashscreen:$splash_screen_version"
+
     // system_bar
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 
