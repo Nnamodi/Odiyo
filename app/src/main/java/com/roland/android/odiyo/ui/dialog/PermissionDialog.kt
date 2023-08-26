@@ -14,10 +14,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -50,8 +49,7 @@ fun PermissionDialog(
 			Text(
 				text = permissionMessage,
 				modifier = Modifier.padding(vertical = 20.dp),
-				textAlign = TextAlign.Center,
-				style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal)
+				style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
 			)
 			Row(Modifier.fillMaxWidth()) {
 				Spacer(Modifier.weight(1f))
@@ -72,7 +70,7 @@ fun PermissionDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
 			PermissionDialog(
-				permissionMessage = stringResource(R.string.read_storage_rationale),
+				permissionMessage = stringResource(R.string.read_storage_request),
 				requestPermission = {},
 				openDialog = {}
 			)

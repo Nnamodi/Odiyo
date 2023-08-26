@@ -106,6 +106,7 @@ object Util {
 			Log.e("MediaPathInfo", "Can't retrieve media file", e)
 		}
 		val bytes = retriever.embeddedPicture
+		retriever.release()
 		return bytes?.size?.let { BitmapFactory.decodeByteArray(bytes, 0, it) }
 	}
 

@@ -9,6 +9,7 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +18,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.view.WindowCompat
@@ -44,7 +44,6 @@ import com.roland.android.odiyo.util.Permissions.readStoragePermission
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
 import com.roland.android.odiyo.viewmodel.MediaViewModel
-import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -69,9 +68,7 @@ class MainActivity : ComponentActivity() {
 		WindowCompat.setDecorFitsSystemWindows(window, false)
 
 		setContent {
-			val context = LocalContext.current
 			val mediaViewModel: MediaViewModel = hiltViewModel()
-			val nowPlayingViewModel: NowPlayingViewModel = hiltViewModel()
 			val navController = rememberAnimatedNavController()
 			val openPermissionDialog = remember { mutableStateOf(!mediaViewModel.canAccessStorage) }
 			var permission by remember { mutableStateOf("") }
@@ -90,12 +87,7 @@ class MainActivity : ComponentActivity() {
 			readStoragePermission(permission = { permission = it }) { isGranted ->
 				openPermissionDialog.value = !isGranted
 				readStoragePermissionGranted.value = isGranted
-				if (!isGranted) {
-					audioIntent.value = null
-					mediaViewModel.savePermissionStatus(
-						!shouldShowRequestPermissionRationale(this, permission)
-					)
-				}
+				if (!isGranted) audioIntent.value = null
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
@@ -105,10 +97,8 @@ class MainActivity : ComponentActivity() {
 					color = MaterialTheme.colorScheme.background
 				) {
 					AppRoute(
-						navActions = navActions,
-						navController = navController,
-						mediaViewModel = mediaViewModel,
-						nowPlayingViewModel = nowPlayingViewModel,
+						navActions, navController, mediaViewModel,
+						nowPlayingViewModel = hiltViewModel(),
 						playlistViewModel = hiltViewModel()
 					)
 
@@ -119,7 +109,7 @@ class MainActivity : ComponentActivity() {
 							),
 							requestPermission = {
 								if (storagePermissionPermanentlyDenied) {
-									context.launchDeviceSettingsUi(ACTION_APPLICATION_DETAILS_SETTINGS)
+									launchDeviceSettingsUi(ACTION_APPLICATION_DETAILS_SETTINGS)
 								} else requestPermissionLauncher.launch(permission)
 							},
 							openDialog = { openPermissionDialog.value = it }
@@ -155,8 +145,10 @@ class MainActivity : ComponentActivity() {
 
 	override fun onResume() {
 		super.onResume()
+		val viewModel: MediaViewModel = viewModels<MediaViewModel>().value
 		readStoragePermission(permission = {}) { isGranted ->
 			readStoragePermissionGranted.value = isGranted
+			if (isGranted) viewModel.savePermissionStatus(permanentlyDenied = false)
 			Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 		}
 	}

@@ -10,7 +10,6 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -182,7 +181,7 @@ fun MediaDescription(
 	val context = LocalContext.current
 	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 	val songIsValid = !(currentSong == null || currentSong.uri == "".toUri())
-	var songIsFavorite by rememberSaveable { mutableStateOf(currentSong?.favorite == true) }
+	var songIsFavorite by remember { mutableStateOf(false, neverEqualPolicy()) }
 	songIsFavorite = currentSong?.favorite == true
 
 	if (portraitView) {
@@ -220,7 +219,7 @@ fun MediaDescription(
 		}
 		if (songIsValid) {
 			NowPlayingIconButton(
-				onClick = { onFavorite(MediaControls.Favorite(currentSong!!)); songIsFavorite = !songIsFavorite },
+				onClick = { onFavorite(MediaControls.Favorite(currentSong!!)) },
 				modifier = Modifier
 					.size(50.dp)
 					.padding(start = 4.dp),
