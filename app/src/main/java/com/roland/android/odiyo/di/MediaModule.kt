@@ -29,6 +29,6 @@ object MediaModule {
 		audioAttributes: AudioAttributes
 	) = ExoPlayer.Builder(context)
 		.setAudioAttributes(audioAttributes, true)
-//		.setHandleAudioBecomingNoisy(true)
+		.setHandleAudioBecomingNoisy(true)
 		.build()
 }

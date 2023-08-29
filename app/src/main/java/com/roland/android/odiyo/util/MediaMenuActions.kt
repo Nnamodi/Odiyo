@@ -13,7 +13,7 @@ sealed interface MediaMenuActions {
 	data class CreatePlaylist(val playlist: Playlist): MediaMenuActions
 	data class AddToPlaylist(val songs: List<Music>, val playlist: Playlist): MediaMenuActions
 	data class RemoveFromPlaylist(val songs: List<Music>, val playlistName: String): MediaMenuActions
-	data class SetAsRingtone(val music: Music): MediaMenuActions
+	data class SetAsRingtone(val music: Music, val ringType: Int): MediaMenuActions
 	data class ShareSong(val songs: List<Music>): MediaMenuActions
 	data class SortSongs(val sortOptions: SortOptions): MediaMenuActions
 	data class DeleteSongs(val songs: List<SongDetails>): MediaMenuActions

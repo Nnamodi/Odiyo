@@ -96,6 +96,10 @@
     <string name="ringtone_set">Ringtone set!</string>
     <string name="write_settings_permission">Odiyo requires permission to modify device settings in order to set ringtone.</string>
     <string name="permission_granted">Permission granted!</string>
+    <string name="set_as">Set as:</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="alarm_sound">Alarm sound</string>
+    <string name="notification_tone">Notification tone</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
