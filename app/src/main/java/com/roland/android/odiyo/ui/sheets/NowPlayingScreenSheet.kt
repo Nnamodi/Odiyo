@@ -26,6 +26,7 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.RenameSongDialog
+import com.roland.android.odiyo.ui.dialog.SetRingtoneDialog
 import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -52,6 +53,7 @@ fun NowPlayingScreenSheet(
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openRenameDialog = remember { mutableStateOf(false) }
+	val openRingtoneDialog = remember { mutableStateOf(false) }
 	val openWriteSettingsUi = remember { mutableStateOf(false) }
 	val openPermissionDialog = remember { mutableStateOf(false) }
 	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
@@ -88,7 +90,7 @@ fun NowPlayingScreenSheet(
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(currentSong)); openBottomSheet(false) }
 					SetAsRingtone -> {
 						if (Settings.System.canWrite(context)) {
-							menuAction(MediaMenuActions.SetAsRingtone(currentSong)); openBottomSheet(false)
+							openRingtoneDialog.value = true
 						} else { openWriteSettingsUi.value = true }
 					}
 					Rename -> {
@@ -119,6 +121,14 @@ fun NowPlayingScreenSheet(
 				openBottomSheet(false)
 			},
 			openDialog = { openRenameDialog.value = it }
+		)
+	}
+
+	if (openRingtoneDialog.value) {
+		SetRingtoneDialog(
+			song = currentSong,
+			onRingtoneSet = { menuAction(it); openBottomSheet(false) },
+			openDialog = { openRingtoneDialog.value = false }
 		)
 	}
 

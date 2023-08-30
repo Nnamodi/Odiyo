@@ -32,9 +32,9 @@ class MediaAccessingObject(private val resolver: ContentResolver) {
 		)
 	}
 
-	fun setAsRingtone(context: Context, music: Music) {
+	fun setAsRingtone(context: Context, music: Music, ringType: Int) {
 		RingtoneManager.setActualDefaultRingtoneUri(
-			context, RingtoneManager.TYPE_RINGTONE, music.uri
+			context, ringType, music.uri
 		)
 	}
 }

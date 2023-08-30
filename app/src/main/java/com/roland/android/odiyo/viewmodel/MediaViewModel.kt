@@ -83,7 +83,7 @@ class MediaViewModel @Inject constructor(
 			is MediaMenuActions.CreatePlaylist -> createPlaylist(action.playlist)
 			is MediaMenuActions.AddToPlaylist -> addSongsToPlaylist(action.songs, action.playlist)
 			is MediaMenuActions.RemoveFromPlaylist -> removeFromPlaylist(action.songs, action.playlistName)
-			is MediaMenuActions.SetAsRingtone -> setAsRingtone(context, action.music)
+			is MediaMenuActions.SetAsRingtone -> setAsRingtone(context, action.music, action.ringType)
 			is MediaMenuActions.ShareSong -> shareSong(context, action.songs)
 			is MediaMenuActions.SortSongs -> sortSongs(action.sortOptions)
 			is MediaMenuActions.DeleteSongs -> deleteSong(action.songs)
@@ -116,6 +116,10 @@ class MediaViewModel @Inject constructor(
 				Log.d("ViewModelInfo", "Song removed: ${it.songs}")
 			}
 		}
+	}
+
+	private fun setAsRingtone(context: Context, music: Music, ringType: Int) {
+		mediaRepository.setAsRingtone(context, music, ringType)
 	}
 
 	private fun sortSongs(sortOption: SortOptions) {

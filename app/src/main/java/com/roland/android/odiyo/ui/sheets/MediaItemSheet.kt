@@ -28,10 +28,7 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util
 import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.dialog.DeleteDialog
-import com.roland.android.odiyo.ui.dialog.PermissionDialog
-import com.roland.android.odiyo.ui.dialog.RenameSongDialog
-import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
+import com.roland.android.odiyo.ui.dialog.*
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.sheets.MenuItems.*
@@ -61,6 +58,7 @@ fun MediaItemSheet(
 	val openRenameDialog = remember { mutableStateOf(false) }
 	val openDetailsDialog = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
+	val openRingtoneDialog = remember { mutableStateOf(false) }
 	val openWriteSettingsUi = remember { mutableStateOf(false) }
 	val openPermissionDialog = remember { mutableStateOf(false) }
 	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
@@ -111,7 +109,7 @@ fun MediaItemSheet(
 					AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
 					SetAsRingtone -> {
 						if (Settings.System.canWrite(context)) {
-							menuAction(MediaMenuActions.SetAsRingtone(song)); openBottomSheet(false)
+							openRingtoneDialog.value = true
 						} else { openWriteSettingsUi.value = true }
 					}
 					Share -> menuAction(MediaMenuActions.ShareSong(listOf(song)))
@@ -147,6 +145,14 @@ fun MediaItemSheet(
 				openBottomSheet(false)
 			},
 			openDialog = { openRenameDialog.value = it }
+		)
+	}
+
+	if (openRingtoneDialog.value) {
+		SetRingtoneDialog(
+			song = song,
+			onRingtoneSet = { menuAction(it); openBottomSheet(false) },
+			openDialog = { openRingtoneDialog.value = false }
 		)
 	}
 

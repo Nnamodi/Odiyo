@@ -305,10 +305,6 @@ open class BaseMediaViewModel(
 		mediaRepository.shareSong(context, songs)
 	}
 
-	fun setAsRingtone(context: Context, music: Music) {
-		mediaRepository.setAsRingtone(context, music)
-	}
-
 	private fun updateMusicInfo() {
 		if (musicInfoUpdated) return
 		val song = musicItem(mediaSession?.player?.currentMediaItem)
