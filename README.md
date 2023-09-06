@@ -2,9 +2,9 @@
 An offline music streaming app.
 
 ## Screenshots
-|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|![Home screen (light)](screenshots/home_screen_light.png)|![Home screen (dark)](screenshots/home_screen_dark.png)|![Now playing](screenshots/now_playing.png)|![Now playing II](screenshots/now_playing_II.png)|![Editing music queue](screenshots/editing_music_queue.png)|![Songs screen](screenshots/songs_screen.png)|![Music item sheet](screenshots/music_item_sheet.png)|
+|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|::::::::::::::::::::::::::::::::::::::::|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|![Splash screen](screenshots/splash_screen.png)|![Home screen](screenshots/home_screen.png)|![Now playing](screenshots/now_playing_I.png)|![Music queue](screenshots/music_queue.png)|![Songs screen](screenshots/songs_screen.png)|![Search screen](screenshots/search_screen.png)|![Song menu sheet](screenshots/song_menu_sheet.png)|![Playlist screen](screenshots/playlist_screen.png)|
 
 ## Features
 * Listen to all songs on your device's local storage
