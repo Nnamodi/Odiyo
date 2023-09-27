@@ -42,9 +42,9 @@ fun NowPlayingPortraitView(
 		verticalArrangement = Arrangement.SpaceBetween
 	) {
 		MediaDescription(
-			uiState = uiState, currentSong = currentSong,
-			componentColor = componentColor, backgroundColor = backgroundColor,
-			portraitView = true, onFavorite = mediaControl, goToCollection = goToCollection
+			currentSong = currentSong, componentColor = componentColor,
+			backgroundColor = backgroundColor, portraitView = true,
+			onFavorite = mediaControl, goToCollection = goToCollection
 		)
 
 		Spacer(Modifier.weight(1f))

@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.screens
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -26,6 +25,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingIconButton
@@ -62,17 +62,18 @@ fun NowPlayingScreen(
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val screenLaunched = remember { mutableStateOf(false) }
-	val generatedColor = nowPlayingBackgroundColor(uiState.artwork)
-	val componentColor = componentColor(generatedColor)
 	val windowSize = rememberWindowSize()
 	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
-	val snackbarHostState = remember { SnackbarHostState() }
-	val snackbarOffset = LocalConfiguration.current.screenHeightDp - 116
-	var songsToAddToPlaylist by remember { mutableStateOf<List<Music>>(emptyList()) }
 	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
 		uiState.musicQueue[uiState.currentSongIndex]
 	} else null
+	val artwork by remember(currentSong) { mutableStateOf(currentSong?.getBitmap(context)) }
+	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val componentColor = componentColor(generatedColor)
+	val snackbarHostState = remember { SnackbarHostState() }
+	val snackbarOffset = LocalConfiguration.current.screenHeightDp - 116
+	var songsToAddToPlaylist by remember { mutableStateOf<List<Music>>(emptyList()) }
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
@@ -130,9 +131,8 @@ fun NowPlayingScreen(
 
 	if (openMoreOptions.value && currentSong != null) {
 		NowPlayingScreenSheet(
-			currentSong = currentSong, artwork = uiState.artwork,
-			scaffoldState = scaffoldState, componentColor = componentColor,
-			containerColor = generatedColor,
+			currentSong = currentSong, scaffoldState = scaffoldState,
+			componentColor = componentColor, containerColor = generatedColor,
 			openBottomSheet = { openMoreOptions.value = it },
 			openAddToPlaylistDialog = { songsToAddToPlaylist = it; openAddToPlaylistDialog.value = true }
 		) {
@@ -165,7 +165,6 @@ fun NowPlayingScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MediaDescription(
-	uiState: NowPlayingUiState,
 	currentSong: Music?,
 	componentColor: Color,
 	backgroundColor: Color,
@@ -179,7 +178,7 @@ fun MediaDescription(
 	val minSize = LocalConfiguration.current.screenHeightDp / 2.3
 	val imageSize = min(minSize, maxSize.toDouble())
 	val context = LocalContext.current
-	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val songIsValid = !(currentSong == null || currentSong.uri == "".toUri())
 	var songIsFavorite by remember { mutableStateOf(false, neverEqualPolicy()) }
 	songIsFavorite = currentSong?.favorite == true
@@ -189,7 +188,7 @@ fun MediaDescription(
 			modifier = Modifier
 				.size(imageSize.dp)
 				.padding(bottom = 10.dp),
-			artwork = uiState.artwork ?: defaultMediaArt
+			artwork = artwork
 		)
 	}
 	Row(

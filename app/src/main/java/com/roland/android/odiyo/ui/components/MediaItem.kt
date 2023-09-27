@@ -11,6 +11,8 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +40,7 @@ fun RecentSongItem(
 	openMenuSheet: () -> Unit
 ) {
 	val context = LocalContext.current
+	val artwork by remember { mutableStateOf(song.getBitmap(context)) }
 	val imageSize = LocalConfiguration.current.screenWidthDp / 2.5
 	val isPlaying = song.uri.toMediaItem == currentMediaItem
 	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
@@ -56,7 +59,7 @@ fun RecentSongItem(
 	) {
 		MediaImage(
 			modifier = Modifier.size(imageSize.dp),
-			artwork = song.getBitmap(context)
+			artwork = artwork
 		)
 		Column(
 			modifier = Modifier
@@ -91,6 +94,7 @@ fun MediaItem(
 	openMenuSheet: (Music) -> Unit
 ) {
 	val context = LocalContext.current
+	val artwork by remember { mutableStateOf(song.getBitmap(context)) }
 	val isPlaying = song.uri.toMediaItem == currentMediaItem
 	val textColor = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 	val itemColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.background
@@ -106,7 +110,7 @@ fun MediaItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = song.getBitmap(context)
+			artwork = artwork
 		)
 		Column(
 			modifier = Modifier.weight(1f),

@@ -146,6 +146,7 @@ fun PlaylistItem(
 	openMenuSheet: (Playlist) -> Unit
 ) {
 	val context = LocalContext.current
+	val artwork by remember { mutableStateOf(playlist.getBitmap(context)) }
 
 	Row(
 		modifier = modifier
@@ -159,7 +160,7 @@ fun PlaylistItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = playlist.getBitmap(context),
+			artwork = artwork,
 			placeholderRes = R.drawable.default_playlist_art
 		)
 		Column(

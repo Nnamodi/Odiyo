@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
@@ -58,6 +59,7 @@ fun BottomAppBar(
 	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
 		uiState.musicQueue[uiState.currentSongIndex]
 	} else null
+	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 
@@ -70,7 +72,7 @@ fun BottomAppBar(
 		exit = ExitTransition.None
 	) {
 		NowPlayingMinimizedView(
-			song = currentSong, artwork = uiState.artwork,
+			song = currentSong, artwork = artwork,
 			isPlaying = uiState.playingState, playPause = playPause,
 			showMusicQueue = { openMusicQueue.value = it },
 			moveToNowPlayingScreen = moveToNowPlayingScreen

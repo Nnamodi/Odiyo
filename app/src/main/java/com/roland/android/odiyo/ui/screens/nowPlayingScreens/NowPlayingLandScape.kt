@@ -11,10 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.Player
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingIconButton
@@ -37,6 +39,8 @@ fun NowPlayingLandscapeView(
 	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
 		uiState.musicQueue[uiState.currentSongIndex]
 	} else null
+	val context = LocalContext.current
+	val artwork by remember(currentSong) { mutableStateOf(currentSong?.getBitmap(context)) }
 	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
 	songIsFavorite = currentSong?.favorite == true
 
@@ -52,7 +56,7 @@ fun NowPlayingLandscapeView(
 				modifier = Modifier
 					.size(imageSize.dp)
 					.padding(end = 14.dp),
-				artwork = uiState.artwork
+				artwork = artwork
 			)
 		}
 
@@ -70,14 +74,14 @@ fun NowPlayingLandscapeView(
 						modifier = Modifier
 							.size(imageSize.dp)
 							.padding(end = 14.dp),
-						artwork = uiState.artwork
+						artwork = artwork
 					)
 				}
 
 				MediaDescription(
-					uiState = uiState, currentSong = currentSong,
-					componentColor = componentColor, backgroundColor = backgroundColor,
-					portraitView = false, onFavorite = mediaControl, goToCollection = goToCollection
+					currentSong = currentSong, componentColor = componentColor,
+					backgroundColor = backgroundColor, portraitView = false,
+					onFavorite = mediaControl, goToCollection = goToCollection
 				)
 			}
 

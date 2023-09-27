@@ -8,6 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,6 +56,7 @@ fun ArtistItem(
 	prepareAndViewSongs: (String) -> Unit,
 ) {
 	val context = LocalContext.current
+	val artwork by remember { mutableStateOf(artist.getBitmap(context)) }
 
 	Row(
 		modifier = Modifier
@@ -65,7 +69,7 @@ fun ArtistItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = artist.getBitmap(context),
+			artwork = artwork,
 			placeholderRes = R.drawable.default_artist_art
 		)
 		Column(

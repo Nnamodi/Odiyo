@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.sheets
 
-import android.graphics.Bitmap
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
@@ -41,7 +40,6 @@ import com.roland.android.odiyo.util.SongDetails
 @Composable
 fun NowPlayingScreenSheet(
 	currentSong: Music,
-	artwork: Bitmap?,
 	scaffoldState: SheetState,
 	componentColor: Color,
 	containerColor: Color,
@@ -133,7 +131,7 @@ fun NowPlayingScreenSheet(
 	}
 
 	if (openDetailsDialog.value) {
-		SongDetailsDialog(currentSong, artwork) { openDetailsDialog.value = it }
+		SongDetailsDialog(currentSong) { openDetailsDialog.value = it }
 	}
 
 	if (openPermissionDialog.value || openWriteSettingsUi.value) {
@@ -171,7 +169,6 @@ fun NowPlayingScreenSheetPreview() {
 			if (openBottomSheet.value) {
 				NowPlayingScreenSheet(
 					currentSong = previewData[5],
-					artwork = null,
 					scaffoldState = sheetState,
 					componentColor = MaterialTheme.colorScheme.onBackground,
 					containerColor = ContainerColor,

@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.states
 
-import android.graphics.Bitmap
 import androidx.media3.common.MediaItem
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
@@ -10,7 +9,6 @@ import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.ui.dialog.SortOptions
 
 data class NowPlayingUiState(
-	val artwork: Bitmap? = null,
 	val currentDuration: String = "00:00",
 	val seekProgress: Float = 0f,
 	val playingState: Boolean = false,

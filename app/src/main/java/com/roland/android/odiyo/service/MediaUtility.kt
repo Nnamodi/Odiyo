@@ -16,7 +16,6 @@ import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerNotificationManager
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
-import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.mediaItemsUiState
 import com.roland.android.odiyo.service.Util.mediaUiState
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
@@ -51,9 +50,6 @@ class PlayerListener(private val context: Context) : Player.Listener {
 		val currentMediaItem = mediaItem ?: NOTHING_PLAYING
 		mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
 		mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
-		val currentMediaArt = mediaItem?.getBitmap(context)
-			?: BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-		nowPlayingUiState.update { it.copy(artwork = currentMediaArt) }
 	}
 
 	override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {

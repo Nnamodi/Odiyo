@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.dialog
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -8,6 +7,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,11 +28,10 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 @Composable
 fun SongDetailsDialog(
 	song: Music,
-	songArtwork: Bitmap? = null,
 	openDialog: (Boolean) -> Unit
 ) {
 	val context = LocalContext.current
-	val artwork = songArtwork ?: song.getBitmap(context)
+	val artwork by remember(song.id) { mutableStateOf(song.getBitmap(context)) }
 	val size = if (song.uri.toString().isEmpty()) "--" else song.size()
 	val dateAdded = if (song.uri.toString().isEmpty()) "--" else song.dateAdded()
 
@@ -71,10 +72,7 @@ fun SongDetailsDialog(
 fun SongDetailsDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
-			SongDetailsDialog(
-				openDialog = {},
-				song = previewData[4]
-			)
+			SongDetailsDialog(previewData[4]) {}
 		}
 	}
 }
