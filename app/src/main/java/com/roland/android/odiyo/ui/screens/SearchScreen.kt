@@ -1,6 +1,7 @@
 package com.roland.android.odiyo.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,11 +24,14 @@ import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.components.*
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
+import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.SongDetails
 
@@ -49,6 +53,9 @@ fun SearchScreen(
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openDeleteDialog = remember { mutableStateOf(false) }
 	val openSortDialog = remember { mutableStateOf(false) }
+	val openPermissionDialog = remember { mutableStateOf(false) }
+	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
+	var permission by remember { mutableStateOf("") }
 	var songClicked by remember { mutableStateOf<Music?>(null) }
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -56,7 +63,15 @@ fun SearchScreen(
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
+	val requestPermissionLauncher = rememberPermissionLauncher(
+		onResult = { writeStoragePermissionGranted.value = it }
+	)
 	closeSelectionMode(!inSelectMode); onSearch(null)
+
+	context.writeStoragePermission({ permission = it }) { isGranted ->
+		writeStoragePermissionGranted.value = isGranted
+		Log.d("PermissionInfo", "Storage write permission granted: $isGranted")
+	}
 
 	Scaffold(
 		topBar = {
@@ -72,7 +87,10 @@ fun SearchScreen(
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.Delete -> openDeleteDialog.value = true
+					SelectionModeItems.Delete -> {
+						openPermissionDialog.value = !writeStoragePermissionGranted.value
+						openDeleteDialog.value = writeStoragePermissionGranted.value
+					}
 				}
 				showSnackbar(it, context, scope, snackbarHostState)
 			}
@@ -204,6 +222,14 @@ fun SearchScreen(
 				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
 			) { openSortDialog.value = it }
+		}
+
+		if (openPermissionDialog.value) {
+			PermissionDialog(
+				permissionMessage = stringResource(R.string.write_storage_permission_message),
+				requestPermission = { requestPermissionLauncher.launch(permission) },
+				openDialog = { openPermissionDialog.value = it }
+			)
 		}
 	}
 

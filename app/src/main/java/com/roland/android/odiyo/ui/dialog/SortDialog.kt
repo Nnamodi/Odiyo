@@ -10,8 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -73,7 +75,7 @@ fun SortOption(
 				.weight(1f)
 				.padding(vertical = 2.dp),
 			color = color,
-			style = MaterialTheme.typography.titleMedium
+			style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp, fontWeight = FontWeight.Normal)
 		)
 		if (selected) {
 			Icon(
