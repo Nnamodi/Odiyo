@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.screens
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -179,6 +180,7 @@ fun MediaDescription(
 	val imageSize = min(minSize, maxSize.toDouble())
 	val context = LocalContext.current
 	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
+	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 	val songIsValid = !(currentSong == null || currentSong.uri == "".toUri())
 	var songIsFavorite by remember { mutableStateOf(false, neverEqualPolicy()) }
 	songIsFavorite = currentSong?.favorite == true
@@ -188,7 +190,7 @@ fun MediaDescription(
 			modifier = Modifier
 				.size(imageSize.dp)
 				.padding(bottom = 10.dp),
-			artwork = artwork
+			artwork = artwork ?: defaultMediaArt
 		)
 	}
 	Row(

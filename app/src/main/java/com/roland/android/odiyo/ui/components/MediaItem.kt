@@ -30,7 +30,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
 
-@kotlin.OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecentSongItem(
 	itemIndex: Int,
@@ -169,7 +169,7 @@ fun CheckIcon(selected: Boolean) {
 	)
 }
 
-@kotlin.OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.selectSemantics(
 	inSelectionMode: Boolean,
 	selected: Boolean,

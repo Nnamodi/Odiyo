@@ -3,10 +3,23 @@ package com.roland.android.odiyo.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.AddToQueue
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.PlaylistAdd
+import androidx.compose.material.icons.rounded.Queue
+import androidx.compose.material.icons.rounded.RemoveCircle
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults.containerColor
@@ -46,11 +59,12 @@ fun SelectionModeBottomBar(
 			horizontalArrangement = Arrangement.SpaceAround
 		) {
 			items.forEach { item ->
+				val icon = if (item == Delete && collectionIsPlaylist) Icons.Rounded.RemoveCircle else item.icon
 				val title = if (item == Delete && collectionIsPlaylist) R.string.remove else item.titleRes
 
 				SelectionItems(
 					nameRes = title,
-					icon = item.icon,
+					icon = icon,
 					onClick = { onClick(item) }
 				)
 			}

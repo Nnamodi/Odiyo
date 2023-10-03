@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,6 +28,8 @@ import com.roland.android.odiyo.ui.components.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddSongsScreen(
@@ -32,6 +39,8 @@ fun AddSongsScreen(
 ) {
 	val (_, playlistToAddTo, _, _, _, songs, _, playlists) = uiState
 	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
+	val addingSongs = remember { mutableStateOf(false) }
+	val scope = rememberCoroutineScope()
 	closeSelectionMode(false)
 
 	Scaffold(
@@ -40,12 +49,16 @@ fun AddSongsScreen(
 				numOfSelectedSongs = selectedSongsId.value.size,
 				showAddButton = true,
 				addSongs = {
-					menuAction(
-						MediaMenuActions.AddToPlaylist(
-							songs = selectedSongs(selectedSongsId.value, songs),
-							playlist = getPlaylist(playlistToAddTo, playlists)
-						)
-					); closeSelectionMode(true)
+					scope.launch {
+						addingSongs.value = true
+						delay(1000)
+						menuAction(
+							MediaMenuActions.AddToPlaylist(
+								songs = selectedSongs(selectedSongsId.value, songs),
+								playlist = getPlaylist(playlistToAddTo, playlists)
+							)
+						); closeSelectionMode(true)
+					}
 				}
 			) { closeSelectionMode(true) }
 		}
@@ -74,6 +87,10 @@ fun AddSongsScreen(
 				}
 			}
 		}
+	}
+
+	if (addingSongs.value) {
+		LoadingUi(loadingText = R.string.setting_up_playlist)
 	}
 
 	BackHandler { closeSelectionMode(true) }

@@ -123,12 +123,13 @@ fun MediaItemSheet(
 						openDeleteDialog.value = writeStoragePermissionGranted.value
 					}
 				} }
+				val icon = if (menu == Delete && collectionIsPlaylist) Icons.Rounded.RemoveCircle else menu.icon
 				val text = when (menu) {
 					AddToFavorite -> if (song.favorite) R.string.remove_from_favorite else menu.menuText
 					Delete -> if (collectionIsPlaylist) R.string.remove else menu.menuText
 					else -> { menu.menuText }
 				}
-				SheetItem(menu.icon, stringResource(text)) { action() }
+				SheetItem(icon, stringResource(text)) { action() }
 			}
 		}
 	}
