@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.PlaylistViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppRoute(
@@ -70,7 +72,8 @@ fun AppRoute(
 					menuAction = { mediaViewModel.menuAction(context, it) },
 					navigateToMediaScreen = navActions::navigateToMediaScreen,
 					navigateToMediaItemScreen = navActions::navigateToMediaItemScreen,
-					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen
+					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen,
+					navigateToSettingsScreen = navActions::navigateToSettingsScreen
 				)
 			}
 			composableI(AppRoute.MediaScreen.route) {
@@ -88,6 +91,11 @@ fun AppRoute(
 					playlists = mediaViewModel.mediaScreenUiState.playlists,
 					playlistAction = playlistViewModel::playlistActions,
 					prepareAndViewSongs = navActions::navigateToMediaItemScreen,
+					navigateUp = navController::navigateUp
+				)
+			}
+			composableI(AppRoute.SettingsScreen.route) {
+				SettingsScreen(
 					navigateUp = navController::navigateUp
 				)
 			}

@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun MainAppBar() {
+fun MainAppBar(navigateToSettings: () -> Unit) {
 	TopAppBar(
 		title = {
 			Text(
@@ -41,27 +41,42 @@ fun MainAppBar() {
 				fontStyle = FontStyle.Italic,
 				fontWeight = FontWeight.Bold
 			)
+		},
+		actions = {
+			IconButton(onClick = navigateToSettings) {
+				Icon(
+					imageVector = Icons.Rounded.Settings,
+					contentDescription = stringResource(id = R.string.settings),
+					tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
+				)
+			}
 		}
 	)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun AppBar(navigateUp: () -> Unit, navigateToSearch: () -> Unit) {
+fun AppBar(
+	navigateUp: () -> Unit,
+	navigateToSearch: () -> Unit = {},
+	title: String? = null
+) {
 	TopAppBar(
-		title = {},
+		title = { title?.let { Text(it) } },
 		navigationIcon = {
 			IconButton(onClick = navigateUp) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
 		},
 		actions = {
-			IconButton(onClick = navigateToSearch) {
-				Icon(
-					imageVector = Icons.Rounded.Search,
-					contentDescription = stringResource(R.string.search_icon_desc),
-					tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
-				)
+			if (title == null) {
+				IconButton(onClick = navigateToSearch) {
+					Icon(
+						imageVector = Icons.Rounded.Search,
+						contentDescription = stringResource(R.string.search_icon_desc),
+						tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f)
+					)
+				}
 			}
 		}
 	)
@@ -212,7 +227,7 @@ fun SearchBar(
 	val (_, _, _, searchQuery, history, searchResult, allSongs) = uiState
 	var active by rememberSaveable { mutableStateOf(false) }
 	var query by rememberSaveable { mutableStateOf(searchQuery) }
-	val paddingValue by animateDpAsState(if (active) 0.dp else 10.dp)
+	val paddingValue by animateDpAsState(if (active) 0.dp else 10.dp, label = "padding value")
 	val scope = rememberCoroutineScope()
 	val search: (String) -> Job = {
 		scope.launch {

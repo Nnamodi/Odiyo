@@ -20,6 +20,9 @@ class NavActions(
 	fun navigateToNowPlayingScreen() {
 		navController.navigate(AppRoute.NowPlayingScreen.route)
 	}
+	fun navigateToSettingsScreen() {
+		navController.navigate(AppRoute.SettingsScreen.route)
+	}
 	fun navigateToSearch() {
 		navController.navigate(AppRoute.SearchScreen.route)
 	}
@@ -41,7 +44,8 @@ class NavActions(
 fun concealMinimizedView(navController: NavHostController): Boolean {
 	val navBackStackEntry = navController.currentBackStackEntryAsState()
 	val currentDestination = navBackStackEntry.value?.destination?.route
-	return currentDestination == AppRoute.NowPlayingScreen.route
+	val certainDestinations = setOf(AppRoute.NowPlayingScreen.route, AppRoute.SettingsScreen.route)
+	return certainDestinations.any { currentDestination == it }
 }
 
 sealed class AppRoute(val route: String) {
@@ -49,6 +53,7 @@ sealed class AppRoute(val route: String) {
 	object MediaScreen: AppRoute("media_screen")
 	object PlaylistsScreen: AppRoute("playlists_screen")
 	object NowPlayingScreen: AppRoute("now_playing_screen")
+	object SettingsScreen: AppRoute("settings_screen")
 	object SearchScreen: AppRoute("search_screen")
 	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
 		fun routeWithName(collectionName: String, collectionType: String) =

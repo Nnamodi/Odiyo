@@ -48,7 +48,8 @@ fun LibraryScreen(
 	menuAction: (MediaMenuActions) -> Unit,
 	navigateToMediaScreen: () -> Unit,
 	navigateToMediaItemScreen: (String, String) -> Unit,
-	navigateToPlaylistsScreen: () -> Unit
+	navigateToPlaylistsScreen: () -> Unit,
+	navigateToSettingsScreen: () -> Unit
 ) {
 	val (currentMediaItem, _, _, recentSongs, playlists) = uiState
 	val openMenuSheet = remember { mutableStateOf(false) }
@@ -60,7 +61,7 @@ fun LibraryScreen(
 	val scope = rememberCoroutineScope()
 
 	Scaffold(
-		topBar = { MainAppBar() },
+		topBar = { MainAppBar(navigateToSettingsScreen) },
 		snackbarHost = {
 			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-80).dp)) {
 				Snackbar(Modifier.padding(horizontal = 16.dp)) {
@@ -179,7 +180,8 @@ fun LibraryScreenPreview() {
 			playSong = { _, _ -> },
 			menuAction = {},
 			navigateToMediaScreen = {},
-			navigateToMediaItemScreen = { _, _ -> }
+			navigateToMediaItemScreen = { _, _ -> },
+			navigateToPlaylistsScreen = {}
 		) {}
 	}
 }
