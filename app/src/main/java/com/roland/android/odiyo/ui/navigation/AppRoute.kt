@@ -2,6 +2,7 @@ package com.roland.android.odiyo.ui.navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import com.roland.android.odiyo.ui.screens.*
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
 import com.roland.android.odiyo.viewmodel.PlaylistViewModel
+import com.roland.android.odiyo.viewmodel.SettingsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
@@ -28,7 +30,8 @@ fun AppRoute(
 	navController: NavHostController,
 	mediaViewModel: MediaViewModel,
 	nowPlayingViewModel: NowPlayingViewModel,
-	playlistViewModel: PlaylistViewModel
+	playlistViewModel: PlaylistViewModel,
+	settingsViewModel: SettingsViewModel
 ) {
 	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
@@ -96,6 +99,8 @@ fun AppRoute(
 			}
 			composableI(AppRoute.SettingsScreen.route) {
 				SettingsScreen(
+					uiState = settingsViewModel.settingsScreenUiState,
+					settingsAction = settingsViewModel::settingsAction,
 					navigateUp = navController::navigateUp
 				)
 			}
@@ -155,6 +160,7 @@ fun AppRoute(
 			composableII(AppRoute.NowPlayingScreen.route) {
 				NowPlayingScreen(
 					uiState = nowPlayingViewModel.nowPlayingScreenUiState,
+					isDarkTheme = settingsViewModel.isDarkTheme ?: isSystemInDarkTheme(),
 					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
 					menuAction = { mediaViewModel.menuAction(context, it) },
 					queueAction = nowPlayingViewModel::queueAction,

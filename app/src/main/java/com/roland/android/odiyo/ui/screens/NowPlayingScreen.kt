@@ -52,6 +52,7 @@ import kotlin.math.min
 @Composable
 fun NowPlayingScreen(
 	uiState: NowPlayingUiState,
+	isDarkTheme: Boolean,
 	mediaControl: (MediaControls) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
@@ -142,7 +143,7 @@ fun NowPlayingScreen(
 	}
 
 	val systemUiController = rememberSystemUiController()
-	val useDarkIcons = !isSystemInDarkTheme()
+	val useDarkIcons = !isDarkTheme
 
 	DisposableEffect(systemUiController, useDarkIcons, generatedColor) {
 		val isLight = generatedColor.luminance() > 0.1
@@ -354,6 +355,7 @@ private fun NowPlayingPreview() {
 
 		NowPlayingScreen(
 			uiState = uiState,
+			isDarkTheme = false,
 			mediaControl = {
 				when (it) {
 					MediaControls.Mute -> uiState = uiState.copy(deviceMuted = !uiState.deviceMuted)

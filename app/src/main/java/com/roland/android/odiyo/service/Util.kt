@@ -22,11 +22,12 @@ import com.roland.android.odiyo.service.Constants.MB_FORMAT
 import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.states.NowPlayingUiState
+import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 object Util {
 	lateinit var notificationManager: OdiyoNotificationManager
@@ -38,6 +39,8 @@ object Util {
 	val mediaItemsUiState = MutableStateFlow(MediaItemsUiState())
 
 	val nowPlayingUiState = MutableStateFlow(NowPlayingUiState())
+
+	val settingsUiState = MutableStateFlow(SettingsUiState())
 
 	val nowPlayingMetadata = MutableStateFlow<MediaMetadata?>(null)
 

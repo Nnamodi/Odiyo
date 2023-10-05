@@ -40,11 +40,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.dialog.ThemeDialog
+import com.roland.android.odiyo.ui.dialog.Themes
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.SettingsActions
 
 @Composable
-fun SettingsScreen(navigateUp: () -> Unit) {
+fun SettingsScreen(
+	uiState: SettingsUiState,
+	settingsAction: (SettingsActions) -> Unit,
+	navigateUp: () -> Unit
+) {
+	val openThemeDialog = remember { mutableStateOf(false) }
+
 	Scaffold(
 		topBar = {
 			AppBar(navigateUp = navigateUp, title = stringResource(R.string.settings))
@@ -63,11 +73,18 @@ fun SettingsScreen(navigateUp: () -> Unit) {
 			Container(displayCategory[0].category) {
 				displayCategory.forEach {
 					val optionIsTheme = it.name == OptionsMenu.Theme.name
+					val subTitle = when {
+						optionIsTheme && uiState.theme == Themes.System -> R.string.system
+						optionIsTheme && uiState.theme == Themes.Dark -> R.string.dark_theme
+						optionIsTheme && uiState.theme == Themes.Light -> R.string.light_theme
+						else -> null
+					}
+					val action = { openThemeDialog.value = true }
 					SettingsOption(
 						icon = it.icon, option = it.option,
-						subTitle = if (optionIsTheme) R.string.light_theme else null,
+						subTitle = subTitle,
 						subvertIcon = optionIsTheme
-					) {}
+					) { action() }
 				}
 			}
 			Container(searchHistoryCategory[0].category) {
@@ -96,6 +113,14 @@ fun SettingsScreen(navigateUp: () -> Unit) {
 			}
 			Spacer(Modifier.height(100.dp))
 		}
+	}
+
+	if (openThemeDialog.value) {
+		ThemeDialog(
+			selectedTheme = uiState.theme,
+			onThemeChanged = { settingsAction(SettingsActions.SetTheme(it)) },
+			closeDialog = { openThemeDialog.value = false }
+		)
 	}
 }
 
@@ -138,7 +163,10 @@ private fun SettingsOption(
 }
 
 @Composable
-private fun Container(@StringRes category: Int, content: @Composable () -> Unit) {
+private fun Container(
+	@StringRes category: Int,
+	content: @Composable () -> Unit
+) {
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -185,6 +213,6 @@ private enum class OptionsMenu(
 @Composable
 private fun SettingsScreenPreview() {
 	OdiyoTheme {
-		SettingsScreen {}
+		SettingsScreen(uiState = SettingsUiState(), settingsAction = {}) {}
 	}
 }

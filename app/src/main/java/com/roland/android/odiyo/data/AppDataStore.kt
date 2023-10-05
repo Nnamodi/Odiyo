@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.media3.common.Player
 import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.odiyo.ui.dialog.Themes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -17,6 +18,7 @@ private val SHUFFLE_STATE = booleanPreferencesKey("shuffle_state")
 private val SEARCH_HISTORY = stringPreferencesKey("search_history")
 private val RANDOM_SEED = intPreferencesKey("random_seed")
 private val REPEAT_MODE = intPreferencesKey("repeat_mode")
+private val THEMES = stringPreferencesKey("themes")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	suspend fun savePermissionStatus(permanentlyDenied: Boolean) {
@@ -104,6 +106,20 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	fun getRepeatMode(): Flow<Int> {
 		return dataStore.data.map { preference ->
 			preference[REPEAT_MODE] ?: Player.REPEAT_MODE_OFF
+		}
+	}
+
+	suspend fun saveTheme(selectedTheme: Themes) {
+		dataStore.edit { preference ->
+			preference[THEMES] = selectedTheme.name
+		}
+	}
+
+	fun getTheme(): Flow<Themes> {
+		return dataStore.data.map { preference ->
+			Themes.valueOf(
+				value = preference[THEMES] ?: Themes.System.name
+			)
 		}
 	}
 }

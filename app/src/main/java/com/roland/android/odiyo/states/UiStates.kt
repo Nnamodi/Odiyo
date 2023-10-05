@@ -7,6 +7,7 @@ import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
 import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.odiyo.ui.dialog.Themes
 
 data class NowPlayingUiState(
 	val currentDuration: String = "00:00",
@@ -42,4 +43,8 @@ data class MediaItemsUiState(
 	val playlists: List<Playlist> = emptyList(),
 	val sortOption: SortOptions = SortOptions.NameAZ,
 	val isLoading: Boolean = false
+)
+
+data class SettingsUiState(
+	val theme: Themes = Themes.System
 )

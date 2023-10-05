@@ -31,10 +31,7 @@ fun SetRingtoneDialog(
 		text = {
 			Column {
 				RingtoneOptions.values().forEach { option ->
-					SortOption(
-						option = stringResource(option.title),
-						selected = false
-					) {
+					Option(stringResource(option.title)) {
 						onRingtoneSet(MediaMenuActions.SetAsRingtone(song, option.ringType))
 						openDialog(false)
 					}

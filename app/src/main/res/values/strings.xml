@@ -114,6 +114,9 @@
     <string name="search_history_category">Search history</string>
     <string name="preferences_category">Preferences</string>
     <string name="about_us_category">About us</string>
+    <string name="choose_theme">Choose theme</string>
+    <string name="system">System</string>
+    <string name="dark_theme">Dark</string>
     <string name="light_theme">Light</string>
     <string name="always_ask">Always ask</string>
     <string name="english">English</string>

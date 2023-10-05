@@ -44,6 +44,7 @@ import com.roland.android.odiyo.util.Permissions.readStoragePermission
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
 import com.roland.android.odiyo.viewmodel.MediaViewModel
+import com.roland.android.odiyo.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -69,9 +70,11 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			val mediaViewModel: MediaViewModel = hiltViewModel()
+			val settingsViewModel: SettingsViewModel = hiltViewModel()
 			val navController = rememberAnimatedNavController()
 			val openPermissionDialog = remember { mutableStateOf(!mediaViewModel.canAccessStorage) }
 			var permission by remember { mutableStateOf("") }
+			val isDarkTheme = settingsViewModel.isDarkTheme ?: isSystemInDarkTheme()
 			val navActions = NavActions(
 				navController = navController,
 				storagePermissionGranted = mediaViewModel.canAccessStorage,
@@ -91,7 +94,7 @@ class MainActivity : ComponentActivity() {
 				Log.d("PermissionInfo", "Storage permission granted: $isGranted")
 			}
 
-			OdiyoTheme(false) {
+			OdiyoTheme(isDarkTheme) {
 				Surface(
 					modifier = Modifier.fillMaxSize(),
 					color = MaterialTheme.colorScheme.background
@@ -99,7 +102,8 @@ class MainActivity : ComponentActivity() {
 					AppRoute(
 						navActions, navController, mediaViewModel,
 						nowPlayingViewModel = hiltViewModel(),
-						playlistViewModel = hiltViewModel()
+						playlistViewModel = hiltViewModel(),
+						settingsViewModel = settingsViewModel
 					)
 
 					if (openPermissionDialog.value) {
@@ -131,12 +135,11 @@ class MainActivity : ComponentActivity() {
 				}
 
 				val systemUiController = rememberSystemUiController()
-				val useDarkIcons = !isSystemInDarkTheme()
 
 				SideEffect {
 					systemUiController.setSystemBarsColor(
 						color = Color.Transparent,
-						darkIcons = useDarkIcons
+						darkIcons = !isDarkTheme
 					)
 				}
 			}
