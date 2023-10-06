@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.Coffee
 import androidx.compose.material.icons.rounded.ContactMail
 import androidx.compose.material.icons.rounded.ContactSupport
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.ManageHistory
 import androidx.compose.material.icons.rounded.MusicNote
@@ -81,15 +83,30 @@ fun SettingsScreen(
 					}
 					val action = { openThemeDialog.value = true }
 					SettingsOption(
-						icon = it.icon, option = it.option,
+						leadingIcon = it.icon, option = it.option,
 						subTitle = subTitle,
 						subvertIcon = optionIsTheme
 					) { action() }
 				}
 			}
 			Container(searchHistoryCategory[0].category) {
-				searchHistoryCategory.forEach {
-					SettingsOption(icon = it.icon, option = it.option) {}
+				searchHistoryCategory.forEach { menu ->
+					val trailingIcon = if (menu == OptionsMenu.SaveSearchHistory) {
+						if (uiState.shouldSaveSearchHistory) Icons.Rounded.Done else Icons.Rounded.Clear
+					} else null
+					val action = {
+						when (menu) {
+							OptionsMenu.SaveSearchHistory -> SettingsActions.SaveSearchHistory
+							else -> null
+						}
+					}
+					SettingsOption(
+						leadingIcon = menu.icon,
+						trailingIcon = trailingIcon,
+						option = menu.option
+					) {
+						action()?.let { settingsAction(it) }
+					}
 				}
 			}
 			Container(preferencesCategory[0].category) {
@@ -100,7 +117,7 @@ fun SettingsScreen(
 						else -> null
 					}
 					SettingsOption(
-						icon = it.icon,
+						leadingIcon = it.icon,
 						option = it.option,
 						subTitle = subTitle
 					) {}
@@ -108,7 +125,7 @@ fun SettingsScreen(
 			}
 			Container(aboutUsCategory[0].category) {
 				aboutUsCategory.forEach {
-					SettingsOption(icon = it.icon, option = it.option) {}
+					SettingsOption(leadingIcon = it.icon, option = it.option) {}
 				}
 			}
 			Spacer(Modifier.height(100.dp))
@@ -127,7 +144,8 @@ fun SettingsScreen(
 @Composable
 private fun SettingsOption(
 	modifier: Modifier = Modifier,
-	icon: ImageVector,
+	leadingIcon: ImageVector,
+	trailingIcon: ImageVector? = null,
 	@StringRes option: Int,
 	@StringRes subTitle: Int? = null,
 	subvertIcon: Boolean = false,
@@ -146,7 +164,7 @@ private fun SettingsOption(
 			modifier = Modifier
 				.padding(start = 14.dp, end = 20.dp)
 				.then(if (subvertIcon) Modifier.rotate(180f) else Modifier),
-			imageVector = icon, contentDescription = null
+			imageVector = leadingIcon, contentDescription = null
 		)
 		Column {
 			Text(text = stringResource(option), fontSize = 20.sp)
@@ -159,6 +177,13 @@ private fun SettingsOption(
 			}
 		}
 		Spacer(Modifier.weight(1f))
+		trailingIcon?.let { icon ->
+			val description = if (icon == Icons.Rounded.Done) R.string.history_is_being_saved else R.string.history_is_not_saved
+			Icon(
+				modifier = Modifier.padding(horizontal = 14.dp),
+				imageVector = icon, contentDescription = stringResource(description)
+			)
+		}
 	}
 }
 

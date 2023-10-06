@@ -46,5 +46,6 @@ data class MediaItemsUiState(
 )
 
 data class SettingsUiState(
-	val theme: Themes = Themes.System
+	val theme: Themes = Themes.System,
+	val shouldSaveSearchHistory: Boolean = true
 )

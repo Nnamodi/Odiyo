@@ -37,6 +37,11 @@ class SettingsViewModel @Inject constructor(
 			}
 		}
 		viewModelScope.launch {
+			appDataStore.getShouldSaveSearchHistory().collectLatest { value ->
+				settingsUiState.update { it.copy(shouldSaveSearchHistory = value) }
+			}
+		}
+		viewModelScope.launch {
 			settingsUiState.collectLatest {
 				settingsScreenUiState = it
 			}
@@ -46,6 +51,14 @@ class SettingsViewModel @Inject constructor(
 	fun settingsAction(action: SettingsActions) {
 		when (action) {
 			is SettingsActions.SetTheme -> saveTheme(action.selectedTheme)
+			SettingsActions.SaveSearchHistory -> shouldSaveSearchHistory()
+		}
+	}
+
+	private fun shouldSaveSearchHistory() {
+		viewModelScope.launch(Dispatchers.IO) {
+			val shouldSave = settingsScreenUiState.shouldSaveSearchHistory
+			appDataStore.setShouldSaveSearchHistory(!shouldSave)
 		}
 	}
 

@@ -16,9 +16,15 @@ import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaItemsUiState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.mediaUiState
+import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.dialog.SortOptions
-import com.roland.android.odiyo.ui.navigation.*
+import com.roland.android.odiyo.ui.navigation.ADD_TO_PLAYLIST
+import com.roland.android.odiyo.ui.navigation.ALBUMS
+import com.roland.android.odiyo.ui.navigation.ARTISTS
+import com.roland.android.odiyo.ui.navigation.FAVORITES
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.util.AudioIntentActions
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
@@ -203,7 +209,9 @@ class MediaViewModel @Inject constructor(
 			mediaItemsUiState.update { it.copy(isLoading = queryEntered && newQueryEntered) }
 			query?.let {
 				mediaItemsUiState.update { it.copy(songs = emptyList(), searchQuery = query) }
-				if (query.isNotEmpty()) saveSearchHistory(query)
+				if (query.isNotEmpty() && settingsUiState.value.shouldSaveSearchHistory) {
+					saveSearchHistory(query)
+				}
 			}
 			songsFromSearch(newQueryEntered)
 		}
