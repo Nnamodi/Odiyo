@@ -286,13 +286,15 @@ fun SearchBar(
 				.verticalScroll(rememberScrollState())
 		) {
 			searchHistory.forEach {
-				ListItem(
-					headlineContent = { Text(it) },
-					modifier = Modifier
-						.fillMaxWidth()
-						.clickable { search(it) },
-					leadingContent = { Icon(Icons.Rounded.History, null) }
-				)
+				if (it.isNotBlank()) {
+					ListItem(
+						headlineContent = { Text(it) },
+						modifier = Modifier
+							.fillMaxWidth()
+							.clickable { search(it) },
+						leadingContent = { Icon(Icons.Rounded.History, null) }
+					)
+				}
 			}
 			if (query.isNotEmpty()) {
 				suggestions.take(15).forEach {

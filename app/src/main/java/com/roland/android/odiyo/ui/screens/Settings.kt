@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.screens
 
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,17 +27,22 @@ import androidx.compose.material.icons.rounded.WbIncandescent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,10 +50,12 @@ import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
 import com.roland.android.odiyo.ui.dialog.Themes
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.SettingsActions
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
@@ -55,11 +63,22 @@ fun SettingsScreen(
 	settingsAction: (SettingsActions) -> Unit,
 	navigateUp: () -> Unit
 ) {
+	val context = LocalContext.current
+	val snackbarHostState = remember { SnackbarHostState() }
+	val scope = rememberCoroutineScope()
 	val openThemeDialog = remember { mutableStateOf(false) }
+	val openClearHistoryDialog = remember { mutableStateOf(false) }
 
 	Scaffold(
 		topBar = {
 			AppBar(navigateUp = navigateUp, title = stringResource(R.string.settings))
+		},
+		snackbarHost = {
+			SnackbarHost(snackbarHostState) {
+				Snackbar(Modifier.padding(16.dp)) {
+					Text(it.visuals.message)
+				}
+			}
 		}
 	) { paddingValues ->
 		Column(
@@ -83,9 +102,10 @@ fun SettingsScreen(
 					}
 					val action = { openThemeDialog.value = true }
 					SettingsOption(
-						leadingIcon = it.icon, option = it.option,
+						leadingIcon = it.icon,
+						option = it.option,
 						subTitle = subTitle,
-						subvertIcon = optionIsTheme
+						invertIcon = optionIsTheme
 					) { action() }
 				}
 			}
@@ -94,9 +114,11 @@ fun SettingsScreen(
 					val trailingIcon = if (menu == OptionsMenu.SaveSearchHistory) {
 						if (uiState.shouldSaveSearchHistory) Icons.Rounded.Done else Icons.Rounded.Clear
 					} else null
+					val noHistoryToast = Toast.makeText(context, R.string.no_history, Toast.LENGTH_SHORT)
 					val action = {
 						when (menu) {
-							OptionsMenu.SaveSearchHistory -> SettingsActions.SaveSearchHistory
+							OptionsMenu.SaveSearchHistory -> settingsAction(SettingsActions.SaveSearchHistory)
+							OptionsMenu.ClearSearchHistory -> if (uiState.searchHistoryEmpty) noHistoryToast.show() else openClearHistoryDialog.value = true
 							else -> null
 						}
 					}
@@ -104,9 +126,7 @@ fun SettingsScreen(
 						leadingIcon = menu.icon,
 						trailingIcon = trailingIcon,
 						option = menu.option
-					) {
-						action()?.let { settingsAction(it) }
-					}
+					) { action() }
 				}
 			}
 			Container(preferencesCategory[0].category) {
@@ -139,6 +159,21 @@ fun SettingsScreen(
 			closeDialog = { openThemeDialog.value = false }
 		)
 	}
+
+	if (openClearHistoryDialog.value) {
+		DeleteDialog(
+			title = R.string.clear_history,
+			text = R.string.clear_history_text,
+			deleteText = R.string.clear_all,
+			delete = {
+				settingsAction(SettingsActions.ClearSearchHistory)
+				scope.launch {
+					snackbarHostState.showSnackbar(context.getString(R.string.history_cleared))
+				}
+			},
+			openDialog = { openClearHistoryDialog.value = it }
+		)
+	}
 }
 
 @Composable
@@ -148,7 +183,7 @@ private fun SettingsOption(
 	trailingIcon: ImageVector? = null,
 	@StringRes option: Int,
 	@StringRes subTitle: Int? = null,
-	subvertIcon: Boolean = false,
+	invertIcon: Boolean = false,
 	action: () -> Unit
 ) {
 	Row(
@@ -163,7 +198,7 @@ private fun SettingsOption(
 		Icon(
 			modifier = Modifier
 				.padding(start = 14.dp, end = 20.dp)
-				.then(if (subvertIcon) Modifier.rotate(180f) else Modifier),
+				.then(if (invertIcon) Modifier.rotate(180f) else Modifier),
 			imageVector = leadingIcon, contentDescription = null
 		)
 		Column {

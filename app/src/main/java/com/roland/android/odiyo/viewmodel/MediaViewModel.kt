@@ -57,6 +57,8 @@ class MediaViewModel @Inject constructor(
 		viewModelScope.launch {
 			appDataStore.getSearchHistory().collect { history ->
 				mediaItemsUiState.update { it.copy(searchHistory = history.asReversed()) }
+				val historyIsEmpty = history[0].isBlank() && history.size < 2
+				settingsUiState.update { it.copy(searchHistoryEmpty = historyIsEmpty) }
 			}
 		}
 	}

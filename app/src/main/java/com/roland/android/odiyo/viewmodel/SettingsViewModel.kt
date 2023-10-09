@@ -52,6 +52,7 @@ class SettingsViewModel @Inject constructor(
 		when (action) {
 			is SettingsActions.SetTheme -> saveTheme(action.selectedTheme)
 			SettingsActions.SaveSearchHistory -> shouldSaveSearchHistory()
+			SettingsActions.ClearSearchHistory -> clearSearchHistory()
 		}
 	}
 
@@ -65,6 +66,12 @@ class SettingsViewModel @Inject constructor(
 	private fun saveTheme(selectedTheme: Themes) {
 		viewModelScope.launch(Dispatchers.IO) {
 			appDataStore.saveTheme(selectedTheme)
+		}
+	}
+
+	private fun clearSearchHistory() {
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveSearchHistory(history = null, clearHistory = true)
 		}
 	}
 }

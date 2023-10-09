@@ -92,9 +92,13 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 		}
 	}
 
-	suspend fun saveSearchHistory(history: List<String>) {
+	suspend fun saveSearchHistory(
+		history: List<String>?,
+		clearHistory: Boolean = false
+	) {
 		dataStore.edit { preference ->
-			preference[SEARCH_HISTORY] = history.toSet().joinToString(LIST_SEPARATOR)
+			val updatedHistory = (history ?: emptyList()).toSet().joinToString(LIST_SEPARATOR)
+			preference[SEARCH_HISTORY] = if (clearHistory) "" else updatedHistory
 		}
 	}
 

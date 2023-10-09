@@ -122,6 +122,10 @@
     <string name="english">English</string>
     <string name="history_is_being_saved">Search history is being saved</string>
     <string name="history_is_not_saved">Search history is not being saved</string>
+    <string name="clear_history_text">Are you sure you want to clear all search history?</string>
+    <string name="clear_all">Clear all</string>
+    <string name="no_history">No search history to clear</string>
+    <string name="history_cleared">Search history cleared</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
