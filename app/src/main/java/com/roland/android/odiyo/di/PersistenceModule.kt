@@ -9,6 +9,7 @@ import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.database.AppDatabase
 import com.roland.android.odiyo.database.MusicDao
 import com.roland.android.odiyo.database.PlaylistDao
+import com.roland.android.odiyo.util.Haptic
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,4 +43,8 @@ object PersistenceModule {
 	@Provides
 	@Singleton
 	fun provideAppDataStore(@ApplicationContext context: Context) = AppDataStore(context.datastore)
+
+	@Provides
+	@Singleton
+	fun provideHaptic(@ApplicationContext context: Context) = Haptic(context)
 }

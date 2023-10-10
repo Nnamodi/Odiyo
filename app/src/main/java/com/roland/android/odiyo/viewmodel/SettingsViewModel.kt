@@ -9,6 +9,7 @@ import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.dialog.Themes
+import com.roland.android.odiyo.util.Haptic
 import com.roland.android.odiyo.util.SettingsActions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-	private val appDataStore: AppDataStore
+	private val appDataStore: AppDataStore,
+	private val haptic: Haptic
 ) : ViewModel() {
 	var isDarkTheme by mutableStateOf<Boolean?>(null)
 
@@ -56,16 +58,17 @@ class SettingsViewModel @Inject constructor(
 		}
 	}
 
+	private fun saveTheme(selectedTheme: Themes) {
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveTheme(selectedTheme)
+		}
+	}
+
 	private fun shouldSaveSearchHistory() {
 		viewModelScope.launch(Dispatchers.IO) {
 			val shouldSave = settingsScreenUiState.shouldSaveSearchHistory
 			appDataStore.setShouldSaveSearchHistory(!shouldSave)
-		}
-	}
-
-	private fun saveTheme(selectedTheme: Themes) {
-		viewModelScope.launch(Dispatchers.IO) {
-			appDataStore.saveTheme(selectedTheme)
+			haptic.vibrate()
 		}
 	}
 
