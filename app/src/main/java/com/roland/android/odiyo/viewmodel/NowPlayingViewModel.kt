@@ -53,7 +53,7 @@ class NowPlayingViewModel @Inject constructor(
 				shuffleState = shuffle.state
 				nowPlayingUiState.update { it.copy(shuffleState = shuffle.state) }
 				val shuffleOrder = DefaultShuffleOrder(mediaItems.value.size, shuffle.randomSeed.toLong())
-				exoPlayer.setShuffleOrder(shuffleOrder)
+				try { exoPlayer.setShuffleOrder(shuffleOrder) } catch (_: Exception) {}
 				mediaSession?.player?.shuffleModeEnabled = shuffle.state
 			}
 		}

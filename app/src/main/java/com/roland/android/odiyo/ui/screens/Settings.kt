@@ -52,7 +52,6 @@ import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
-import com.roland.android.odiyo.ui.dialog.Themes
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.SettingsActions
 import kotlinx.coroutines.launch
@@ -95,9 +94,7 @@ fun SettingsScreen(
 				displayCategory.forEach {
 					val optionIsTheme = it.name == OptionsMenu.Theme.name
 					val subTitle = when {
-						optionIsTheme && uiState.theme == Themes.System -> R.string.system
-						optionIsTheme && uiState.theme == Themes.Dark -> R.string.dark_theme
-						optionIsTheme && uiState.theme == Themes.Light -> R.string.light_theme
+						optionIsTheme -> uiState.theme
 						else -> null
 					}
 					val action = { openThemeDialog.value = true }
@@ -162,9 +159,7 @@ fun SettingsScreen(
 
 	if (openClearHistoryDialog.value) {
 		DeleteDialog(
-			title = R.string.clear_history,
-			text = R.string.clear_history_text,
-			deleteText = R.string.clear_all,
+			parentIsSettings = true,
 			delete = {
 				settingsAction(SettingsActions.ClearSearchHistory)
 				scope.launch {

@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.dialog
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -15,7 +16,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @Composable
 fun ThemeDialog(
-	selectedTheme: Themes,
+	@StringRes selectedTheme: Int,
 	onThemeChanged: (Themes) -> Unit,
 	closeDialog: () -> Unit
 ) {
@@ -29,7 +30,7 @@ fun ThemeDialog(
 				Themes.values().forEach { theme ->
 					Option(
 						option = stringResource(theme.title),
-						selected = selectedTheme == theme
+						selected = selectedTheme == theme.title
 					) {
 						onThemeChanged(theme)
 						closeDialog()
@@ -56,7 +57,7 @@ enum class Themes(val title: Int) {
 fun ThemeDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
-			ThemeDialog(Themes.Light, {}) {}
+			ThemeDialog(Themes.System.title, {}) {}
 		}
 	}
 }

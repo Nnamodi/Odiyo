@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.states.SettingsUiState
@@ -35,7 +36,12 @@ class SettingsViewModel @Inject constructor(
 					Themes.Dark -> true
 					else -> null
 				}
-				settingsUiState.update { it.copy(theme = theme) }
+				val selectedTheme = when (theme) {
+					Themes.System -> R.string.system
+					Themes.Dark -> R.string.dark_theme
+					Themes.Light -> R.string.light_theme
+				}
+				settingsUiState.update { it.copy(theme = selectedTheme) }
 			}
 		}
 		viewModelScope.launch {

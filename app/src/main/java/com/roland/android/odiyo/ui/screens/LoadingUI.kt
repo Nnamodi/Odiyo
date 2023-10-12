@@ -41,9 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.roland.android.odiyo.R
 
+@Preview
 @Composable
-fun LoadingUi(@StringRes loadingText: Int) {
+fun LoadingUi(@StringRes loadingText: Int = R.string.setting_up_playlist) {
 	ElevatedCard(
 		modifier = Modifier.fillMaxSize(),
 		shape = RoundedCornerShape(0.dp),
@@ -52,19 +54,26 @@ fun LoadingUi(@StringRes loadingText: Int) {
 		)
 	) {
 		Box(Modifier.fillMaxSize(), Alignment.Center) {
-			Text(
-				text = stringResource(loadingText),
-				modifier = Modifier.padding(vertical = 2.dp),
-				style = MaterialTheme.typography.titleMedium.copy(
-					fontSize = 20.sp,
-					fontWeight = FontWeight.Normal
+			Column(
+				modifier = Modifier
+					.padding(horizontal = 16.dp)
+					.clip(MaterialTheme.shapes.large)
+					.background(MaterialTheme.colorScheme.background)
+			) {
+				Text(
+					text = stringResource(loadingText),
+					modifier = Modifier.padding(16.dp),
+					style = MaterialTheme.typography.titleMedium.copy(
+						fontSize = 20.sp,
+						fontWeight = FontWeight.Normal
+					)
 				)
-			)
+			}
 		}
 	}
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun LoadingListUi(modifier: Modifier = Modifier, isSongList: Boolean = true) {
 	Column(modifier.verticalScroll(rememberScrollState())) {
@@ -185,7 +194,7 @@ private fun rememberAnimatedShimmerBrush(): Brush {
 		Color.LightGray.copy(alpha = 0.6f)
 	)
 
-	val transition = rememberInfiniteTransition()
+	val transition = rememberInfiniteTransition(label = "shimmer transition")
 	val translateAnim = transition.animateFloat(
 		initialValue = 0f,
 		targetValue = 1000f,
@@ -195,7 +204,7 @@ private fun rememberAnimatedShimmerBrush(): Brush {
 				easing = FastOutLinearInEasing
 			),
 			repeatMode = RepeatMode.Reverse
-		)
+		), label = "shimmer animation"
 	)
 
 	return Brush.linearGradient(

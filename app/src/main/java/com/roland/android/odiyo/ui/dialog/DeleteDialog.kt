@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.dialog
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
@@ -18,9 +17,7 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @Composable
 fun DeleteDialog(
-	@StringRes title: Int = R.string.delete,
-	@StringRes text: Int = R.string.delete_dialog_text,
-	@StringRes deleteText: Int = R.string.delete,
+	parentIsSettings: Boolean = false,
 	delete: () -> Unit,
 	openDialog: (Boolean) -> Unit,
 	itemIsPlaylist: Boolean = false,
@@ -36,14 +33,21 @@ fun DeleteDialog(
 
 	AlertDialog(
 		onDismissRequest = { openDialog(false) },
-		title = { Text(stringResource(title)) },
-		text = { Text(stringResource(text, itemToDelete)) },
+		title = {
+			Text(stringResource(if (parentIsSettings) R.string.clear_history else R.string.delete))
+		},
+		text = {
+			Text(stringResource(
+				if (parentIsSettings) R.string.clear_history_text else R.string.delete_dialog_text,
+				itemToDelete
+			))
+		},
 		confirmButton = {
 			TextButton(
 				colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
 				onClick = { delete(); openDialog(false) }
 			) {
-				DialogButtonText(stringResource(deleteText))
+				DialogButtonText(stringResource(if (parentIsSettings) R.string.clear_all else R.string.delete))
 			}
 		},
 		dismissButton = {

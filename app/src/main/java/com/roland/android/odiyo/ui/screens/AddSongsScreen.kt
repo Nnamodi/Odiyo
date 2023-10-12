@@ -89,9 +89,7 @@ fun AddSongsScreen(
 		}
 	}
 
-	if (addingSongs.value) {
-		LoadingUi(loadingText = R.string.setting_up_playlist)
-	}
+	if (addingSongs.value) LoadingUi()
 
 	BackHandler { closeSelectionMode(true) }
 }

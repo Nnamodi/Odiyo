@@ -42,7 +42,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 open class BaseMediaViewModel(
 	private val appDataStore: AppDataStore,
@@ -175,7 +176,7 @@ open class BaseMediaViewModel(
 			appDataStore.getCurrentPlaylist().collect {
 				val items = it.playlist.map { item -> item.toUri().toMediaItem }.toMutableList()
 				if (mediaItems.value != items) {
-					mediaItems.value = if (items.size == 1 && items[0] == MediaItem.EMPTY) mutableListOf() else items
+					mediaItems.value = if (items.size < 2 && items[0] == MediaItem.EMPTY) mutableListOf() else items
 					mediaSession?.player?.apply {
 						setMediaItems(mediaItems.value); prepare()
 						if (mediaItems.value.isNotEmpty()) {
@@ -220,9 +221,20 @@ open class BaseMediaViewModel(
 	fun musicItem(mediaItem: MediaItem?): Music? {
 		val songUri = mediaItem?.localConfiguration?.uri
 		val songPath = URLDecoder.decode(songUri.toString(), UTF_8.name())
-		return cachedSongs.find {
+		val music = cachedSongs.find {
 			it.uri == songUri || songPath.contains(it.path)
 		}
+		if (nowPlayingScreenUiState.musicQueue.isEmpty()) return music
+		// songs from intent don't have matching mediaItem as those in app, so this is a work-around
+		music?.let { song ->
+			val currentSong = nowPlayingScreenUiState.musicQueue[nowPlayingScreenUiState.currentSongIndex]
+			if (song == currentSong) {
+				val currentMediaItem = song.uri.toMediaItem
+				mediaUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+				mediaItemsUiState.update { it.copy(currentMediaItem = currentMediaItem) }
+			}
+		}
+		return music
 	}
 
 	private fun musicItem(metadata: MediaMetadata?): Music {
