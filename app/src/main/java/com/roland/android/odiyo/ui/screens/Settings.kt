@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.screens
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -47,9 +48,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
@@ -67,6 +70,7 @@ fun SettingsScreen(
 	val scope = rememberCoroutineScope()
 	val openThemeDialog = remember { mutableStateOf(false) }
 	val openClearHistoryDialog = remember { mutableStateOf(false) }
+	val openMusicIntentDialog = remember { mutableStateOf(false) }
 
 	Scaffold(
 		topBar = {
@@ -127,17 +131,21 @@ fun SettingsScreen(
 				}
 			}
 			Container(preferencesCategory[0].category) {
-				preferencesCategory.forEach {
-					val subTitle = when (it.name) {
-						OptionsMenu.HowToHandleMusicIntent.name -> R.string.always_ask
+				preferencesCategory.forEach { menu ->
+					val subTitle = when (menu.name) {
+						OptionsMenu.HowToHandleMusicIntent.name -> uiState.musicIntentOption
 						OptionsMenu.Language.name -> R.string.english
 						else -> null
 					}
+					val action = { when (menu) {
+						OptionsMenu.HowToHandleMusicIntent -> openMusicIntentDialog.value = true
+						else -> null
+					} }
 					SettingsOption(
-						leadingIcon = it.icon,
-						option = it.option,
+						leadingIcon = menu.icon,
+						option = menu.option,
 						subTitle = subTitle
-					) {}
+					) { action() }
 				}
 			}
 			Container(aboutUsCategory[0].category) {
@@ -167,6 +175,16 @@ fun SettingsScreen(
 				}
 			},
 			openDialog = { openClearHistoryDialog.value = it }
+		)
+	}
+
+	if (openMusicIntentDialog.value) {
+		AudioIntentDialog(
+			uri = "null".toUri(),
+			parentIsSettings = true,
+			selectedOption = uiState.musicIntentOption,
+			onSelected = settingsAction,
+			openDialog = { openMusicIntentDialog.value = false }
 		)
 	}
 }
@@ -264,7 +282,7 @@ private enum class OptionsMenu(
 	ContactUs(R.string.contact_us, Icons.Rounded.ContactMail, R.string.about_us_category)
 }
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SettingsScreenPreview() {
 	OdiyoTheme {

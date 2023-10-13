@@ -88,7 +88,7 @@
     <string name="this_song">this song</string>
     <string name="name_already_exists">Playlist name \"%s\" already exists</string>
     <string name="drop_it">Drop it</string>
-    <string name="audio_intent_message">An audio file got dropped in by another application. But you have an existing playlist.\nHow would you want to handle it?</string>
+    <string name="audio_intent_message">An audio file got dropped in by another application. But you have an existing playlist.\nHow will you like to handle it?</string>
     <string name="repeat_mode">change repeat mode</string>
     <string name="save_queue">Save queue</string>
     <string name="write_storage_permission_message">Allow Odiyo to modify and delete songs on your device storage.</string>
@@ -126,6 +126,7 @@
     <string name="clear_all">Clear all</string>
     <string name="no_history">No search history to clear</string>
     <string name="history_cleared">Search history cleared</string>
+    <string name="how_will_you_handle_it">How will you like to handle audio files dropped in by another application?</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>

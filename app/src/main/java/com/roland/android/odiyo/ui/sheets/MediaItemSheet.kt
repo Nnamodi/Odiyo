@@ -202,10 +202,12 @@ fun SheetItem(
 	componentColor: Color = MaterialTheme.colorScheme.onBackground,
 	backgroundColor: Color = BottomSheetDefaults.ContainerColor,
 	modifier: Modifier = Modifier,
+	selected: Boolean = false,
 	action: () -> Unit
 ) {
 	val interactionSource = remember { MutableInteractionSource() }
 	val ripple = rememberRipple(color = CustomColors.rippleColor(backgroundColor))
+	val contentColor = if (selected) MaterialTheme.colorScheme.primary else componentColor
 
 	Row(
 		modifier = modifier
@@ -216,10 +218,18 @@ fun SheetItem(
 	) {
 		Icon(
 			modifier = Modifier.padding(start = 14.dp), imageVector = icon,
-			contentDescription = null, tint = componentColor
+			contentDescription = null, tint = contentColor
 		)
 		Spacer(Modifier.width(20.dp))
-		Text(text = menuText, color = componentColor, fontSize = 20.sp)
+		Text(text = menuText, color = contentColor, fontSize = 20.sp)
+		Spacer(Modifier.weight(1f))
+		if (selected) {
+			Icon(
+				modifier = Modifier.padding(horizontal = 14.dp),
+				imageVector = Icons.Rounded.Done,
+				contentDescription = null, tint = contentColor
+			)
+		}
 	}
 }
 

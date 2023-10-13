@@ -35,10 +35,12 @@ import com.roland.android.odiyo.service.Util.notificationManager
 import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
+import com.roland.android.odiyo.ui.dialog.IntentOptions
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.AudioIntentActions
 import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
 import com.roland.android.odiyo.util.Permissions.readStoragePermission
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
@@ -120,16 +122,28 @@ class MainActivity : ComponentActivity() {
 						)
 					}
 
-					if (audioIntent.value != null && mediaViewModel.songsFetched) {
-						if (mediaViewModel.currentMediaItems.isNotEmpty()) {
-							AudioIntentDialog(
-								uri = audioIntent.value!!,
-								intentAction = { mediaViewModel.audioIntentAction(it); audioIntent.value = null },
-								openDialog = { audioIntent.value = null }
-							)
-						} else {
-							mediaViewModel.playAudioFromIntent(audioIntent.value!!)
+					if ((audioIntent.value != null) && mediaViewModel.songsFetched &&
+						(mediaViewModel.currentMediaItems.size == mediaViewModel.nowPlayingScreenUiState.musicQueue.size)) {
+						val audioIntentAction: (AudioIntentActions) -> Unit = {
+							mediaViewModel.audioIntentAction(it)
 							audioIntent.value = null
+						}
+						when (settingsViewModel.musicIntentOption) {
+							IntentOptions.Play -> audioIntentAction(AudioIntentActions.Play(audioIntent.value!!))
+							IntentOptions.PlayNext -> audioIntentAction(AudioIntentActions.PlayNext(audioIntent.value!!))
+							IntentOptions.AddToQueue -> audioIntentAction(AudioIntentActions.AddToQueue(audioIntent.value!!))
+							else -> {
+								if (mediaViewModel.currentMediaItems.isNotEmpty()) {
+									AudioIntentDialog(
+										uri = audioIntent.value!!,
+										intentAction = audioIntentAction,
+										openDialog = { audioIntent.value = null }
+									)
+								} else {
+									mediaViewModel.playAudioFromIntent(audioIntent.value!!)
+									audioIntent.value = null
+								}
+							}
 						}
 					}
 				}

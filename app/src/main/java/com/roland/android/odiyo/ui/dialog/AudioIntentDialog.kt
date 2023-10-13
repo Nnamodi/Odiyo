@@ -1,12 +1,14 @@
 package com.roland.android.odiyo.ui.dialog
 
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddToQueue
+import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Queue
 import androidx.compose.material3.AlertDialog
@@ -25,50 +27,66 @@ import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.sheets.SheetItem
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.AudioIntentActions
+import com.roland.android.odiyo.util.SettingsActions
 
 @Composable
 fun AudioIntentDialog(
 	uri: Uri,
-	intentAction: (AudioIntentActions) -> Unit,
+	parentIsSettings: Boolean = false,
+	@StringRes selectedOption: Int? = null,
+	intentAction: (AudioIntentActions) -> Unit = {},
+	onSelected: (SettingsActions) -> Unit = {},
 	openDialog: () -> Unit
 ) {
+	val optionsMenu = IntentOptions.values().toMutableList()
+	if (!parentIsSettings) optionsMenu.remove(IntentOptions.AlwaysAsk)
+
 	AlertDialog(
-		onDismissRequest = {},
-		title = { Text(stringResource(R.string.audio_intent_message)) },
+		onDismissRequest = { if (parentIsSettings) openDialog() },
+		title = {
+			Text(stringResource(
+				if (parentIsSettings) R.string.how_will_you_handle_it else R.string.audio_intent_message
+			))
+		},
 		text = {
 			Column(Modifier.verticalScroll(rememberScrollState())) {
-				IntentOptionItems.values().forEach { option ->
+				optionsMenu.forEach { option ->
 					val action = when (option) {
-						IntentOptionItems.Play -> AudioIntentActions.Play(uri)
-						IntentOptionItems.PlayNext -> AudioIntentActions.PlayNext(uri)
-						IntentOptionItems.AddToQueue -> AudioIntentActions.AddToQueue(uri)
+						IntentOptions.Play -> AudioIntentActions.Play(uri)
+						IntentOptions.PlayNext -> AudioIntentActions.PlayNext(uri)
+						IntentOptions.AddToQueue -> AudioIntentActions.AddToQueue(uri)
+						else -> null
 					}
 
-					IntentOptions(option.icon, option.menuText) { intentAction(action) }
+					SheetItem(
+						icon = option.icon,
+						menuText = stringResource(option.menuText),
+						modifier = Modifier.clip(MaterialTheme.shapes.medium),
+						selected = selectedOption == option.menuText
+					) {
+						if (parentIsSettings) {
+							onSelected(SettingsActions.SetIntentOption(option))
+							openDialog()
+						} else action?.let(intentAction)
+					}
 				}
 			}
 		},
 		confirmButton = {
 			TextButton(onClick = openDialog) {
-				DialogButtonText(stringResource(R.string.drop_it))
+				DialogButtonText(stringResource(
+					id = if (parentIsSettings) R.string.close else R.string.drop_it
+				))
 			}
 		}
 	)
 }
 
-@Composable
-fun IntentOptions(icon: ImageVector, menuText: Int, action: () -> Unit) =
-	SheetItem(
-		icon = icon,
-		menuText = stringResource(menuText),
-		modifier = Modifier.clip(MaterialTheme.shapes.medium),
-		action = action
-	)
-
-enum class IntentOptionItems(val icon: ImageVector, val menuText: Int) {
+enum class IntentOptions(val icon: ImageVector, val menuText: Int) {
 	Play(Icons.Rounded.PlayArrow, R.string.play),
 	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue)
+	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
+	AlwaysAsk(Icons.Rounded.HelpOutline, R.string.always_ask)
 }
 
 @Preview
@@ -76,7 +94,7 @@ enum class IntentOptionItems(val icon: ImageVector, val menuText: Int) {
 fun AudioIntentDialogPreview() {
 	OdiyoTheme {
 		Column(Modifier.fillMaxSize()) {
-			AudioIntentDialog("null".toUri(), {}) {}
+			AudioIntentDialog("null".toUri(), intentAction = {}) {}
 		}
 	}
 }

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.media3.common.Player
+import com.roland.android.odiyo.ui.dialog.IntentOptions
 import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.dialog.Themes
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ private val RANDOM_SEED = intPreferencesKey("random_seed")
 private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 private val THEMES = stringPreferencesKey("themes")
 private val SAVE_SEARCH_HISTORY = booleanPreferencesKey("should_save_search_history")
+private val MUSIC_INTENT = stringPreferencesKey("music_intent")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	suspend fun savePermissionStatus(permanentlyDenied: Boolean) {
@@ -127,6 +129,7 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 			)
 		}
 	}
+
 	suspend fun setShouldSaveSearchHistory(shouldSave: Boolean) {
 		dataStore.edit { preference ->
 			preference[SAVE_SEARCH_HISTORY] = shouldSave
@@ -136,6 +139,20 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	fun getShouldSaveSearchHistory(): Flow<Boolean> {
 		return dataStore.data.map { preference ->
 			preference[SAVE_SEARCH_HISTORY] ?: true
+		}
+	}
+
+	suspend fun saveMusicIntent(intentOption: IntentOptions) {
+		dataStore.edit { preference ->
+			preference[MUSIC_INTENT] = intentOption.name
+		}
+	}
+
+	fun getMusicIntent(): Flow<IntentOptions> {
+		return dataStore.data.map { preference ->
+			IntentOptions.valueOf(
+				value = preference[MUSIC_INTENT] ?: IntentOptions.AlwaysAsk.name
+			)
 		}
 	}
 }
