@@ -67,9 +67,7 @@ fun NowPlayingScreen(
 	val windowSize = rememberWindowSize()
 	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
-	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
-		uiState.musicQueue[uiState.currentSongIndex]
-	} else null
+	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
 	val artwork by remember(currentSong) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val componentColor = componentColor(generatedColor)

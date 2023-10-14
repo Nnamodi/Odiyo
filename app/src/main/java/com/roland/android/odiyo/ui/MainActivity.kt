@@ -122,8 +122,11 @@ class MainActivity : ComponentActivity() {
 						)
 					}
 
+					val uiState by remember(mediaViewModel.nowPlayingScreenUiState) {
+						mutableStateOf(mediaViewModel.nowPlayingScreenUiState)
+					}
 					if ((audioIntent.value != null) && mediaViewModel.songsFetched &&
-						(mediaViewModel.currentMediaItems.size == mediaViewModel.nowPlayingScreenUiState.musicQueue.size)) {
+						(mediaViewModel.currentMediaItems.size == uiState.musicQueue.size)) {
 						val audioIntentAction: (AudioIntentActions) -> Unit = {
 							mediaViewModel.audioIntentAction(it)
 							audioIntent.value = null
@@ -132,8 +135,8 @@ class MainActivity : ComponentActivity() {
 							IntentOptions.Play -> audioIntentAction(AudioIntentActions.Play(audioIntent.value!!))
 							IntentOptions.PlayNext -> audioIntentAction(AudioIntentActions.PlayNext(audioIntent.value!!))
 							IntentOptions.AddToQueue -> audioIntentAction(AudioIntentActions.AddToQueue(audioIntent.value!!))
-							else -> {
-								if (mediaViewModel.currentMediaItems.isNotEmpty()) {
+							IntentOptions.AlwaysAsk -> {
+								if (uiState.musicQueue.isNotEmpty()) {
 									AudioIntentDialog(
 										uri = audioIntent.value!!,
 										intentAction = audioIntentAction,

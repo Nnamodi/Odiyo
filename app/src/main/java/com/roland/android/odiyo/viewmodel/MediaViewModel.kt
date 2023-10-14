@@ -16,6 +16,7 @@ import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaItemsUiState
 import com.roland.android.odiyo.service.Util.mediaSession
 import com.roland.android.odiyo.service.Util.mediaUiState
+import com.roland.android.odiyo.service.Util.nowPlayingUiState
 import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.service.Util.toMediaItem
 import com.roland.android.odiyo.ui.dialog.SortOptions
@@ -57,6 +58,7 @@ class MediaViewModel @Inject constructor(
 		viewModelScope.launch {
 			appDataStore.getSearchHistory().collect { history ->
 				mediaItemsUiState.update { it.copy(searchHistory = history.asReversed()) }
+				if (history.isEmpty()) return@collect
 				val historyIsEmpty = history[0].isBlank() && history.size < 2
 				settingsUiState.update { it.copy(searchHistoryEmpty = historyIsEmpty) }
 			}
@@ -65,6 +67,7 @@ class MediaViewModel @Inject constructor(
 
 	fun resetPlaylist(newPlaylist: List<Music>) {
 		mediaItems.value = newPlaylist.map { it.uri.toMediaItem }.toMutableList()
+		nowPlayingUiState.update { it.copy(currentSongIndex = 0) }
 	}
 
 	fun playAudio(uri: Uri, index: Int? = null) {
@@ -261,6 +264,7 @@ class MediaViewModel @Inject constructor(
 	}
 
 	fun playAudioFromIntent(uri: Uri) {
+		nowPlayingUiState.update { it.copy(currentSongIndex = 0) }
 		mediaItems.value = mutableListOf(uri.toMediaItem)
 		playAudio(uri, 0)
 	}

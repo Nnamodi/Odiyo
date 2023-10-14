@@ -16,7 +16,7 @@ class Haptic(private val context: Context) {
 					.vibrate(
 						CombinedVibration.createParallel(
 							VibrationEffect.createOneShot(
-								milliseconds, VibrationEffect.EFFECT_CLICK
+								milliseconds, VibrationEffect.EFFECT_TICK
 							)
 						)
 					)
