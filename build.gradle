@@ -3,6 +3,7 @@ buildscript {
     ext {
         accompanist_version = '0.31.2-alpha'
         activity_compose_version = '1.7.1'
+        appcompat_version = '1.6.1'
         coil_version = '2.3.0'
         compose_version = '1.4.1'
         core_version = '1.10.0'

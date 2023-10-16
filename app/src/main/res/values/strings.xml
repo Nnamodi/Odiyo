@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Odiyo</string>
+    <string name="app_name" translatable="false">Odiyo</string>
     <string name="notification_channel">Music player</string>
     <string name="channel_description">Shows currently playing music in Odiyo</string>
     <string name="songs">Songs</string>
@@ -115,11 +115,11 @@
     <string name="preferences_category">Preferences</string>
     <string name="about_us_category">About us</string>
     <string name="choose_theme">Choose theme</string>
-    <string name="system">System</string>
+    <string name="follow_system">Follow system</string>
     <string name="dark_theme">Dark</string>
     <string name="light_theme">Light</string>
     <string name="always_ask">Always ask</string>
-    <string name="english">English</string>
+    <string name="english" translatable="false">English</string>
     <string name="history_is_being_saved">Search history is being saved</string>
     <string name="history_is_not_saved">Search history is not being saved</string>
     <string name="clear_history_text">Are you sure you want to clear all search history?</string>

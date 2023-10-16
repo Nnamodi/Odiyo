@@ -7,9 +7,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,19 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.view.WindowCompat
+import androidx.core.view.WindowCompat.setDecorFitsSystemWindows
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem.*
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaSession
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.roland.android.odiyo.R
 import com.roland.android.odiyo.R.string.*
-import com.roland.android.odiyo.service.OdiyoNotificationManager
-import com.roland.android.odiyo.service.PlayerListener
-import com.roland.android.odiyo.service.Util.mediaSession
-import com.roland.android.odiyo.service.Util.notificationManager
-import com.roland.android.odiyo.service.Util.pendingIntent
 import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.IntentOptions
@@ -48,27 +42,19 @@ import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDen
 import com.roland.android.odiyo.viewmodel.MediaViewModel
 import com.roland.android.odiyo.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 @OptIn(ExperimentalAnimationApi::class)
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 	private lateinit var audioIntent: MutableState<Uri?>
-	@Inject lateinit var player: ExoPlayer
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		// mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
-		mediaSession = MediaSession.Builder(this, player)
-			.setSessionActivity(this.pendingIntent)
-			.build()
-		mediaSession?.player?.addListener(PlayerListener(this))
-		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
-		notificationManager.showNotification(player)
 		volumeControlStream = AudioManager.STREAM_MUSIC
 		audioIntent = mutableStateOf(intent.data)
 
-		WindowCompat.setDecorFitsSystemWindows(window, false)
+		setDecorFitsSystemWindows(window, false)
+		setTheme(R.style.Theme_Odiyo)
 
 		setContent {
 			val mediaViewModel: MediaViewModel = hiltViewModel()
@@ -178,16 +164,6 @@ class MainActivity : ComponentActivity() {
 		val newData = intent?.data
 		audioIntent.value = newData
 		Log.d(/* tag = */ "AudioIntentInfo", /* msg = */ "$newData")
-	}
-
-	override fun onDestroy() {
-		notificationManager.hideNotification()
-		mediaSession?.apply {
-			player.apply { removeListener(PlayerListener(this@MainActivity)); release() }
-			release()
-			mediaSession = null
-		}
-		super.onDestroy()
 	}
 
 	companion object {

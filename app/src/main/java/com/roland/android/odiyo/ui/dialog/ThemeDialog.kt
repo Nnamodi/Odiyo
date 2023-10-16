@@ -47,7 +47,7 @@ fun ThemeDialog(
 }
 
 enum class Themes(val title: Int) {
-	System(R.string.system),
+	System(R.string.follow_system),
 	Dark(R.string.dark_theme),
 	Light(R.string.light_theme)
 }

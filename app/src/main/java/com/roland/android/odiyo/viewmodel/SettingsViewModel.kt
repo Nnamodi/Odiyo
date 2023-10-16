@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
 					else -> null
 				}
 				val selectedTheme = when (theme) {
-					Themes.System -> R.string.system
+					Themes.System -> R.string.follow_system
 					Themes.Dark -> R.string.dark_theme
 					Themes.Light -> R.string.light_theme
 				}

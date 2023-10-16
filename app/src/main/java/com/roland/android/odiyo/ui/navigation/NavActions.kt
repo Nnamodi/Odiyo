@@ -45,6 +45,7 @@ fun concealMinimizedView(navController: NavHostController): Boolean {
 	val navBackStackEntry = navController.currentBackStackEntryAsState()
 	val currentDestination = navBackStackEntry.value?.destination?.route
 	val certainDestinations = setOf(AppRoute.NowPlayingScreen.route, AppRoute.SettingsScreen.route)
+	if (currentDestination == null) return true
 	return certainDestinations.any { currentDestination == it }
 }
 
