@@ -3,6 +3,7 @@ package com.roland.android.odiyo.ui.screens
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,11 +50,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.core.os.LocaleListCompat
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.LanguageChooserDialog
+import com.roland.android.odiyo.ui.dialog.LanguageOptions
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.SettingsActions
@@ -71,6 +75,8 @@ fun SettingsScreen(
 	val openThemeDialog = remember { mutableStateOf(false) }
 	val openClearHistoryDialog = remember { mutableStateOf(false) }
 	val openMusicIntentDialog = remember { mutableStateOf(false) }
+	val openLanguageChooserDialog = remember { mutableStateOf(false) }
+	val appLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
 
 	Scaffold(
 		topBar = {
@@ -132,13 +138,14 @@ fun SettingsScreen(
 			}
 			Container(preferencesCategory[0].category) {
 				preferencesCategory.forEach { menu ->
-					val subTitle = when (menu.name) {
-						OptionsMenu.HowToHandleMusicIntent.name -> uiState.musicIntentOption
-						OptionsMenu.Language.name -> R.string.english
+					val subTitle = when (menu) {
+						OptionsMenu.HowToHandleMusicIntent -> uiState.musicIntentOption
+						OptionsMenu.Language -> appLocale.getLanguage()
 						else -> null
 					}
 					val action = { when (menu) {
 						OptionsMenu.HowToHandleMusicIntent -> openMusicIntentDialog.value = true
+						OptionsMenu.Language -> openLanguageChooserDialog.value = true
 						else -> null
 					} }
 					SettingsOption(
@@ -185,6 +192,17 @@ fun SettingsScreen(
 			selectedOption = uiState.musicIntentOption,
 			onSelected = settingsAction,
 			openDialog = { openMusicIntentDialog.value = false }
+		)
+	}
+
+	if (openLanguageChooserDialog.value) {
+		LanguageChooserDialog(
+			selectedOption = appLocale,
+			onLanguagePicked = {
+				val locale = LocaleListCompat.forLanguageTags(it)
+				AppCompatDelegate.setApplicationLocales(locale)
+			},
+			openDialog = { openLanguageChooserDialog.value = false }
 		)
 	}
 }
@@ -266,6 +284,12 @@ private fun Container(
 }
 
 private fun optionsCategory(@StringRes category: Int) = OptionsMenu.values().filter { it.category == category }
+
+fun String.getLanguage() = when (this) {
+	LanguageOptions.English.local -> LanguageOptions.English.title
+	LanguageOptions.French.local -> LanguageOptions.French.title
+	else -> LanguageOptions.FollowSystem.title
+}
 
 private enum class OptionsMenu(
 	@StringRes val option: Int,

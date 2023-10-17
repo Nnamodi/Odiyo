@@ -126,6 +126,7 @@
     <string name="no_history">Pas d’historique de recherche à effacer</string>
     <string name="history_cleared">Historique de recherche effacé</string>
     <string name="how_will_you_handle_it">Comment aimerez-vous gérer les fichiers audio déposés par une autre application ?</string>
+    <string name="choose_language">Choisissez la langue</string>
 
     <plurals name="number_of_songs" tools:ignore="MissingQuantity">
         <item quantity="one">%d chanson</item>

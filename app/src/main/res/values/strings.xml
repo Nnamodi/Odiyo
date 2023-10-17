@@ -120,6 +120,7 @@
     <string name="light_theme">Light</string>
     <string name="always_ask">Always ask</string>
     <string name="english" translatable="false">English</string>
+    <string name="french" translatable="false">French</string>
     <string name="history_is_being_saved">Search history is being saved</string>
     <string name="history_is_not_saved">Search history is not being saved</string>
     <string name="clear_history_text">Are you sure you want to clear all search history?</string>
@@ -127,6 +128,7 @@
     <string name="no_history">No search history to clear</string>
     <string name="history_cleared">Search history cleared</string>
     <string name="how_will_you_handle_it">How will you like to handle audio files dropped in by another application?</string>
+    <string name="choose_language">Choose language</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
