@@ -14,6 +14,7 @@ An offline music streaming app.
 * Edit current music queue
 * Save music queue to playlist
 * Rename, share or delete songs
+* Supports per-app language preference
 * Appealing UI design with dynamic colors
 
 ***Still under development 🛠***

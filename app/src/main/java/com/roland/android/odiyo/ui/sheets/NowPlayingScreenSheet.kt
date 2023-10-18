@@ -35,6 +35,7 @@ import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SongDetails
+import com.roland.android.odiyo.util.sheetHeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +76,7 @@ fun NowPlayingScreenSheet(
 	) {
 		Column(
 			modifier = Modifier
-				.wrapContentHeight()
+				.heightIn(min = 10.dp, max = (sheetHeight().dp + 50.dp))
 				.verticalScroll(rememberScrollState())
 		) {
 			val sheetMenuItems = MenuItems.values()

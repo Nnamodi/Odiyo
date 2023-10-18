@@ -29,6 +29,8 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.util.WindowType
+import com.roland.android.odiyo.util.rememberWindowSize
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -41,7 +43,14 @@ fun RecentSongItem(
 ) {
 	val context = LocalContext.current
 	val artwork by remember { mutableStateOf(song.getBitmap(context)) }
-	val imageSize = LocalConfiguration.current.screenWidthDp / 2.5
+	val portraitImageSize = LocalConfiguration.current.screenWidthDp / 2.5
+	val landscapeImageSize = LocalConfiguration.current.screenHeightDp / 2.2
+	val windowSize = rememberWindowSize()
+	val imageSize by remember(windowSize.width) {
+		mutableStateOf(
+			if (windowSize.width == WindowType.Landscape) landscapeImageSize else portraitImageSize
+		)
+	}
 	val isPlaying = song.uri.toMediaItem == currentMediaItem
 	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
@@ -103,7 +112,10 @@ fun MediaItem(
 		modifier = modifier
 			.fillMaxWidth()
 			.background(itemColor)
-			.padding(start = 10.dp, top = 10.dp, bottom = 10.dp, end = if (showTrailingIcon) 0.dp else 10.dp),
+			.padding(
+				start = 10.dp, top = 10.dp, bottom = 10.dp,
+				end = if (showTrailingIcon) 0.dp else 10.dp
+			),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		MediaImage(

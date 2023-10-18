@@ -173,10 +173,10 @@ private enum class Menus(val icon: ImageVector?, val text: Int) {
 
 @Preview
 @Composable
-fun LibraryScreenPreview() {
+private fun LibraryScreenPreview() {
 	OdiyoTheme {
 		LibraryScreen(
-			uiState = MediaUiState(allSongs = previewData.shuffled(), currentMediaItem = previewData[4].uri.toMediaItem),
+			uiState = MediaUiState(currentMediaItem = previewData[4].uri.toMediaItem, recentSongs = previewData.shuffled()),
 			playSong = { _, _ -> },
 			menuAction = {},
 			navigateToMediaScreen = {},
@@ -184,4 +184,10 @@ fun LibraryScreenPreview() {
 			navigateToPlaylistsScreen = {}
 		) {}
 	}
+}
+
+@Preview(device = "spec:parent=pixel_3,orientation=landscape")
+@Composable
+private fun LibraryScreenLandscapePreview() {
+	LibraryScreenPreview()
 }

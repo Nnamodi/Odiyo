@@ -25,6 +25,7 @@ import com.roland.android.odiyo.ui.screens.PlaylistItem
 import com.roland.android.odiyo.ui.sheets.PlaylistMenuItems.*
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.PlaylistMenuActions
+import com.roland.android.odiyo.util.sheetHeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun PlaylistItemSheet(
 
 		Column(
 			modifier = Modifier
-				.wrapContentHeight()
+				.heightIn(min = 10.dp, max = sheetHeight().dp)
 				.verticalScroll(rememberScrollState())
 		) {
 			menuItems.forEach { menu ->

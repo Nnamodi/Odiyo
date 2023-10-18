@@ -1,16 +1,21 @@
 package com.roland.android.odiyo.ui.dialog
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MusicNote
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -21,7 +26,6 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionDialog(
 	icon: ImageVector = Icons.Rounded.MusicNote,
@@ -32,36 +36,30 @@ fun PermissionDialog(
 ) {
 	AlertDialog(
 		modifier = Modifier
-			.clip(MaterialTheme.shapes.extraLarge)
-			.background(AlertDialogDefaults.containerColor)
-			.fillMaxWidth(0.95f),
-		onDismissRequest = {}
-	) {
-		Column(
-			modifier = Modifier
-				.fillMaxWidth()
-				.wrapContentHeight()
-				.padding(20.dp)
-				.verticalScroll(rememberScrollState()),
-			horizontalAlignment = Alignment.CenterHorizontally
-		) {
+			.fillMaxWidth(0.95f)
+			.verticalScroll(rememberScrollState()),
+		onDismissRequest = {},
+		icon = {
 			Icon(icon, null, Modifier.size(70.dp), iconColor)
+		},
+		title = {
 			Text(
 				text = permissionMessage,
 				modifier = Modifier.padding(vertical = 20.dp),
 				style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
 			)
-			Row(Modifier.fillMaxWidth()) {
-				Spacer(Modifier.weight(1f))
-				TextButton(onClick = { openDialog(false) }) {
-					DialogButtonText(stringResource(R.string.cancel))
-				}
-				TextButton(onClick = { requestPermission(); openDialog(false) }) {
-					DialogButtonText(stringResource(R.string.continue_button))
-				}
+		},
+		confirmButton = {
+			TextButton(onClick = { requestPermission(); openDialog(false) }) {
+				DialogButtonText(stringResource(R.string.continue_button))
+			}
+		},
+		dismissButton = {
+			TextButton(onClick = { openDialog(false) }) {
+				DialogButtonText(stringResource(R.string.cancel))
 			}
 		}
-	}
+	)
 }
 
 @Preview

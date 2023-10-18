@@ -94,7 +94,7 @@ fun MediaItemSheet(
 	) {
 		Column(
 			modifier = Modifier
-				.height(sheetHeight().dp)
+				.heightIn(min = 10.dp, max = sheetHeight().dp)
 				.verticalScroll(rememberScrollState())
 		) {
 			MenuItems.values().forEach { menu ->

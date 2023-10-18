@@ -19,7 +19,6 @@
         android:icon="@mipmap/launch_icon"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
-        android:resizeableActivity="false"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splash"
         tools:targetApi="tiramisu">
@@ -27,7 +26,6 @@
             android:name="com.roland.android.odiyo.ui.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -169,6 +169,7 @@ fun MediaDescription(
 	componentColor: Color,
 	backgroundColor: Color,
 	portraitView: Boolean,
+	inMultiWindowMode: Boolean = false,
 	onFavorite: (MediaControls) -> Unit,
 	goToCollection: (String, String) -> Unit
 ) {
@@ -217,7 +218,7 @@ fun MediaDescription(
 				softWrap = false
 			)
 		}
-		if (songIsValid) {
+		if (songIsValid && !inMultiWindowMode) {
 			NowPlayingIconButton(
 				onClick = { onFavorite(MediaControls.Favorite(currentSong!!)) },
 				modifier = Modifier
@@ -375,7 +376,7 @@ private fun NowPlayingMultiWindowPreview() {
 	NowPlayingPreview()
 }
 
-@Preview(widthDp = 700, heightDp = 340)
+@Preview(device = "spec:parent=pixel_5,orientation=landscape")
 @Composable
 private fun NowPlayingLandscapePreview() {
 	NowPlayingPreview()

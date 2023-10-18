@@ -62,7 +62,7 @@ fun QueueItemsSheet(
 		containerColor = customContainerColor,
 		dragHandle = { BottomSheetDefaults.DragHandle(color = componentColor) }
 	) {
-		Column(Modifier.heightIn(min = 10.dp, max = sheetHeight().dp)) {
+		Column {
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -89,7 +89,7 @@ fun QueueItemsSheet(
 			}
 			Divider(color = Color.White.copy(alpha = 0.5f))
 			LazyColumn(
-				modifier = Modifier.wrapContentHeight(),
+				modifier = Modifier.heightIn(min = 10.dp, max = sheetHeight().dp),
 				contentPadding = PaddingValues(bottom = 14.dp),
 				state = lazyListState
 			) {

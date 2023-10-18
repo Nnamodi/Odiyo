@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.RepeatOne
 import androidx.compose.material.icons.rounded.VolumeOff
@@ -36,6 +39,8 @@ import com.roland.android.odiyo.ui.components.NowPlayingIconButton
 import com.roland.android.odiyo.ui.screens.MediaControls
 import com.roland.android.odiyo.ui.screens.MediaDescription
 import com.roland.android.odiyo.util.MediaControls
+import com.roland.android.odiyo.util.WindowType
+import com.roland.android.odiyo.util.rememberWindowSize
 
 @Composable
 fun NowPlayingLandscapeView(
@@ -48,10 +53,10 @@ fun NowPlayingLandscapeView(
 	openMusicQueue: (Boolean) -> Unit
 ) {
 	val imageSize = LocalConfiguration.current.screenWidthDp * 0.35
-	val inMultiWindowMode = false//rememberWindowSize().width == WindowType.Portrait
+	val inMultiWindowMode = rememberWindowSize().width == WindowType.Portrait
 	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
 	val context = LocalContext.current
-	val artwork by remember(currentSong) { mutableStateOf(currentSong?.getBitmap(context)) }
+	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
 	songIsFavorite = currentSong?.favorite == true
 
@@ -89,11 +94,34 @@ fun NowPlayingLandscapeView(
 					)
 				}
 
-				MediaDescription(
-					currentSong = currentSong, componentColor = componentColor,
-					backgroundColor = backgroundColor, portraitView = false,
-					onFavorite = mediaControl, goToCollection = goToCollection
-				)
+				Column(
+					modifier = Modifier
+						.weight(1f)
+						.then(if (inMultiWindowMode) Modifier.height(imageSize.dp) else Modifier),
+					verticalArrangement = Arrangement.SpaceBetween
+				) {
+					MediaDescription(
+						currentSong = currentSong, componentColor = componentColor,
+						backgroundColor = backgroundColor, portraitView = false,
+						inMultiWindowMode = inMultiWindowMode, onFavorite = mediaControl,
+						goToCollection = goToCollection
+					)
+					if (inMultiWindowMode) {
+						Row(Modifier.fillMaxWidth(), Arrangement.End) { NowPlayingIconButton(
+							onClick = { mediaControl(MediaControls.Favorite(currentSong!!)) },
+							modifier = Modifier
+								.size(50.dp)
+								.padding(start = 4.dp),
+							toggled = songIsFavorite, color = backgroundColor
+						) {
+							Icon(
+								imageVector = if (songIsFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+								contentDescription = stringResource(if (songIsFavorite) R.string.remove_from_favorite else R.string.add_to_favorite),
+								modifier = Modifier.fillMaxSize(0.75f)
+							)
+						} }
+					}
+				}
 			}
 
 			MediaControls(
