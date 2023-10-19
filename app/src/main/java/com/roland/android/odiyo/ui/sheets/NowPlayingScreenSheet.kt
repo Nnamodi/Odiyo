@@ -126,7 +126,13 @@ fun NowPlayingScreenSheet(
 	if (openRingtoneDialog.value) {
 		SetRingtoneDialog(
 			song = currentSong,
-			onRingtoneSet = { menuAction(it); openBottomSheet(false) },
+			onRingtoneSet = {
+				if (Settings.System.canWrite(context)) {
+					menuAction(it); openBottomSheet(false)
+				} else {
+					openWriteSettingsUi.value = true
+				}
+			},
 			openDialog = { openRingtoneDialog.value = false }
 		)
 	}

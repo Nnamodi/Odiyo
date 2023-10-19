@@ -152,7 +152,13 @@ fun MediaItemSheet(
 	if (openRingtoneDialog.value) {
 		SetRingtoneDialog(
 			song = song,
-			onRingtoneSet = { menuAction(it); openBottomSheet(false) },
+			onRingtoneSet = {
+				if (Settings.System.canWrite(context)) {
+					menuAction(it); openBottomSheet(false)
+				} else {
+					openWriteSettingsUi.value = true
+				}
+			},
 			openDialog = { openRingtoneDialog.value = false }
 		)
 	}

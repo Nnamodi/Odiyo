@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.AlertDialog
@@ -102,7 +104,7 @@ private fun <T>ChooserDialog(
 	ringtoneOptions: Array<RingtoneOptions>? = null,
 	sortOptions: Array<SortOptions>? = null,
 	themeOptions: Array<Themes>? = null,
-	onLanguagePicked: (String?) -> Unit = {},
+	onLanguagePicked: (String) -> Unit = {},
 	onRingPicked: (MediaMenuActions) -> Unit = {},
 	onSortPicked: (SortOptions) -> Unit = {},
 	onThemePicked: (Themes) -> Unit = {},
@@ -114,7 +116,7 @@ private fun <T>ChooserDialog(
 			Text(text = stringResource(title))
 		},
 		text = {
-			Column {
+			Column(Modifier.verticalScroll(rememberScrollState())) {
 				languageOptions?.let {
 					it.forEach { option ->
 						Option(

@@ -81,14 +81,14 @@
     <string name="removed">Enlevé</string>
     <string name="continue_button">Continuer</string>
     <string name="read_storage_rationale">Autorisez l’accès à votre stockage local afin qu’Odiyo puisse récupérer et lire vos chansons hors ligne.</string>
-    <string name="read_storage_request">Autorisez l’accès à votre stockage local afin qu’Odiyo puisse récupérer et lire vos chansons hors ligne.\\nAppuyez sur Continuer > Autorisations, puis activez le Stockage.</string>
+    <string name="read_storage_request">Autorisez l’accès à votre stockage local afin qu’Odiyo puisse récupérer et lire vos chansons hors ligne.\nAppuyez sur Continuer > Autorisations, puis activez le Stockage.</string>
     <string name="queue_up">File d’attente</string>
     <string name="this_playlist">cette playlist</string>
     <string name="these_songs">Ces chants</string>
     <string name="this_song">Cette chanson</string>
     <string name="name_already_exists">Le nom de la playlist \"%s\" existe déjà</string>
     <string name="drop_it">Lâche ça</string>
-    <string name="audio_intent_message">Un fichier audio a été déposé par une autre application. Mais vous avez une liste de lecture existante.\\nComment aimerez-vous le gérer ?</string>
+    <string name="audio_intent_message">Un fichier audio a été déposé par une autre application. Mais vous avez une liste de lecture existante.\nComment aimerez-vous le gérer ?</string>
     <string name="repeat_mode">Changer le mode de répétition</string>
     <string name="save_queue">Conserver</string>
     <string name="write_storage_permission_message">Autorisez Odiyo à modifier et à supprimer des chansons sur le stockage de votre appareil.</string>
