@@ -86,21 +86,6 @@ open class BaseMediaViewModel(
 			}
 		}
 		viewModelScope.launch {
-			playingState.collect { playingState ->
-				nowPlayingUiState.update { it.copy(playingState = playingState) }
-			}
-		}
-		viewModelScope.launch {
-			currentMediaArt.collectLatest { bitmap ->
-				nowPlayingUiState.update { it.copy(artwork = bitmap) }
-			}
-		}
-		viewModelScope.launch {
-			currentMediaIndex.collect { index ->
-				nowPlayingUiState.update { it.copy(currentSongIndex = index) }
-			}
-		}
-		viewModelScope.launch {
 			mediaUiState.collectLatest {
 				mediaScreenUiState = it
 			}
