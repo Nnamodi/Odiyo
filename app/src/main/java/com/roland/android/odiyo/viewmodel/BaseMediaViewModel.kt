@@ -116,9 +116,7 @@ open class BaseMediaViewModel(
 		viewModelScope.launch {
 			musicRepository.getCachedSongs.collectLatest { musicList ->
 				cachedSongs = musicList
-				if (!songsFetched) {
-					fetchAndSyncSongs(); return@collectLatest
-				}
+				if (!songsFetched) fetchAndSyncSongs()
 				songs = musicList
 					.filter { it.name.endsWith(".mp3") }
 					.sortList()

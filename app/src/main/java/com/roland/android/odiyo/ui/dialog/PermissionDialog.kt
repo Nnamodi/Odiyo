@@ -2,11 +2,8 @@ package com.roland.android.odiyo.ui.dialog
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.AlertDialog
@@ -35,9 +32,6 @@ fun PermissionDialog(
 	openDialog: (Boolean) -> Unit
 ) {
 	AlertDialog(
-		modifier = Modifier
-			.fillMaxWidth(0.95f)
-			.verticalScroll(rememberScrollState()),
 		onDismissRequest = {},
 		icon = {
 			Icon(icon, null, Modifier.size(70.dp), iconColor)

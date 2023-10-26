@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -39,8 +40,12 @@ object Permissions {
 		permission: (String) -> Unit,
 		permissionGranted: (Boolean) -> Unit,
 	) {
+		val readPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			Manifest.permission.READ_MEDIA_AUDIO
+		} else Manifest.permission.READ_EXTERNAL_STORAGE
+
 		permissionRequest(
-			permission = Manifest.permission.READ_EXTERNAL_STORAGE,
+			permission = readPermission,
 			permissionGranted = permissionGranted,
 			showRational = permission
 		)
