@@ -101,8 +101,14 @@ fun AppRoute(
 				SettingsScreen(
 					uiState = settingsViewModel.settingsScreenUiState,
 					settingsAction = settingsViewModel::settingsAction,
+					navigateToAboutUsScreen = navActions::navigateToAboutUsScreen,
 					navigateUp = navController::navigateUp
 				)
+			}
+			composableI(AppRoute.AboutUsScreen.route) { backStackEntry ->
+				val screenToShow = backStackEntry.arguments?.getString("screenToShow") ?: ""
+
+				AboutUsScreen(screenToShow = screenToShow, navigateUp = navController::navigateUp)
 			}
 			composableI(AppRoute.SearchScreen.route) {
 				SearchScreen(

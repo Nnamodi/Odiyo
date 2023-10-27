@@ -38,14 +38,22 @@ class NavActions(
 			AppRoute.AddSongsScreen.routeWithName(playlistToAddSongs)
 		)
 	}
+	fun navigateToAboutUsScreen(screenToShow: String) {
+		navController.navigate(
+			AppRoute.AboutUsScreen.routeToScreen(screenToShow)
+		)
+	}
 }
 
 @Composable
 fun concealMinimizedView(navController: NavHostController): Boolean {
 	val navBackStackEntry = navController.currentBackStackEntryAsState()
-	val currentDestination = navBackStackEntry.value?.destination?.route
-	val certainDestinations = setOf(AppRoute.NowPlayingScreen.route, AppRoute.SettingsScreen.route)
-	if (currentDestination == null) return true
+	val currentDestination = navBackStackEntry.value?.destination?.route ?: return true
+	val certainDestinations = setOf(
+		AppRoute.NowPlayingScreen.route,
+		AppRoute.SettingsScreen.route,
+		AppRoute.AboutUsScreen.route
+	)
 	return certainDestinations.any { currentDestination == it }
 }
 
@@ -63,6 +71,9 @@ sealed class AppRoute(val route: String) {
 	object AddSongsScreen: AppRoute("add_songs_screen/{playlistToAddTo}") {
 		fun routeWithName(playlistToAddTo: String) = String.format("add_songs_screen/%s", playlistToAddTo)
 	}
+	object AboutUsScreen: AppRoute("about_us_screen/{screenToShow}") {
+		fun routeToScreen(screenToShow: String) = String.format("about_us_screen/%s", screenToShow)
+	}
 }
 
 const val ALBUMS = "albums"
@@ -71,3 +82,5 @@ const val FAVORITES = "favorites"
 const val LAST_PLAYED = "last_played"
 const val PLAYLISTS = "playlists"
 const val ADD_TO_PLAYLIST = "add_to_playlist"
+const val ABOUT_US = "about_us"
+const val SUPPORT = "support"

@@ -113,7 +113,7 @@
     <string name="display_category">Montrer</string>
     <string name="search_history_category">Historique des recherches</string>
     <string name="preferences_category">Préférences</string>
-    <string name="about_us_category">Qui sommes-nous</string>
+    <string name="about_category">Qui sommes-nous</string> // translate appropriately
     <string name="choose_theme">Choisir le thème</string>
     <string name="follow_system">Suivre le système</string>
     <string name="dark_theme">Sombre</string>

@@ -59,6 +59,8 @@ import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.LanguageChooserDialog
 import com.roland.android.odiyo.ui.dialog.LanguageOptions
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
+import com.roland.android.odiyo.ui.navigation.ABOUT_US
+import com.roland.android.odiyo.ui.navigation.SUPPORT
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.SettingsActions
 import kotlinx.coroutines.launch
@@ -67,6 +69,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
 	uiState: SettingsUiState,
 	settingsAction: (SettingsActions) -> Unit,
+	navigateToAboutUsScreen: (String) -> Unit,
 	navigateUp: () -> Unit
 ) {
 	val context = LocalContext.current
@@ -98,7 +101,7 @@ fun SettingsScreen(
 			val displayCategory by remember { mutableStateOf(optionsCategory(R.string.display_category)) }
 			val searchHistoryCategory by remember { mutableStateOf(optionsCategory(R.string.search_history_category)) }
 			val preferencesCategory by remember { mutableStateOf(optionsCategory(R.string.preferences_category)) }
-			val aboutUsCategory by remember { mutableStateOf(optionsCategory(R.string.about_us_category)) }
+			val aboutUsCategory by remember { mutableStateOf(optionsCategory(R.string.about_category)) }
 
 			Container(displayCategory[0].category) {
 				displayCategory.forEach {
@@ -156,8 +159,15 @@ fun SettingsScreen(
 				}
 			}
 			Container(aboutUsCategory[0].category) {
-				aboutUsCategory.forEach {
-					SettingsOption(leadingIcon = it.icon, option = it.option) {}
+				aboutUsCategory.forEach { menu ->
+					val action = { when (menu) {
+						OptionsMenu.AboutUs -> navigateToAboutUsScreen(ABOUT_US)
+						OptionsMenu.Support -> navigateToAboutUsScreen(SUPPORT)
+						else -> {}
+					} }
+					SettingsOption(leadingIcon = menu.icon, option = menu.option) {
+						action()
+					}
 				}
 			}
 			Spacer(Modifier.height(100.dp))
@@ -301,15 +311,15 @@ private enum class OptionsMenu(
 	ClearSearchHistory(R.string.clear_history, Icons.Rounded.ClearAll, R.string.search_history_category),
 	HowToHandleMusicIntent(R.string.how_to_handle_music_intent, Icons.Rounded.MusicNote, R.string.preferences_category),
 	Language(R.string.language, Icons.Rounded.Language, R.string.preferences_category),
-	AboutUs(R.string.about_us, Icons.Rounded.ContactSupport, R.string.about_us_category),
-	Support(R.string.support, Icons.Rounded.Coffee, R.string.about_us_category),
-	ContactUs(R.string.contact_us, Icons.Rounded.ContactMail, R.string.about_us_category)
+	AboutUs(R.string.about_us, Icons.Rounded.ContactSupport, R.string.about_category),
+	Support(R.string.support, Icons.Rounded.Coffee, R.string.about_category),
+	ContactUs(R.string.contact_us, Icons.Rounded.ContactMail, R.string.about_category)
 }
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SettingsScreenPreview() {
 	OdiyoTheme {
-		SettingsScreen(uiState = SettingsUiState(), settingsAction = {}) {}
+		SettingsScreen(SettingsUiState(), {}, {}) {}
 	}
 }

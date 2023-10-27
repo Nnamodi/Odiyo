@@ -113,7 +113,7 @@
     <string name="display_category">Display</string>
     <string name="search_history_category">Search history</string>
     <string name="preferences_category">Preferences</string>
-    <string name="about_us_category">About us</string>
+    <string name="about_category">About</string>
     <string name="choose_theme">Choose theme</string>
     <string name="follow_system">Follow system</string>
     <string name="dark_theme">Dark</string>
@@ -129,6 +129,18 @@
     <string name="history_cleared">Search history cleared</string>
     <string name="how_will_you_handle_it">How will you like to handle audio files dropped in by another application?</string>
     <string name="choose_language">Choose language</string>
+    <string name="developer_story" translatable="false">\n
+        Odiyo was developed by a single software engineer, Nnamdi Roland Igede, a result-oriented mobile app developer.\n
+        Driven by a creative and innovative instinct, Roland strives to be the best at what he does.\n\n
+        When he is not before a screen writing codes, he is probably reading, drawing, listening to good music, out with friends, exercising or eating something nice. 😉\n\n
+        Don\'t mind me when I refer to myself as \"us\", I am merely talking of myself and my laptop. 😜</string>
+    <string name="support_info" translatable="false">\n
+        We look forward to building more cool products like this, and as such, your support will prove invaluable to us in accomplishing this goal.\n\n
+        So If you will love to buy us a cup of coffee or show your support in other ways, please do so through my wallet address.\n
+        Please contact us if you encounter any problems.</string>
+    <string name="wallet_address_title" translatable="false">Wallet address</string>
+    <string name="wallet_address_info" translatable="false">Bank name: Stanbic IBTC Bank\nAccount number: 0032871480</string>
+    <string name="app_icon_desc" translatable="false">Odiyo logo</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>
