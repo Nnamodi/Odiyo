@@ -1,6 +1,8 @@
 package com.roland.android.odiyo.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +33,7 @@ import com.roland.android.odiyo.util.MediaMenuActions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AddSongsScreen(
 	uiState: MediaItemsUiState,
@@ -80,7 +83,7 @@ fun AddSongsScreen(
 							inSelectionMode = true, selected = selected,
 							onClick = {}, onLongClick = {},
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
-						),
+						).animateItemPlacement(tween(1000)),
 						song = song, currentMediaItem = NOTHING_PLAYING,
 						inSelectionMode = true, selected = selected
 					) {}

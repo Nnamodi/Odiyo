@@ -35,6 +35,7 @@ import com.roland.android.odiyo.util.rememberWindowSize
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecentSongItem(
+	modifier: Modifier = Modifier,
 	itemIndex: Int,
 	song: Music,
 	currentMediaItem: MediaItem,
@@ -55,7 +56,7 @@ fun RecentSongItem(
 	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
 	Column(
-		modifier = Modifier
+		modifier = modifier
 			.width(imageSize.dp + 16.dp)
 			.clip(MaterialTheme.shapes.large)
 			.combinedClickable(

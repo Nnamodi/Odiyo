@@ -24,7 +24,10 @@ object CustomColors {
 		return SliderDefaults.colors(
 			thumbColor = componentColor,
 			activeTrackColor = componentColor,
-			inactiveTrackColor = componentColor.copy(alpha = 0.3f)
+			inactiveTrackColor = componentColor.copy(alpha = 0.3f),
+			disabledThumbColor = componentColor.copy(alpha = 0.4f),
+			disabledActiveTrackColor = componentColor.copy(alpha = 0.4f),
+			disabledInactiveTrackColor = componentColor.copy(alpha = 0.2f)
 		)
 	}
 

@@ -160,6 +160,10 @@ fun NowPlayingScreen(
 			)
 		}
 	}
+
+	LaunchedEffect(uiState.musicQueue) {
+		if (uiState.musicQueue.isEmpty()) navigateUp()
+	}
 }
 
 @OptIn(ExperimentalFoundationApi::class)

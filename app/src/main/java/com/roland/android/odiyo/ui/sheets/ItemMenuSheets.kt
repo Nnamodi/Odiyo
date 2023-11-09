@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.sheets
 
+import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
@@ -165,7 +166,7 @@ private fun <T>ItemMenuSheet(
 	itemIsPlaylist: Boolean,
 	collectionIsPlaylist: Boolean = false,
 	listOfPlaylists: List<Playlist>? = null,
-	menuItems: List<MenuItems>,
+	menuItems: MutableList<MenuItems>,
 	containerColor: Color = BottomSheetDefaults.ContainerColor,
 	componentColor: Color = MaterialTheme.colorScheme.onBackground,
 	dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle(color = componentColor) },
@@ -190,6 +191,10 @@ private fun <T>ItemMenuSheet(
 	val requestPermissionLauncher = rememberPermissionLauncher(
 		onResult = { writeStoragePermissionGranted.value = it }
 	)
+
+	if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && !itemIsPlaylist) {
+		menuItems.removeAll(setOf(Rename, Delete))
+	}
 
 	context.writeStoragePermission({ permission = it }) { isGranted ->
 		writeStoragePermissionGranted.value = isGranted

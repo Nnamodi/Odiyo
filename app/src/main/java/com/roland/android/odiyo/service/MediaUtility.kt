@@ -16,6 +16,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerNotificationManager
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.service.Util.NOTHING_PLAYING
+import com.roland.android.odiyo.service.Util.mediaItems
 import com.roland.android.odiyo.service.Util.mediaItemsUiState
 import com.roland.android.odiyo.service.Util.mediaUiState
 import com.roland.android.odiyo.service.Util.nowPlayingMetadata
@@ -41,8 +42,9 @@ class PlayerListener(private val context: Context) : Player.Listener {
 
 	override fun onPlayerError(error: PlaybackException) {
 		super.onPlayerError(error)
-		Toast.makeText(context, error.localizedMessage, Toast.LENGTH_SHORT).show()
 		Log.i("PlaybackInfo", "${error.message}", error)
+		if (mediaItems.value.isEmpty()) return
+		Toast.makeText(context, error.localizedMessage, Toast.LENGTH_SHORT).show()
 	}
 
 	override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {

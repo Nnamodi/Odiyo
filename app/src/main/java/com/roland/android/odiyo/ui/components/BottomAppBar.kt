@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.components
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -7,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,15 +22,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
@@ -37,11 +42,12 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
+import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 
-@OptIn(ExperimentalMaterial3Api::class)
+ @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
 	uiState: NowPlayingUiState,
@@ -62,9 +68,12 @@ fun BottomAppBar(
 	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
+	val queueIsNotEmpty by remember(uiState.musicQueue) {
+		derivedStateOf { uiState.musicQueue.isNotEmpty() }
+	}
 
 	AnimatedVisibility(
-		visible = !concealBottomBar && !inSelectionMode,
+		visible = !concealBottomBar && !inSelectionMode && queueIsNotEmpty,
 		enter = slideInVertically(
 			initialOffsetY = { it },
 			animationSpec = tween(durationMillis = 700, delayMillis = 1000)
@@ -102,22 +111,25 @@ fun BottomAppBar(
 	}
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NowPlayingMinimizedView(
-	song: Music?,
-	artwork: Bitmap?,
-	isPlaying: Boolean,
+	uiState: NowPlayingUiState,
 	playPause: (Uri, Int?) -> Unit,
 	showMusicQueue: (Boolean) -> Unit,
 	moveToNowPlayingScreen: () -> Unit
 ) {
+	val context = LocalContext.current
+	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
+	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
+	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+	val maxSeekValue = currentSong?.time?.toFloat() ?: 1f
 	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val indication = rememberRipple(color = CustomColors.rippleColor(generatedColor))
 	val interactionSource = remember { MutableInteractionSource() }
-	val context = LocalContext.current
-	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+	val componentColor = componentColor(generatedColor)
 
-	Row(
+	Box(
 		modifier = Modifier
 			.safeDrawingPadding()
 			.fillMaxWidth()
@@ -125,48 +137,79 @@ fun NowPlayingMinimizedView(
 			.clip(MaterialTheme.shapes.large)
 			.background(generatedColor)
 			.clickable(interactionSource, indication) { moveToNowPlayingScreen() },
-		horizontalArrangement = Arrangement.Start,
-		verticalAlignment = Alignment.CenterVertically
+		contentAlignment = Alignment.BottomCenter
 	) {
-		MediaImage(
+		Row(
 			modifier = Modifier
-				.padding(8.dp)
-				.size(44.dp),
-			artwork = artwork ?: defaultMediaArt
-		)
-		Text(
-			text = song?.title ?: stringResource(R.string.nothing_to_play),
-			color = componentColor(generatedColor),
-			overflow = TextOverflow.Ellipsis,
-			modifier = Modifier.weight(1.0f),
-			softWrap = false
-		)
-		NowPlayingIconButton(
-			onClick = { song?.uri?.let { playPause(it, null) } },
-			modifier = Modifier
-				.padding(start = 24.dp)
-				.size(30.dp),
-			color = generatedColor
+				.fillMaxWidth()
+				.padding(bottom = 4.dp),
+			horizontalArrangement = Arrangement.Start,
+			verticalAlignment = Alignment.CenterVertically
 		) {
-			Icon(
-				imageVector = if (isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
-				contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
-				modifier = Modifier.fillMaxSize()
+			MediaImage(
+				modifier = Modifier
+					.padding(8.dp)
+					.size(44.dp),
+				artwork = artwork ?: defaultMediaArt
 			)
+			Row(Modifier.weight(1f)) {
+				Text(
+					text = currentSong?.title ?: stringResource(R.string.nothing_to_play),
+					color = componentColor,
+					overflow = TextOverflow.Ellipsis,
+					softWrap = false
+				)
+				currentSong?.let {
+					Text(
+						text = " - ${currentSong.artist}",
+						fontSize = 15.sp,
+						fontWeight = FontWeight.Light,
+						modifier = Modifier.alpha(0.7f),
+						overflow = TextOverflow.Ellipsis,
+						softWrap = false,
+						color = componentColor
+					)
+				}
+			}
+			NowPlayingIconButton(
+				onClick = { currentSong?.uri?.let { playPause(it, null) } },
+				modifier = Modifier
+					.padding(start = 24.dp)
+					.size(30.dp),
+				color = generatedColor
+			) {
+				Icon(
+					imageVector = if (uiState.playingState) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
+					contentDescription = if (uiState.playingState) stringResource(R.string.pause) else stringResource(R.string.play),
+					modifier = Modifier.fillMaxSize()
+				)
+			}
+			NowPlayingIconButton(
+				onClick = { showMusicQueue(true) },
+				modifier = Modifier
+					.padding(horizontal = 12.dp)
+					.size(30.dp),
+				color = generatedColor
+			) {
+				Icon(
+					imageVector = Icons.Rounded.QueueMusic,
+					contentDescription = stringResource(R.string.music_queue),
+					modifier = Modifier.fillMaxSize()
+				)
+			}
 		}
-		NowPlayingIconButton(
-			onClick = { showMusicQueue(true) },
+		Slider(
+			value = uiState.seekProgress,
+			onValueChange = {},
+			enabled = false,
+			valueRange = 0f..maxSeekValue,
 			modifier = Modifier
-				.padding(horizontal = 12.dp)
-				.size(30.dp),
-			color = generatedColor
-		) {
-			Icon(
-				imageVector = Icons.Rounded.QueueMusic,
-				contentDescription = stringResource(R.string.music_queue),
-				modifier = Modifier.fillMaxSize()
-			)
-		}
+				.fillMaxWidth()
+				.padding(horizontal = 8.dp)
+				.offset(y = 20.dp),
+			colors = sliderColor(componentColor),
+			thumb = {}
+		)
 	}
 }
 
