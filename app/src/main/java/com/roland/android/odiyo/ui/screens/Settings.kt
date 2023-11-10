@@ -55,6 +55,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.states.SettingsUiState
 import com.roland.android.odiyo.ui.components.AppBar
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
+import com.roland.android.odiyo.ui.dialog.ContactUsDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.LanguageChooserDialog
 import com.roland.android.odiyo.ui.dialog.LanguageOptions
@@ -79,6 +80,7 @@ fun SettingsScreen(
 	val openClearHistoryDialog = remember { mutableStateOf(false) }
 	val openMusicIntentDialog = remember { mutableStateOf(false) }
 	val openLanguageChooserDialog = remember { mutableStateOf(false) }
+	val openContactUsDialog = remember { mutableStateOf(false) }
 	val appLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
 
 	Scaffold(
@@ -163,6 +165,7 @@ fun SettingsScreen(
 					val action = { when (menu) {
 						OptionsMenu.AboutUs -> navigateToAboutUsScreen(ABOUT_US)
 						OptionsMenu.Support -> navigateToAboutUsScreen(SUPPORT)
+						OptionsMenu.ContactUs -> openContactUsDialog.value = true
 						else -> {}
 					} }
 					SettingsOption(leadingIcon = menu.icon, option = menu.option) {
@@ -214,6 +217,10 @@ fun SettingsScreen(
 			},
 			openDialog = { openLanguageChooserDialog.value = false }
 		)
+	}
+
+	if (openContactUsDialog.value) {
+		ContactUsDialog(settingsAction) { openContactUsDialog.value = it }
 	}
 }
 

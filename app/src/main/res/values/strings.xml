@@ -141,6 +141,10 @@
     <string name="wallet_address_title" translatable="false">Wallet address</string>
     <string name="wallet_address_info" translatable="false">Bank name: Stanbic IBTC Bank\nAccount number: 0032871480</string>
     <string name="app_icon_desc" translatable="false">Odiyo logo</string>
+    <string name="contact_message" translatable="false">Reach out to us for a feature request, to report a problem or for some proposal.</string>
+    <string name="contact_address" translatable="false">\n
+        Contact address:</string>
+    <string name="contact_address_info" translatable="false">rolandnnamodi@gmail.com</string>
 
     <plurals name="number_of_songs">
         <item quantity="one">%d song</item>

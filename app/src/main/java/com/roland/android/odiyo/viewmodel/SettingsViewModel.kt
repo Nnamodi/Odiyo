@@ -1,5 +1,8 @@
 package com.roland.android.odiyo.viewmodel
 
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -76,6 +79,7 @@ class SettingsViewModel @Inject constructor(
 			SettingsActions.SaveSearchHistory -> shouldSaveSearchHistory()
 			SettingsActions.ClearSearchHistory -> clearSearchHistory()
 			is SettingsActions.SetIntentOption -> saveMusicIntent(action.intentOption)
+			is SettingsActions.ContactUs -> launchEmailApp(action.context, action.recipient)
 		}
 	}
 
@@ -102,6 +106,17 @@ class SettingsViewModel @Inject constructor(
 	private fun saveMusicIntent(intentOption: IntentOptions) {
 		viewModelScope.launch(Dispatchers.IO) {
 			appDataStore.saveMusicIntent(intentOption)
+		}
+	}
+
+	private fun launchEmailApp(context: Context, recipient: String) {
+		val intent = Intent(Intent.ACTION_MAIN)
+		intent.addCategory(Intent.CATEGORY_APP_EMAIL)
+		intent.putExtra(Intent.EXTRA_EMAIL, recipient)
+		try {
+			context.startActivity(intent)
+		} catch (e: Exception) {
+			Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
 		}
 	}
 }
