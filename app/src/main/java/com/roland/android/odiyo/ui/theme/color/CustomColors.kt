@@ -20,7 +20,7 @@ object CustomColors {
 	private var currentColor = default_background
 
 	@Composable
-	fun sliderColor(componentColor: Color): SliderColors {
+	fun sliderColor(componentColor: Color = MaterialTheme.colorScheme.background): SliderColors {
 		return SliderDefaults.colors(
 			thumbColor = componentColor,
 			activeTrackColor = componentColor,
@@ -49,13 +49,6 @@ object CustomColors {
 			}
 		}
 		return newColor.value
-	}
-
-	fun componentColor(generatedColor: Color, toggled: Boolean = false): Color {
-		val isDark = generatedColor.luminance() < 0.1
-		val componentColor = if (isDark) light_background else light_onBackground
-		val toggleableComponentColor = if (isDark) dark_primary else light_primary
-		return if (toggled) toggleableComponentColor else componentColor
 	}
 
 	private fun dominantDarkColor(image: Bitmap): Int {

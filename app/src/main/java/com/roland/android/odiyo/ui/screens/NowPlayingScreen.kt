@@ -39,7 +39,6 @@ import com.roland.android.odiyo.ui.sheets.NowPlayingScreenSheet
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
-import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.*
@@ -70,49 +69,71 @@ fun NowPlayingScreen(
 	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
 	val artwork by remember(currentSong) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val generatedColor = nowPlayingBackgroundColor(artwork)
-	val componentColor = componentColor(generatedColor)
+	val generatedColorIsDark = generatedColor.luminance() < 0.1
 	val snackbarHostState = remember { SnackbarHostState() }
 	val snackbarOffset = LocalConfiguration.current.screenHeightDp - 116
 	var songsToAddToPlaylist by remember { mutableStateOf<List<Music>>(emptyList()) }
 
-	Scaffold(
-		modifier = Modifier.fillMaxSize(),
-		topBar = {
-			NowPlayingTopAppBar(
-				song = currentSong, backgroundColor = generatedColor, componentColor = componentColor,
-				goToCollection = goToCollection, navigateUp = navigateUp
-			) {
-				openMoreOptions.value = true
-			}
-		},
-		snackbarHost = {
-			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-snackbarOffset).dp)) {
-				Snackbar(Modifier.padding(horizontal = 30.dp)) { Text(it.visuals.message) }
-			}
-		},
-		containerColor = generatedColor
-	) { paddingValues ->
-		if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
-			NowPlayingLandscapeView(
-				paddingValues, uiState, componentColor,
-				generatedColor, mediaControl, goToCollection
-			) { openMusicQueue.value = it }
-		} else {
-			NowPlayingPortraitView(
-				paddingValues, uiState, componentColor,
-				generatedColor, mediaControl, goToCollection
-			) { openMusicQueue.value = it }
-		}
-	}
+	OdiyoTheme(!generatedColorIsDark) {
+		val componentColor = MaterialTheme.colorScheme.background
 
-	if (openMusicQueue.value) {
-		QueueItemsSheet(
-			songs = uiState.musicQueue, currentSongIndex = uiState.currentSongIndex,
-			scaffoldState = scaffoldState, containerColor = generatedColor,
-			saveQueue = { songsToAddToPlaylist = uiState.musicQueue; openAddToPlaylistDialog.value = true },
-			openBottomSheet = { openMusicQueue.value = it },
-			queueAction = queueAction
-		)
+		Scaffold(
+			modifier = Modifier.fillMaxSize(),
+			topBar = {
+				NowPlayingTopAppBar(
+					song = currentSong,
+					backgroundColor = generatedColor,
+					componentColor = componentColor,
+					goToCollection = goToCollection,
+					navigateUp = navigateUp
+				) {
+					openMoreOptions.value = true
+				}
+			},
+			snackbarHost = {
+				SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = (-snackbarOffset).dp)) {
+					Snackbar(Modifier.padding(horizontal = 30.dp)) { Text(it.visuals.message) }
+				}
+			},
+			containerColor = generatedColor
+		) { paddingValues ->
+			if (windowSize.width == WindowType.Landscape || windowSize.height == WindowType.Portrait) {
+				NowPlayingLandscapeView(
+					paddingValues, uiState, componentColor,
+					generatedColor, mediaControl, goToCollection
+				) { openMusicQueue.value = it }
+			} else {
+				NowPlayingPortraitView(
+					paddingValues, uiState, componentColor,
+					generatedColor, mediaControl, goToCollection
+				) { openMusicQueue.value = it }
+			}
+		}
+
+		if (openMusicQueue.value) {
+			QueueItemsSheet(
+				songs = uiState.musicQueue, currentSongIndex = uiState.currentSongIndex,
+				scaffoldState = scaffoldState, containerColor = generatedColor,
+				saveQueue = {
+					songsToAddToPlaylist = uiState.musicQueue; openAddToPlaylistDialog.value = true
+				},
+				openBottomSheet = { openMusicQueue.value = it },
+				queueAction = queueAction
+			)
+		}
+
+		if (openMoreOptions.value && currentSong != null) {
+			NowPlayingScreenSheet(
+				currentSong = currentSong, scaffoldState = scaffoldState,
+				componentColor = componentColor, containerColor = generatedColor,
+				openBottomSheet = { openMoreOptions.value = it },
+				openAddToPlaylistDialog = {
+					songsToAddToPlaylist = it; openAddToPlaylistDialog.value = true
+				}
+			) {
+				menuAction(it); showSnackbar(it, context, scope, snackbarHostState)
+			}
+		}
 	}
 
 	if (openAddToPlaylistDialog.value) {
@@ -127,17 +148,6 @@ fun NowPlayingScreen(
 			},
 			openDialog = { openAddToPlaylistDialog.value = it }
 		)
-	}
-
-	if (openMoreOptions.value && currentSong != null) {
-		NowPlayingScreenSheet(
-			currentSong = currentSong, scaffoldState = scaffoldState,
-			componentColor = componentColor, containerColor = generatedColor,
-			openBottomSheet = { openMoreOptions.value = it },
-			openAddToPlaylistDialog = { songsToAddToPlaylist = it; openAddToPlaylistDialog.value = true }
-		) {
-			menuAction(it); showSnackbar(it, context, scope, snackbarHostState)
-		}
 	}
 
 	val systemUiController = rememberSystemUiController()
@@ -215,7 +225,11 @@ fun MediaDescription(
 				color = componentColor,
 				modifier = Modifier
 					.clip(MaterialTheme.shapes.small)
-					.clickable(interactionSource, ripple, songIsValid) { goToCollection(currentSong!!.artist, ARTISTS) }
+					.clickable(
+						interactionSource = interactionSource,
+						indication = ripple,
+						enabled = songIsValid
+					) { goToCollection(currentSong!!.artist, ARTISTS) }
 					.padding(4.dp),
 				style = MaterialTheme.typography.titleMedium,
 				overflow = TextOverflow.Ellipsis,
@@ -251,7 +265,7 @@ fun MediaControls(
 	val maxSeekValue = currentSong?.time?.toFloat() ?: 1f
 	var seekValue by remember { mutableStateOf(uiState.seekProgress) }
 	var valueBeingChanged by remember { mutableStateOf(false) }
-	val componentColor = componentColor(backgroundColor)
+	val componentColor = MaterialTheme.colorScheme.background
 
 	Slider(
 		value = if (valueBeingChanged) seekValue else uiState.seekProgress,
@@ -264,7 +278,7 @@ fun MediaControls(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(top = 8.dp),
-		colors = sliderColor(componentColor)
+		colors = sliderColor()
 	)
 	Row {
 		Text(uiState.currentDuration, color = componentColor)

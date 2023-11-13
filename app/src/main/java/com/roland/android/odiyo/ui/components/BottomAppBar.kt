@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,20 +35,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.service.Util.getBitmap
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
-import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 
- @OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
 	uiState: NowPlayingUiState,
@@ -68,6 +69,10 @@ fun BottomAppBar(
 	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
+	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
+	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
+	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val generatedColorIsDark = generatedColor.luminance() < 0.1
 	val queueIsNotEmpty by remember(uiState.musicQueue) {
 		derivedStateOf { uiState.musicQueue.isNotEmpty() }
 	}
@@ -80,12 +85,17 @@ fun BottomAppBar(
 		),
 		exit = ExitTransition.None
 	) {
-		NowPlayingMinimizedView(
-			song = currentSong, artwork = artwork,
-			isPlaying = uiState.playingState, playPause = playPause,
-			showMusicQueue = { openMusicQueue.value = it },
-			moveToNowPlayingScreen = moveToNowPlayingScreen
-		)
+		OdiyoTheme(!generatedColorIsDark) {
+			NowPlayingMinimizedView(
+				uiState = uiState,
+				currentSong = currentSong,
+				artwork = artwork,
+				generatedColor = generatedColor,
+				playPause = playPause,
+				showMusicQueue = { openMusicQueue.value = it },
+				moveToNowPlayingScreen = moveToNowPlayingScreen
+			)
+		}
 	}
 
 	if (openMusicQueue.value) {
@@ -115,19 +125,18 @@ fun BottomAppBar(
 @Composable
 fun NowPlayingMinimizedView(
 	uiState: NowPlayingUiState,
+	currentSong: Music?,
+	artwork: Bitmap?,
+	generatedColor: Color,
 	playPause: (Uri, Int?) -> Unit,
 	showMusicQueue: (Boolean) -> Unit,
 	moveToNowPlayingScreen: () -> Unit
 ) {
 	val context = LocalContext.current
-	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
-	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
 	val maxSeekValue = currentSong?.time?.toFloat() ?: 1f
-	val generatedColor = nowPlayingBackgroundColor(artwork)
 	val indication = rememberRipple(color = CustomColors.rippleColor(generatedColor))
 	val interactionSource = remember { MutableInteractionSource() }
-	val componentColor = componentColor(generatedColor)
 
 	Box(
 		modifier = Modifier
@@ -155,19 +164,19 @@ fun NowPlayingMinimizedView(
 			Row(Modifier.weight(1f)) {
 				Text(
 					text = currentSong?.title ?: stringResource(R.string.nothing_to_play),
-					color = componentColor,
+					color = MaterialTheme.colorScheme.background,
 					overflow = TextOverflow.Ellipsis,
 					softWrap = false
 				)
 				currentSong?.let {
 					Text(
 						text = " - ${currentSong.artist}",
+						color = MaterialTheme.colorScheme.background,
 						fontSize = 15.sp,
 						fontWeight = FontWeight.Light,
 						modifier = Modifier.alpha(0.7f),
 						overflow = TextOverflow.Ellipsis,
 						softWrap = false,
-						color = componentColor
 					)
 				}
 			}
@@ -207,7 +216,7 @@ fun NowPlayingMinimizedView(
 				.fillMaxWidth()
 				.padding(horizontal = 8.dp)
 				.offset(y = 20.dp),
-			colors = sliderColor(componentColor),
+			colors = sliderColor(),
 			thumb = {}
 		)
 	}

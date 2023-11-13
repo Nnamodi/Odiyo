@@ -34,7 +34,6 @@ import com.roland.android.odiyo.ui.components.SwipeableItem
 import com.roland.android.odiyo.ui.components.rememberSwipeToDismissState
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
-import com.roland.android.odiyo.ui.theme.color.CustomColors.componentColor
 import com.roland.android.odiyo.util.*
 import kotlinx.coroutines.launch
 
@@ -51,7 +50,7 @@ fun QueueItemsSheet(
 ) {
 	val scope = rememberCoroutineScope()
 	val lazyListState = rememberLazyListState()
-	val componentColor = if (containerColor != ContainerColor) componentColor(containerColor) else MaterialTheme.colorScheme.onBackground
+	val componentColor = if (containerColor != ContainerColor) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onBackground
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
 
@@ -80,7 +79,7 @@ fun QueueItemsSheet(
 					TextButton(
 						onClick = { saveQueue(); openBottomSheet(false) },
 						colors = ButtonDefaults.textButtonColors(
-							contentColor = componentColor(containerColor, toggled = true)
+							contentColor = if (containerColor != ContainerColor) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.primary
 						)
 					) {
 						Text(stringResource(R.string.save_queue))
@@ -123,6 +122,7 @@ fun QueueItemsSheet(
 	}
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueItem(
 	itemIndex: Int,
@@ -138,7 +138,11 @@ fun QueueItem(
 	val interactionSource = remember { MutableInteractionSource() }
 	val ripple = rememberRipple(color = CustomColors.rippleColor(cardColor))
 	val isPlaying = itemIndex == currentSongIndex
-	val color = if (isPlaying) componentColor(containerColor, true) else componentColor
+	val color = when {
+		containerColor != ContainerColor && isPlaying -> MaterialTheme.colorScheme.inversePrimary
+		containerColor == ContainerColor && isPlaying -> MaterialTheme.colorScheme.primary
+		else -> componentColor
+	}
 
 	Card(
 		colors = CardDefaults.cardColors(cardColor),

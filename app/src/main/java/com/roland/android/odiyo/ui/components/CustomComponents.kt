@@ -64,7 +64,7 @@ fun NowPlayingIconButton(
 			),
 		contentAlignment = Alignment.Center
 	) {
-		val contentColor = CustomColors.componentColor(color, toggled)
+		val contentColor = if (toggled) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.background
 		CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
 	}
 }
