@@ -113,7 +113,7 @@
     <string name="display_category">Montrer</string>
     <string name="search_history_category">Historique des recherches</string>
     <string name="preferences_category">Préférences</string>
-    <string name="about_category">Qui sommes-nous</string> // translate appropriately
+    <string name="about_category">Environ</string>
     <string name="choose_theme">Choisir le thème</string>
     <string name="follow_system">Suivre le système</string>
     <string name="dark_theme">Sombre</string>
@@ -127,6 +127,21 @@
     <string name="history_cleared">Historique de recherche effacé</string>
     <string name="how_will_you_handle_it">Comment aimerez-vous gérer les fichiers audio déposés par une autre application ?</string>
     <string name="choose_language">Choisissez la langue</string>
+    <string name="developer_story">\n
+        Odiyo a été développé par un seul ingénieur logiciel, Nnamdi Roland Igede, un développeur d’applications mobiles axé sur les résultats.\n
+        Animé par un instinct créatif et innovant, Roland s’efforce d’être le meilleur dans ce qu’il fait.\n\n
+        Quand il n’est pas devant un écran en train d’écrire des codes, il est probablement en train de lire, de dessiner, d’écouter de la bonne musique, de sortir avec des amis, de faire de l’exercice ou de manger quelque chose de bon. 😉\n\n
+        Ne m’en voulez pas quand je me réfère à moi-même comme « nous », je parle simplement de moi et de mon ordinateur portable. 😜</string>
+    <string name="support_info">\n
+        Nous sommes impatients de construire d’autres produits sympas comme celui-ci, et en tant que tel, votre soutien s’avérera inestimable pour nous permettre d’atteindre cet objectif.\n\n
+        Donc, si vous aimeriez nous acheter une tasse de café ou montrer votre soutien d’une autre manière, veuillez le faire via mon adresse de portefeuille.\n
+        N’hésitez pas à nous contacter si vous rencontrez des problèmes.</string>
+    <string name="wallet_address_title">Adresse du portefeuille</string>
+    <string name="wallet_address_info">Nom de la banque : Stanbic IBTC Bank\nNuméro de compte : 0032871480</string>
+    <string name="app_icon_desc">Logo d’Odiyo</string>
+    <string name="contact_message">Contactez-nous pour une demande de fonctionnalité, pour signaler un problème ou pour une proposition.</string>
+    <string name="contact_address">\n
+        Adresse de contact :</string>
 
     <plurals name="number_of_songs" tools:ignore="MissingQuantity">
         <item quantity="one">%d chanson</item>

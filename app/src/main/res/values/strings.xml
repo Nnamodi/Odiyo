@@ -120,7 +120,7 @@
     <string name="light_theme">Light</string>
     <string name="always_ask">Always ask</string>
     <string name="english" translatable="false">English</string>
-    <string name="french" translatable="false">French</string>
+    <string name="french" translatable="false">Français</string>
     <string name="history_is_being_saved">Search history is being saved</string>
     <string name="history_is_not_saved">Search history is not being saved</string>
     <string name="clear_history_text">Are you sure you want to clear all search history?</string>
@@ -138,11 +138,11 @@
         We look forward to building more cool products like this, and as such, your support will prove invaluable to us in accomplishing this goal.\n\n
         So If you will love to buy us a cup of coffee or show your support in other ways, please do so through my wallet address.\n
         Please contact us if you encounter any problems.</string>
-    <string name="wallet_address_title" translatable="false">Wallet address</string>
-    <string name="wallet_address_info" translatable="false">Bank name: Stanbic IBTC Bank\nAccount number: 0032871480</string>
-    <string name="app_icon_desc" translatable="false">Odiyo logo</string>
-    <string name="contact_message" translatable="false">Reach out to us for a feature request, to report a problem or for some proposal.</string>
-    <string name="contact_address" translatable="false">\n
+    <string name="wallet_address_title">Wallet address</string>
+    <string name="wallet_address_info">Bank name: Stanbic IBTC Bank\nAccount number: 0032871480</string>
+    <string name="app_icon_desc">Odiyo logo</string>
+    <string name="contact_message">Reach out to us for a feature request, to report a problem or for some proposal.</string>
+    <string name="contact_address">\n
         Contact address:</string>
     <string name="contact_address_info" translatable="false">rolandnnamodi@gmail.com</string>
 
