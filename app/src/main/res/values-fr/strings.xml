@@ -45,7 +45,10 @@
     <string name="delete_dialog_text">Vous ne pourrez plus récupérer %s</string>
     <string name="nothing_here">Il n’y a rien ici</string>
     <string name="play_all_songs">Tout lire (%d)</string>
-    <string name="playing_from_album">Lecture à partir de l’album :</string>
+    <string name="playing_from_album">Jouer à partir de l’album :</string>
+    <string name="playing_from_artist">Jouer à partir de l’artiste :</string>
+    <string name="playing_from_playlist">Lire à partir de playlist :</string>
+    <string name="playing_from_search">Jouer à partir de la Recherche :</string>
     <string name="go_to_album">Aller à l’album</string>
     <string name="go_to_artist">Aller à l’artiste</string>
     <string name="last_played">Dernière lecture</string>

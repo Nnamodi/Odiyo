@@ -2,7 +2,12 @@ package com.roland.android.odiyo.data
 
 import android.net.Uri
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.media3.common.Player
 import com.roland.android.odiyo.ui.dialog.IntentOptions
 import com.roland.android.odiyo.ui.dialog.SortOptions
@@ -22,6 +27,8 @@ private val REPEAT_MODE = intPreferencesKey("repeat_mode")
 private val THEMES = stringPreferencesKey("themes")
 private val SAVE_SEARCH_HISTORY = booleanPreferencesKey("should_save_search_history")
 private val MUSIC_INTENT = stringPreferencesKey("music_intent")
+private val MUSIC_COLLECTION_TYPE = stringPreferencesKey("collection_type")
+private val MUSIC_COLLECTION_NAME = stringPreferencesKey("collection_name")
 
 class AppDataStore(private val dataStore: DataStore<Preferences>) {
 	suspend fun savePermissionStatus(permanentlyDenied: Boolean) {
@@ -152,6 +159,22 @@ class AppDataStore(private val dataStore: DataStore<Preferences>) {
 		return dataStore.data.map { preference ->
 			IntentOptions.valueOf(
 				value = preference[MUSIC_INTENT] ?: IntentOptions.AlwaysAsk.name
+			)
+		}
+	}
+
+	suspend fun saveCurrentPlaylistDetails(collectionType: String, collectionName: String) {
+		dataStore.edit { preference ->
+			preference[MUSIC_COLLECTION_TYPE] = collectionType
+			preference[MUSIC_COLLECTION_NAME] = collectionName
+		}
+	}
+
+	fun getCurrentPlaylistDetails(): Flow<NowPlayingFrom> {
+		return dataStore.data.map { preference ->
+			NowPlayingFrom(
+				collectionType = preference[MUSIC_COLLECTION_TYPE] ?: "",
+				collectionName = preference[MUSIC_COLLECTION_NAME] ?: ""
 			)
 		}
 	}

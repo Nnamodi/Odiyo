@@ -56,6 +56,8 @@ import com.roland.android.odiyo.ui.components.RecentSongItem
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
 import com.roland.android.odiyo.ui.screens.Menus.Favorites
 import com.roland.android.odiyo.ui.screens.Menus.LastPlayed
 import com.roland.android.odiyo.ui.screens.Menus.Playlist
@@ -69,7 +71,7 @@ import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 @Composable
 fun LibraryScreen(
 	uiState: MediaUiState,
-	playSong: (Uri, Int) -> Unit,
+	playSong: (Uri, Int, String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	navigateToMediaScreen: () -> Unit,
 	navigateToMediaItemScreen: (String, String) -> Unit,
@@ -133,7 +135,9 @@ fun LibraryScreen(
 								itemIndex = index,
 								song = song,
 								currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
-								playSong = playSong
+								playSong = { uri, id ->
+									playSong(uri, id, PLAYLISTS, RECENTLY_ADDED)
+								}
 							) {
 								longClickedSong = song
 								openMenuSheet.value = true
@@ -208,7 +212,7 @@ private fun LibraryScreenPreview() {
 	OdiyoTheme {
 		LibraryScreen(
 			uiState = MediaUiState(currentMediaItem = previewData[4].uri.toMediaItem, recentSongs = previewData.shuffled()),
-			playSong = { _, _ -> },
+			playSong = { _, _, _, _ -> },
 			menuAction = {},
 			navigateToMediaScreen = {},
 			navigateToMediaItemScreen = { _, _ -> },

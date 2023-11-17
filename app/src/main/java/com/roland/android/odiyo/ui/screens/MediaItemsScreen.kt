@@ -10,9 +10,21 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -24,8 +36,19 @@ import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.mediaSource.previewPlaylist
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.states.MediaItemsUiState
-import com.roland.android.odiyo.ui.components.*
-import com.roland.android.odiyo.ui.dialog.*
+import com.roland.android.odiyo.ui.components.EmptyListScreen
+import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.MediaItemsAppBar
+import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.SelectionModeItems
+import com.roland.android.odiyo.ui.components.SelectionModeTopBar
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.selectSemantics
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
+import com.roland.android.odiyo.ui.dialog.SortDialog
+import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
@@ -41,7 +64,8 @@ import com.roland.android.odiyo.util.SongDetails
 @Composable
 fun MediaItemsScreen(
 	uiState: MediaItemsUiState,
-	playAudio: (Uri, Int) -> Unit,
+	previousScreenIsNowPlayingScreen: Boolean,
+	playAudio: (Uri, Int, String, String) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
@@ -128,7 +152,9 @@ fun MediaItemsScreen(
 					SongListHeader(
 						songs = songs,
 						inSelectMode = inSelectMode,
-						playAllSongs = playAudio
+						playAllSongs = { uri, index ->
+							playAudio(uri, index, collectionType, collectionName)
+						}
 					)
 				}
 				itemsIndexed(
@@ -141,7 +167,7 @@ fun MediaItemsScreen(
 						modifier = Modifier.selectSemantics(
 							inSelectionMode = inSelectMode,
 							selected = selected,
-							onClick = { playAudio(song.uri, index) },
+							onClick = { playAudio(song.uri, index, collectionType, collectionName) },
 							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						).animateItemPlacement(tween(1000)),
@@ -257,7 +283,8 @@ fun MediaItemsScreenPreview() {
 
 		MediaItemsScreen(
 			uiState = uiState,
-			playAudio = { _, _ -> },
+			previousScreenIsNowPlayingScreen = false,
+			playAudio = { _, _, _, _ -> },
 			goToCollection = { _, _ -> },
 			menuAction = {},
 			closeSelectionMode = {},

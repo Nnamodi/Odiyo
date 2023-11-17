@@ -64,6 +64,11 @@ class NowPlayingViewModel @Inject constructor(
 				mediaSession?.player?.repeatMode = mode
 			}
 		}
+		viewModelScope.launch {
+			appDataStore.getCurrentPlaylistDetails().collect { details ->
+				nowPlayingUiState.update { it.copy(nowPlayingFrom = details) }
+			}
+		}
 	}
 
 	private fun updateProgress(): Boolean {

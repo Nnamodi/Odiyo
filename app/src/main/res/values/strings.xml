@@ -46,6 +46,11 @@
     <string name="nothing_here">Nothing here</string>
     <string name="play_all_songs">Play all (%d)</string>
     <string name="playing_from_album">Playing from album:</string>
+    <string name="playing_from_artist">Playing from artist:</string>
+    <string name="playing_from_playlist">Playing from playlist:</string>
+    <string name="playing_from_search">Playing from Search:</string>
+    <string name="all_songs" translatable="false">All songs</string>
+    <string name="from_search" translatable="false">Searched for \'%s\'</string>
     <string name="go_to_album">Go to album</string>
     <string name="go_to_artist">Go to artist</string>
     <string name="last_played">Last played</string>
@@ -129,12 +134,12 @@
     <string name="history_cleared">Search history cleared</string>
     <string name="how_will_you_handle_it">How will you like to handle audio files dropped in by another application?</string>
     <string name="choose_language">Choose language</string>
-    <string name="developer_story" translatable="false">\n
+    <string name="developer_story">\n
         Odiyo was developed by a single software engineer, Nnamdi Roland Igede, a result-oriented mobile app developer.\n
         Driven by a creative and innovative instinct, Roland strives to be the best at what he does.\n\n
         When he is not before a screen writing codes, he is probably reading, drawing, listening to good music, out with friends, exercising or eating something nice. 😉\n\n
         Don\'t mind me when I refer to myself as \"us\", I am merely talking of myself and my laptop. 😜</string>
-    <string name="support_info" translatable="false">\n
+    <string name="support_info">\n
         We look forward to building more cool products like this, and as such, your support will prove invaluable to us in accomplishing this goal.\n\n
         So If you will love to buy us a cup of coffee or show your support in other ways, please do so through my wallet address.\n
         Please contact us if you encounter any problems.</string>

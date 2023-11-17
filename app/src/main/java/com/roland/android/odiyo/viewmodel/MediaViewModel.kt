@@ -70,7 +70,12 @@ class MediaViewModel @Inject constructor(
 		nowPlayingUiState.update { it.copy(currentSongIndex = 0) }
 	}
 
-	fun playAudio(uri: Uri, index: Int? = null) {
+	fun playAudio(
+		uri: Uri,
+		index: Int? = null,
+		collectionType: String = "",
+		collectionName: String = ""
+	) {
 		mediaSession?.player?.apply {
 			if (isLoading) return
 			// reset playlist when a mediaItem is selected from list
@@ -192,7 +197,7 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	fun prepareMediaItems(collectionName: String, collectionType: String) {
+	fun prepareMediaItems(collectionType: String, collectionName: String) {
 		if (collectionType == PLAYLISTS) { fetchPlaylistSongs(collectionName); return }
 		val songs = when (collectionType) {
 			ALBUMS -> songsFromAlbum(collectionName)

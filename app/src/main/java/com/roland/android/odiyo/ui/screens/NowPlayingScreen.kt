@@ -82,6 +82,7 @@ fun NowPlayingScreen(
 			topBar = {
 				NowPlayingTopAppBar(
 					song = currentSong,
+					nowPlayingFrom = uiState.nowPlayingFrom,
 					backgroundColor = generatedColor,
 					componentColor = componentColor,
 					goToCollection = goToCollection,

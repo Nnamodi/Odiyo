@@ -65,10 +65,10 @@ fun AppRoute(
 			composable(AppRoute.LibraryScreen.route) {
 				LibraryScreen(
 					uiState = mediaViewModel.mediaScreenUiState,
-					playSong = { uri, index ->
+					playSong = { uri, index, collectionType, collectionName ->
 						mediaViewModel.apply {
 							resetPlaylist(recentSongs)
-							playAudio(uri, index)
+							playAudio(uri, index, collectionType, collectionName)
 						}
 						navActions.navigateToNowPlayingScreen()
 					},
@@ -114,10 +114,10 @@ fun AppRoute(
 				SearchScreen(
 					uiState = mediaViewModel.mediaItemsScreenUiState,
 					onSearch = mediaViewModel::onSearch,
-					playAudio = { uri, index ->
+					playAudio = { uri, index, collectionType, collectionName ->
 						mediaViewModel.apply {
 							resetPlaylist(mediaItemsScreenUiState.songs)
-							playAudio(uri, index)
+							playAudio(uri, index, collectionType, collectionName)
 						}
 						navActions.navigateToNowPlayingScreen()
 					},
@@ -136,15 +136,18 @@ fun AppRoute(
 			) { backStackEntry ->
 				val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
 				val collectionType = backStackEntry.arguments?.getString("collectionType") ?: ""
-				mediaViewModel.prepareMediaItems(collectionName, collectionType)
+				val previousScreenIsNowPlayingScreen = navController.previousBackStackEntry?.destination?.route == AppRoute.NowPlayingScreen.route
+				mediaViewModel.prepareMediaItems(collectionType, collectionName)
 
 				MediaItemsScreen(
 					uiState = mediaViewModel.mediaItemsScreenUiState,
-					playAudio = { uri, index ->
+					previousScreenIsNowPlayingScreen = previousScreenIsNowPlayingScreen,
+					playAudio = { uri, index, type, name ->
 						mediaViewModel.apply {
 							resetPlaylist(mediaItemsScreenUiState.songs)
-							playAudio(uri, index)
+							playAudio(uri, index, type, name)
 						}
+						if (previousScreenIsNowPlayingScreen) return@MediaItemsScreen
 						navActions.navigateToNowPlayingScreen()
 					},
 					goToCollection = navActions::navigateToMediaItemScreen,
@@ -156,7 +159,7 @@ fun AppRoute(
 			}
 			composableI(AppRoute.AddSongsScreen.route) { backStackEntry ->
 				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo") ?: ""
-				mediaViewModel.prepareMediaItems(playlistName, ADD_TO_PLAYLIST)
+				mediaViewModel.prepareMediaItems(ADD_TO_PLAYLIST, playlistName)
 
 				AddSongsScreen(
 					uiState = mediaViewModel.mediaItemsScreenUiState,

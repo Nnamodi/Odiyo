@@ -11,4 +11,9 @@ data class ShuffleState(
 	val randomSeed: Int
 )
 
+data class NowPlayingFrom(
+	val collectionType: String = "",
+	val collectionName: String = ""
+)
+
 const val LIST_SEPARATOR = "[-]"

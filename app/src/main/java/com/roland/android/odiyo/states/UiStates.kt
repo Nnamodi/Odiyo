@@ -3,6 +3,7 @@ package com.roland.android.odiyo.states
 import androidx.annotation.StringRes
 import androidx.media3.common.MediaItem
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.data.NowPlayingFrom
 import com.roland.android.odiyo.model.Album
 import com.roland.android.odiyo.model.Artist
 import com.roland.android.odiyo.model.Music
@@ -19,7 +20,8 @@ data class NowPlayingUiState(
 	val repeatMode: Int = 0,
 	val currentSongIndex: Int = 0,
 	val musicQueue: List<Music> = emptyList(),
-	val playlists: List<Playlist> = emptyList()
+	val playlists: List<Playlist> = emptyList(),
+	val nowPlayingFrom: NowPlayingFrom = NowPlayingFrom()
 )
 
 data class MediaUiState(

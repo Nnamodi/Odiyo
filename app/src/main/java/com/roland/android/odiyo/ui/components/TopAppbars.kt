@@ -1,5 +1,6 @@
 package com.roland.android.odiyo.ui.components
 
+import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -24,9 +26,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.roland.android.odiyo.R
+import com.roland.android.odiyo.data.NowPlayingFrom
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.ui.navigation.ALBUMS
+import com.roland.android.odiyo.ui.navigation.ALL_SONGS
+import com.roland.android.odiyo.ui.navigation.ARTISTS
+import com.roland.android.odiyo.ui.navigation.FAVORITES
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
+import com.roland.android.odiyo.ui.navigation.SEARCH
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -86,6 +95,7 @@ fun AppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun NowPlayingTopAppBar(
 	song: Music?,
+	nowPlayingFrom: NowPlayingFrom,
 	backgroundColor: Color,
 	componentColor: Color,
 	goToCollection: (String, String) -> Unit,
@@ -106,6 +116,12 @@ fun NowPlayingTopAppBar(
 			}
 		},
 		title = {
+			val collectionDetails = getCollectionDetails(
+				context = LocalContext.current,
+				collectionType = nowPlayingFrom.collectionType,
+				collectionName = nowPlayingFrom.collectionName
+			)
+
 			if (song != null) {
 				Column(
 					modifier = Modifier
@@ -115,18 +131,18 @@ fun NowPlayingTopAppBar(
 							interactionSource = interactionSource,
 							indication = ripple,
 							enabled = song.uri != "".toUri()
-						) { goToCollection(song.album, ALBUMS) }
+						) { goToCollection(nowPlayingFrom.collectionName, nowPlayingFrom.collectionType) }
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
 				) {
 					Text(
-						text = stringResource(R.string.playing_from_album),
+						text = collectionDetails.first,
 						color = componentColor, modifier = Modifier.alpha(0.8f),
 						style = MaterialTheme.typography.titleSmall
 					)
 					Text(
-						text = song.album, color = componentColor,
+						text = collectionDetails.second, color = componentColor,
 						overflow = TextOverflow.Ellipsis, softWrap = false,
 						style = MaterialTheme.typography.titleMedium
 					)
@@ -155,7 +171,17 @@ fun MediaItemsAppBar(
 	openMenu: () -> Unit
 ) {
 	TopAppBar(
-		title = { Text(text = collectionName, overflow = TextOverflow.Ellipsis, softWrap = false) },
+		title = {
+			val collectionDetails = getCollectionDetails(
+				context = LocalContext.current,
+				collectionName = collectionName
+			)
+			Text(
+				text = collectionDetails.second,
+				overflow = TextOverflow.Ellipsis,
+				softWrap = false
+			)
+		},
 		navigationIcon = {
 			IconButton(onClick = navigateUp) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
@@ -332,4 +358,28 @@ private fun searchSuggestions(
 		}
 		.toSet().filterNot { it in searchHistory }
 	return Pair(searchHistory, suggestions)
+}
+
+private fun getCollectionDetails(
+	context: Context,
+	collectionType: String = "",
+	collectionName: String
+): Pair<String, String> {
+	val type = context.getString(
+		when (collectionType) {
+			ALBUMS -> R.string.playing_from_album
+			ARTISTS -> R.string.playing_from_artist
+			SEARCH -> R.string.playing_from_search
+			else -> R.string.playing_from_playlist
+		}
+	)
+	val name = when {
+		collectionType == SEARCH -> context.getString(R.string.from_search, collectionName)
+		collectionName == FAVORITES -> context.getString(R.string.favorites)
+		collectionName == LAST_PLAYED -> context.getString(R.string.last_played)
+		collectionName == RECENTLY_ADDED -> context.getString(R.string.recently_added)
+		collectionName == ALL_SONGS -> context.getString(R.string.all_songs)
+		else -> collectionName
+	}
+	return Pair(type, name)
 }

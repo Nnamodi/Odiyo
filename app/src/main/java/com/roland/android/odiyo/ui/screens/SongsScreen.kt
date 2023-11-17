@@ -5,12 +5,33 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -21,11 +42,19 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.mediaSource.previewData
 import com.roland.android.odiyo.model.Music
 import com.roland.android.odiyo.states.MediaUiState
-import com.roland.android.odiyo.ui.components.*
+import com.roland.android.odiyo.ui.components.EmptyListScreen
+import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.SelectionModeItems
+import com.roland.android.odiyo.ui.components.SelectionModeTopBar
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
+import com.roland.android.odiyo.ui.navigation.ALL_SONGS
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -38,7 +67,7 @@ import com.roland.android.odiyo.util.SongDetails
 @Composable
 fun SongsScreen(
 	uiState: MediaUiState,
-	playAudio: (Uri, Int?) -> Unit,
+	playAudio: (Uri, Int?, String, String) -> Unit,
 	goToCollection: (String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit
@@ -106,7 +135,10 @@ fun SongsScreen(
 			Column(Modifier.padding(top = if (inSelectMode) paddingValues.calculateTopPadding() else 0.dp)) {
 				SongListHeader(
 					songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
-					playAllSongs = playAudio, openSortDialog = { openSortDialog.value = true }
+					playAllSongs = { uri, index ->
+						playAudio(uri, index, PLAYLISTS, ALL_SONGS)
+					},
+					openSortDialog = { openSortDialog.value = true }
 				)
 				LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 					itemsIndexed(
@@ -119,7 +151,7 @@ fun SongsScreen(
 							modifier = Modifier.selectSemantics(
 								inSelectionMode = inSelectMode,
 								selected = selected,
-								onClick = { playAudio(song.uri, index) },
+								onClick = { playAudio(song.uri, index, PLAYLISTS, ALL_SONGS) },
 								onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
 								toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 							).animateItemPlacement(tween(1000)),
@@ -226,7 +258,7 @@ fun SongsScreenPreview() {
 		) {
 			SongsScreen(
 				uiState = MediaUiState(allSongs = previewData),
-				playAudio = { _, _ -> },
+				playAudio = { _, _, _, _ -> },
 				goToCollection = { _, _ -> },
 				menuAction = {}
 			) {}

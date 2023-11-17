@@ -76,11 +76,15 @@ sealed class AppRoute(val route: String) {
 	}
 }
 
+// Collection types
 const val ALBUMS = "albums"
 const val ARTISTS = "artists"
 const val FAVORITES = "favorites"
 const val LAST_PLAYED = "last_played"
 const val PLAYLISTS = "playlists"
+const val SEARCH = "search"
+const val RECENTLY_ADDED = "recently_added"
+const val ALL_SONGS = "all_songs"
 const val ADD_TO_PLAYLIST = "add_to_playlist"
 const val ABOUT_US = "about_us"
 const val SUPPORT = "support"
