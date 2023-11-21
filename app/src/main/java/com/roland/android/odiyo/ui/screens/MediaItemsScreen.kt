@@ -55,7 +55,7 @@ import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.Permissions
+import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.SongDetails
@@ -90,7 +90,12 @@ fun MediaItemsScreen(
 	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
 	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
 	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
-	val requestPermissionLauncher = Permissions.rememberPermissionLauncher(
+	val collectionIsFromUserCuratedPlaylistScreen by remember(collectionName, collectionType) {
+		derivedStateOf {
+			(collectionType == PLAYLISTS) && !previousScreenIsNowPlayingScreen
+		}
+	}
+	val requestPermissionLauncher = rememberPermissionLauncher(
 		onResult = { writeStoragePermissionGranted.value = it }
 	)
 	closeSelectionMode(!inSelectMode)
@@ -106,27 +111,27 @@ fun MediaItemsScreen(
 				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
 			} else {
 				MediaItemsAppBar(
-					collectionName = collectionName, collectionIsPlaylist = collectionType == PLAYLISTS,
+					collectionName = collectionName, collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
 					songsNotEmpty = songs.isNotEmpty(), addSongs = moveToAddSongsScreen, navigateUp = navigateUp
 				) { openMenu.value = true }
 			}
 		},
 		bottomBar = {
-			SelectionModeBottomBar(inSelectMode, collectionIsPlaylist = collectionType == PLAYLISTS) {
+			SelectionModeBottomBar(inSelectMode, collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.Delete -> if (collectionType == PLAYLISTS) {
+					SelectionModeItems.Delete -> if (collectionIsFromUserCuratedPlaylistScreen) {
 						menuAction(MediaMenuActions.RemoveFromPlaylist(selectedSongs, collectionName)); selectedSongsId.value = emptySet()
 					} else {
 						openPermissionDialog.value = !writeStoragePermissionGranted.value
 						openDeleteDialog.value = writeStoragePermissionGranted.value
 					}
 				}
-				showSnackbar(it, context, scope, snackbarHostState, collectionType == PLAYLISTS)
+				showSnackbar(it, context, scope, snackbarHostState, collectionIsFromUserCuratedPlaylistScreen)
 			}
 		},
 		snackbarHost = {
@@ -142,7 +147,7 @@ fun MediaItemsScreen(
 				EmptyListScreen(
 					text = stringResource(R.string.nothing_here),
 					modifier = Modifier.padding(innerPadding),
-					playlistCollection = collectionType == PLAYLISTS,
+					playlistCollection = collectionIsFromUserCuratedPlaylistScreen,
 					addSongs = { moveToAddSongsScreen(collectionName) }
 				)
 			}
@@ -185,7 +190,7 @@ fun MediaItemsScreen(
 			MediaItemSheet(
 				song = songClicked!!,
 				scaffoldState = sheetState,
-				collectionIsPlaylist = collectionType == PLAYLISTS,
+				collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
 				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },

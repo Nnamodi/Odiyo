@@ -91,7 +91,11 @@ fun SearchScreen(
 	val requestPermissionLauncher = rememberPermissionLauncher(
 		onResult = { writeStoragePermissionGranted.value = it }
 	)
-	closeSelectionMode(!inSelectMode); onSearch(null)
+
+	LaunchedEffect(inSelectMode) {
+		closeSelectionMode(!inSelectMode)
+		onSearch(null)
+	}
 
 	context.writeStoragePermission({ permission = it }) { isGranted ->
 		writeStoragePermissionGranted.value = isGranted

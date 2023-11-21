@@ -26,6 +26,7 @@ import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.SEARCH
 import com.roland.android.odiyo.util.AudioIntentActions
 import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SongDetails
@@ -83,6 +84,7 @@ class MediaViewModel @Inject constructor(
 				preparePlaylist()
 				seekTo(it, 0)
 				updateMusicQueue()
+				saveCurrentPlaylistDetails(collectionType, collectionName)
 			}
 			if (isPlaying) pause() else play()
 			Log.d("ViewModelInfo", "playAudio: $index\n${musicItem(uri.toMediaItem)}")
@@ -199,6 +201,7 @@ class MediaViewModel @Inject constructor(
 
 	fun prepareMediaItems(collectionType: String, collectionName: String) {
 		if (collectionType == PLAYLISTS) { fetchPlaylistSongs(collectionName); return }
+		if (collectionType == SEARCH) { songsFromSearch(false, collectionName); return }
 		val songs = when (collectionType) {
 			ALBUMS -> songsFromAlbum(collectionName)
 			ARTISTS -> songsFromArtist(collectionName)
@@ -227,9 +230,9 @@ class MediaViewModel @Inject constructor(
 		}
 	}
 
-	private fun songsFromSearch(newQueryEntered: Boolean) {
+	private fun songsFromSearch(newQueryEntered: Boolean, query: String? = null) {
 		viewModelScope.launch(Dispatchers.IO) {
-			val searchQuery = mediaItemsScreenUiState.searchQuery
+			val searchQuery = query ?: mediaItemsScreenUiState.searchQuery
 			val result = songs.filter { music ->
 				val matchingCombinations = listOf(
 					"${music.artist}${music.title}",
@@ -240,7 +243,7 @@ class MediaViewModel @Inject constructor(
 				)
 				matchingCombinations.any { it.contains(searchQuery, ignoreCase = true) }
 			}.takeIf { searchQuery.isNotEmpty() }
-			if (result?.isNotEmpty() == true || newQueryEntered) delay(1500) // simulate search
+			if (result?.isNotEmpty() == true && newQueryEntered) delay(1500) // simulate search
 			mediaItemsUiState.update { it.copy(songs = result ?: emptyList(), isLoading = false) }
 		}
 	}

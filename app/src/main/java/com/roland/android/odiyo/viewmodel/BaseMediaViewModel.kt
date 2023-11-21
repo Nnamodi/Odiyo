@@ -31,7 +31,11 @@ import com.roland.android.odiyo.states.MediaItemsUiState
 import com.roland.android.odiyo.states.MediaUiState
 import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.odiyo.ui.navigation.ALL_SONGS
+import com.roland.android.odiyo.ui.navigation.FAVORITES
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
 import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
 import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.QueueMediaItem
@@ -315,9 +319,16 @@ open class BaseMediaViewModel(
 	}
 
 	fun fetchPlaylistSongs(playlistName: String) {
-		val playlist = mediaScreenUiState.playlists.find { it.name == playlistName }
-		val uris = playlist?.songs
-		val songsFromPlaylist = songs.filter { uris?.contains(it.uri) == true }
+		val userCuratedPlaylist = mediaScreenUiState.playlists.find { it.name == playlistName }
+		val uris = userCuratedPlaylist?.songs
+		val songsFromPlaylist = when {
+			userCuratedPlaylist != null -> songs.filter { uris?.contains(it.uri) == true }
+			playlistName == FAVORITES -> favoriteSongs
+			playlistName == LAST_PLAYED -> lastPlayedSongs
+			playlistName == RECENTLY_ADDED -> recentSongs
+			playlistName == ALL_SONGS -> songs
+			else -> emptyList()
+		}
 		mediaItemsUiState.update {
 			it.copy(songs = songsFromPlaylist, collectionName = playlistName, collectionType = PLAYLISTS)
 		}
@@ -377,6 +388,12 @@ open class BaseMediaViewModel(
 			SortOptions.NameZA -> sortedByDescending { it.title }
 			SortOptions.NewestFirst -> sortedByDescending { it.addedOn }
 			SortOptions.OldestFirst -> sortedBy { it.addedOn }
+		}
+	}
+
+	fun saveCurrentPlaylistDetails(collectionType: String, collectionName: String) {
+		viewModelScope.launch(Dispatchers.IO) {
+			appDataStore.saveCurrentPlaylistDetails(collectionType, collectionName)
 		}
 	}
 
