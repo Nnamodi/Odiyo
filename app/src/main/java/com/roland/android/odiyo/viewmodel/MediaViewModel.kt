@@ -83,10 +83,10 @@ class MediaViewModel @Inject constructor(
 			index?.let {
 				preparePlaylist()
 				seekTo(it, 0)
-				updateMusicQueue()
 				saveCurrentPlaylistDetails(collectionType, collectionName)
 			}
 			if (isPlaying) pause() else play()
+			updateMusicQueue()
 			Log.d("ViewModelInfo", "playAudio: $index\n${musicItem(uri.toMediaItem)}")
 		}
 	}
@@ -201,6 +201,9 @@ class MediaViewModel @Inject constructor(
 
 	fun prepareMediaItems(collectionType: String, collectionName: String) {
 		if (collectionType == PLAYLISTS) { fetchPlaylistSongs(collectionName); return }
+		mediaItemsUiState.update {
+			it.copy(collectionName = collectionName, collectionType = collectionType)
+		}
 		if (collectionType == SEARCH) { songsFromSearch(false, collectionName); return }
 		val songs = when (collectionType) {
 			ALBUMS -> songsFromAlbum(collectionName)
@@ -210,9 +213,7 @@ class MediaViewModel @Inject constructor(
 			ADD_TO_PLAYLIST -> songsToAddToPlaylist(collectionName)
 			else -> emptyList()
 		}
-		mediaItemsUiState.update {
-			it.copy(songs = songs, collectionName = collectionName, collectionType = collectionType)
-		}
+		mediaItemsUiState.update { it.copy(songs = songs) }
 	}
 
 	fun onSearch(query: String?) {

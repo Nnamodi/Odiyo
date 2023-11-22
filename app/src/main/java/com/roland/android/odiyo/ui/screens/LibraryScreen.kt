@@ -155,7 +155,7 @@ fun LibraryScreen(
 				scaffoldState = sheetState,
 				goToCollection = navigateToMediaItemScreen,
 				openBottomSheet = { openMenuSheet.value = it },
-				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openMenuSheet.value = false },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, longClickedSong!!)

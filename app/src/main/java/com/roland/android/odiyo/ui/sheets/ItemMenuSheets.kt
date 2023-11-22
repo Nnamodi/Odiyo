@@ -107,9 +107,10 @@ fun NowPlayingScreenSheet(
 ) {
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
 	val menuItems = mutableListOf(Rename, AddToPlaylist, SetAsRingtone, Share, Details)
+	val song by remember(true) { mutableStateOf(currentSong) } // remember currentSong, in case player switches to next song while bottomSheet is open
 
 	ItemMenuSheet(
-		item = currentSong,
+		item = song,
 		scaffoldState = scaffoldState,
 		itemIsPlaylist = false,
 		menuItems = menuItems,
@@ -224,7 +225,7 @@ private fun <T>ItemMenuSheet(
 							openRenameDialog.value = writeStoragePermissionGranted.value
 						}
 						AddToFavorite -> { menuAction(MediaMenuActions.Favorite(song)); openBottomSheet(false) }
-						AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)) }
+						AddToPlaylist -> { openAddToPlaylistDialog(listOf(song)); openBottomSheet(false) }
 						SetAsRingtone -> {
 							if (Settings.System.canWrite(context)) {
 								openRingtoneDialog.value = true

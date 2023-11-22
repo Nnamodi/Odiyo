@@ -72,6 +72,7 @@ fun SongsScreen(
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit
 ) {
+	val (currentMediaItem, sortOption, allSongs, _, playlists, _, _, isLoading) = uiState
 	val sheetState = rememberModalBottomSheetState(true)
 	val openBottomSheet = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
@@ -105,12 +106,15 @@ fun SongsScreen(
 		},
 		bottomBar = {
 			SelectionModeBottomBar(inSelectMode, isSongsScreen = true) {
-				val selectedSongs = selectedSongs(selectedSongsId.value, uiState.allSongs)
+				val selectedSongs = selectedSongs(selectedSongsId.value, allSongs)
 				when (it) {
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
-					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.Share -> {
+						menuAction(MediaMenuActions.ShareSong(selectedSongs))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.Delete -> {
 						openPermissionDialog.value = !writeStoragePermissionGranted.value
 						openDeleteDialog.value = writeStoragePermissionGranted.value
@@ -127,14 +131,14 @@ fun SongsScreen(
 			}
 		}
 	) { paddingValues ->
-		if (uiState.allSongs.isEmpty() || uiState.isLoading) {
-			if (uiState.isLoading) { LoadingListUi() } else {
+		if (allSongs.isEmpty() || isLoading) {
+			if (isLoading) { LoadingListUi() } else {
 				EmptyListScreen(text = stringResource(R.string.no_songs_text), isSongsScreen = true)
 			}
 		} else {
 			Column(Modifier.padding(top = if (inSelectMode) paddingValues.calculateTopPadding() else 0.dp)) {
 				SongListHeader(
-					songs = uiState.allSongs, showSortAction = true, inSelectMode = inSelectMode,
+					songs = allSongs, showSortAction = true, inSelectMode = inSelectMode,
 					playAllSongs = { uri, index ->
 						playAudio(uri, index, PLAYLISTS, ALL_SONGS)
 					},
@@ -142,7 +146,7 @@ fun SongsScreen(
 				)
 				LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
 					itemsIndexed(
-						items = uiState.allSongs,
+						items = allSongs,
 						key = { _, song -> song.id }
 					) { index, song ->
 						val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
@@ -156,7 +160,7 @@ fun SongsScreen(
 								toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 							).animateItemPlacement(tween(1000)),
 							song = song,
-							currentMediaItem = uiState.currentMediaItem ?: MediaItem.EMPTY,
+							currentMediaItem = currentMediaItem ?: MediaItem.EMPTY,
 							inSelectionMode = inSelectMode,
 							selected = selected,
 							openMenuSheet = { songClicked = it; openBottomSheet.value = true }
@@ -175,7 +179,7 @@ fun SongsScreen(
 				scaffoldState = sheetState,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
-				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
@@ -185,7 +189,7 @@ fun SongsScreen(
 
 		if (openSortDialog.value) {
 			SortDialog(
-				selectedOption = uiState.sortOption,
+				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
 			) { openSortDialog.value = it }
 		}
@@ -193,12 +197,12 @@ fun SongsScreen(
 		if (openAddToPlaylistDialog.value &&
 			(songClicked != null || selectedSongsId.value.isNotEmpty())) {
 			val selectedSongs = if (inSelectMode) {
-				selectedSongs(selectedSongsId.value, uiState.allSongs)
+				selectedSongs(selectedSongsId.value, allSongs)
 			} else listOf(songClicked!!)
 
 			AddToPlaylistDialog(
 				songs = selectedSongs,
-				playlists = uiState.playlists,
+				playlists = playlists,
 				addSongToPlaylist = {
 					selectedSongsId.value = emptySet()
 					menuAction(it); openDeleteDialog.value = false
@@ -211,7 +215,7 @@ fun SongsScreen(
 		if (openDeleteDialog.value) {
 			DeleteDialog(
 				delete = {
-					val selectedSongs = selectedSongs(selectedSongsId.value, uiState.allSongs)
+					val selectedSongs = selectedSongs(selectedSongsId.value, allSongs)
 					menuAction(
 						MediaMenuActions.DeleteSongs(
 							selectedSongs.map { SongDetails(it.id, it.uri) }

@@ -52,6 +52,7 @@ import com.roland.android.odiyo.ui.dialog.SortOptions
 import com.roland.android.odiyo.ui.menu.SongListMenu
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.util.MediaMenuActions
@@ -111,7 +112,8 @@ fun MediaItemsScreen(
 				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
 			} else {
 				MediaItemsAppBar(
-					collectionName = collectionName, collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
+					collectionName = collectionName, collectionType = collectionType,
+					collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
 					songsNotEmpty = songs.isNotEmpty(), addSongs = moveToAddSongsScreen, navigateUp = navigateUp
 				) { openMenu.value = true }
 			}
@@ -123,9 +125,13 @@ fun MediaItemsScreen(
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
-					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.Share -> {
+						menuAction(MediaMenuActions.ShareSong(selectedSongs))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.Delete -> if (collectionIsFromUserCuratedPlaylistScreen) {
-						menuAction(MediaMenuActions.RemoveFromPlaylist(selectedSongs, collectionName)); selectedSongsId.value = emptySet()
+						menuAction(MediaMenuActions.RemoveFromPlaylist(selectedSongs, collectionName))
+						selectedSongsId.value = emptySet()
 					} else {
 						openPermissionDialog.value = !writeStoragePermissionGranted.value
 						openDeleteDialog.value = writeStoragePermissionGranted.value
@@ -193,7 +199,7 @@ fun MediaItemsScreen(
 				collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
-				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
@@ -215,7 +221,7 @@ fun MediaItemsScreen(
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)
 				},
-				showSortAction = collectionType != LAST_PLAYED,
+				showSortAction = (collectionType != LAST_PLAYED) && (collectionName != RECENTLY_ADDED),
 				openSortDialog = { openSortDialog.value = it }
 			) { openMenu.value = it }
 		}

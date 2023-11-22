@@ -92,9 +92,12 @@ fun SearchScreen(
 		onResult = { writeStoragePermissionGranted.value = it }
 	)
 
+	LaunchedEffect(true, searchQuery, sortOption) {
+		onSearch(null)
+	}
+
 	LaunchedEffect(inSelectMode) {
 		closeSelectionMode(!inSelectMode)
-		onSearch(null)
 	}
 
 	context.writeStoragePermission({ permission = it }) { isGranted ->
@@ -115,7 +118,10 @@ fun SearchScreen(
 					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
-					SelectionModeItems.Share -> { menuAction(MediaMenuActions.ShareSong(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.Share -> {
+						menuAction(MediaMenuActions.ShareSong(selectedSongs))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.Delete -> {
 						openPermissionDialog.value = !writeStoragePermissionGranted.value
 						openDeleteDialog.value = writeStoragePermissionGranted.value
@@ -188,7 +194,7 @@ fun SearchScreen(
 				scaffoldState = sheetState,
 				goToCollection = goToCollection,
 				openBottomSheet = { openBottomSheet.value = it },
-				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true; openBottomSheet.value = false },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true },
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
