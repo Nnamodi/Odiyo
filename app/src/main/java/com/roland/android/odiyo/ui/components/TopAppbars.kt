@@ -130,7 +130,7 @@ fun NowPlayingTopAppBar(
 						.clickable(
 							interactionSource = interactionSource,
 							indication = ripple,
-							enabled = song.uri != "".toUri()
+							enabled = song.uri != "".toUri() && nowPlayingFrom.collectionType.isNotEmpty()
 						) { goToCollection(nowPlayingFrom.collectionName, nowPlayingFrom.collectionType) }
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
@@ -164,6 +164,7 @@ fun NowPlayingTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 fun MediaItemsAppBar(
 	collectionName: String,
+	collectionType: String = "",
 	collectionIsPlaylist: Boolean = false,
 	songsNotEmpty: Boolean,
 	addSongs: (String) -> Unit = {},
@@ -174,6 +175,7 @@ fun MediaItemsAppBar(
 		title = {
 			val collectionDetails = getCollectionDetails(
 				context = LocalContext.current,
+				collectionType = collectionType,
 				collectionName = collectionName
 			)
 			Text(
@@ -283,9 +285,12 @@ fun SearchBar(
 		},
 		leadingIcon = {
 			IconButton(
-				onClick = { if (active) {
-					active = false; if (query.isEmpty()) query = searchQuery
-				} else closeSearchScreen() }
+				onClick = {
+					if (active) {
+						active = false
+						if (query.isEmpty()) query = searchQuery
+					} else closeSearchScreen()
+				}
 			) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
@@ -362,17 +367,16 @@ private fun searchSuggestions(
 
 private fun getCollectionDetails(
 	context: Context,
-	collectionType: String = "",
+	collectionType: String,
 	collectionName: String
 ): Pair<String, String> {
-	val type = context.getString(
-		when (collectionType) {
-			ALBUMS -> R.string.playing_from_album
-			ARTISTS -> R.string.playing_from_artist
-			SEARCH -> R.string.playing_from_search
-			else -> R.string.playing_from_playlist
-		}
-	)
+	val type = when (collectionType) {
+		"" -> collectionType
+		ALBUMS -> context.getString(R.string.playing_from_album)
+		ARTISTS -> context.getString(R.string.playing_from_artist)
+		SEARCH -> context.getString(R.string.playing_from_search)
+		else -> context.getString(R.string.playing_from_playlist)
+	}
 	val name = when {
 		collectionType == SEARCH -> context.getString(R.string.from_search, collectionName)
 		collectionName == FAVORITES -> context.getString(R.string.favorites)

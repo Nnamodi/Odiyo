@@ -17,18 +17,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.ui.menu.SongListMenu.*
+import com.roland.android.odiyo.states.MediaItemsUiState
+import com.roland.android.odiyo.ui.menu.SongListMenu.AddToQueue
+import com.roland.android.odiyo.ui.menu.SongListMenu.PlayNext
+import com.roland.android.odiyo.ui.menu.SongListMenu.SortBy
+import com.roland.android.odiyo.ui.menu.SongListMenu.values
 import com.roland.android.odiyo.util.MediaMenuActions
 
 @Composable
 fun SongListMenu(
-	songs: List<Music>,
+	uiState: MediaItemsUiState,
 	menuAction: (MediaMenuActions) -> Unit,
 	showSortAction: Boolean = true,
 	openSortDialog: (Boolean) -> Unit,
 	openMenu: (Boolean) -> Unit
 ) {
+	val (_, collectionName, collectionType, _, _, songs) = uiState
 	val positionX = LocalConfiguration.current.screenWidthDp
 	val positionY = LocalConfiguration.current.screenHeightDp
 
@@ -43,8 +47,8 @@ fun SongListMenu(
 
 		menuItems.forEach { menu ->
 			val action = { when (menu) {
-				PlayNext -> menuAction(MediaMenuActions.PlayNext(songs))
-				AddToQueue -> menuAction(MediaMenuActions.AddToQueue(songs))
+				PlayNext -> menuAction(MediaMenuActions.PlayNext(songs, collectionType, collectionName))
+				AddToQueue -> menuAction(MediaMenuActions.AddToQueue(songs, collectionType, collectionName))
 				SortBy -> openSortDialog(true)
 			} }
 

@@ -94,8 +94,8 @@ class MediaViewModel @Inject constructor(
 	fun menuAction(context: Context, action: MediaMenuActions) {
 		if (!canAccessStorage) return
 		when (action) {
-			is MediaMenuActions.PlayNext -> playNext(action.songs)
-			is MediaMenuActions.AddToQueue -> addToQueue(action.songs)
+			is MediaMenuActions.PlayNext -> playNext(action.songs, action.collectionType, action.collectionName)
+			is MediaMenuActions.AddToQueue -> addToQueue(action.songs, action.collectionType, action.collectionName)
 			is MediaMenuActions.RenameSong -> renameSong(action.details)
 			is MediaMenuActions.Favorite -> favoriteSong(action.song)
 			is MediaMenuActions.CreatePlaylist -> createPlaylist(action.playlist)

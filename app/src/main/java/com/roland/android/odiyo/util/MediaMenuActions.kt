@@ -6,8 +6,19 @@ import com.roland.android.odiyo.model.Playlist
 import com.roland.android.odiyo.ui.dialog.SortOptions
 
 sealed interface MediaMenuActions {
-	data class PlayNext(val songs: List<Music>) : MediaMenuActions
-	data class AddToQueue(val songs: List<Music>) : MediaMenuActions
+
+	data class PlayNext(
+		val songs: List<Music>,
+		val collectionType: String? = null,
+		val collectionName: String? = null,
+	) : MediaMenuActions
+
+	data class AddToQueue(
+		val songs: List<Music>,
+		val collectionType: String? = null,
+		val collectionName: String? = null,
+	) : MediaMenuActions
+
 	data class RenameSong(val details: SongDetails): MediaMenuActions
 
 	data class Favorite(val song: Music): MediaMenuActions

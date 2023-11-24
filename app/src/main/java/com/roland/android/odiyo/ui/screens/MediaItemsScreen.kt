@@ -122,8 +122,14 @@ fun MediaItemsScreen(
 			SelectionModeBottomBar(inSelectMode, collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
-					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.PlayNext -> {
+						menuAction(MediaMenuActions.PlayNext(selectedSongs, collectionType, collectionName))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.AddToQueue -> {
+						menuAction(MediaMenuActions.AddToQueue(selectedSongs, collectionType, collectionName))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> {
 						menuAction(MediaMenuActions.ShareSong(selectedSongs))
@@ -216,7 +222,7 @@ fun MediaItemsScreen(
 
 		if (openMenu.value) {
 			SongListMenu(
-				songs = songs,
+				uiState = uiState,
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)

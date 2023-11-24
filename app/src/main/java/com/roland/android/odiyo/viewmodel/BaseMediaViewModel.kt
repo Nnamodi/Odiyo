@@ -243,8 +243,14 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	fun playNext(song: List<Music>) {
+	fun playNext(
+		song: List<Music>,
+		collectionType: String? = null,
+		collectionName: String? = null
+	) {
 		val mediaItems = song.map { it.uri.toMediaItem }
+		val newSongsIsLessThanQueuedSongs = song.size <= nowPlayingScreenUiState.musicQueue.size
+		saveCurrentPlaylistDetails(collectionType, collectionName, newSongsIsLessThanQueuedSongs)
 		mediaSession?.player?.apply {
 			if (nowPlayingScreenUiState.musicQueue.isNotEmpty()) {
 				val index = currentMediaItemIndex + 1
@@ -258,8 +264,14 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	fun addToQueue(song: List<Music>) {
+	fun addToQueue(
+		song: List<Music>,
+		collectionType: String? = null,
+		collectionName: String? = null
+	) {
 		val mediaItems = song.map { it.uri.toMediaItem }
+		val newSongsIsLessThanQueuedSongs = song.size <= nowPlayingScreenUiState.musicQueue.size
+		saveCurrentPlaylistDetails(collectionType, collectionName, newSongsIsLessThanQueuedSongs)
 		mediaSession?.player?.apply {
 			if (nowPlayingScreenUiState.musicQueue.isNotEmpty()) {
 				addMediaItems(mediaItems)
@@ -391,8 +403,13 @@ open class BaseMediaViewModel(
 		}
 	}
 
-	fun saveCurrentPlaylistDetails(collectionType: String, collectionName: String) {
+	fun saveCurrentPlaylistDetails(
+		collectionType: String?,
+		collectionName: String?,
+		newSongsIsLessThanQueuedSongs: Boolean = false // parameter for `playNext` and `addToQueue` methods
+	) {
 		viewModelScope.launch(Dispatchers.IO) {
+			if (collectionType == null || collectionName == null || newSongsIsLessThanQueuedSongs) return@launch
 			appDataStore.saveCurrentPlaylistDetails(collectionType, collectionName)
 		}
 	}

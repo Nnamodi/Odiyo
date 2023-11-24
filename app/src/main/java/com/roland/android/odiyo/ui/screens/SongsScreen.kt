@@ -108,8 +108,14 @@ fun SongsScreen(
 			SelectionModeBottomBar(inSelectMode, isSongsScreen = true) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, allSongs)
 				when (it) {
-					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.PlayNext -> {
+						menuAction(MediaMenuActions.PlayNext(selectedSongs, PLAYLISTS, ALL_SONGS))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.AddToQueue -> {
+						menuAction(MediaMenuActions.AddToQueue(selectedSongs, PLAYLISTS, ALL_SONGS))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> {
 						menuAction(MediaMenuActions.ShareSong(selectedSongs))

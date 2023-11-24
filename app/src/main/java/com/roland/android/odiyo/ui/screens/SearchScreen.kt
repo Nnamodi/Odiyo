@@ -115,8 +115,14 @@ fun SearchScreen(
 			SelectionModeBottomBar(inSelectMode) {
 				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
 				when (it) {
-					SelectionModeItems.PlayNext -> { menuAction(MediaMenuActions.PlayNext(selectedSongs)); selectedSongsId.value = emptySet() }
-					SelectionModeItems.AddToQueue -> { menuAction(MediaMenuActions.AddToQueue(selectedSongs)); selectedSongsId.value = emptySet() }
+					SelectionModeItems.PlayNext -> {
+						menuAction(MediaMenuActions.PlayNext(selectedSongs, SEARCH, searchQuery))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.AddToQueue -> {
+						menuAction(MediaMenuActions.AddToQueue(selectedSongs, SEARCH, searchQuery))
+						selectedSongsId.value = emptySet()
+					}
 					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
 					SelectionModeItems.Share -> {
 						menuAction(MediaMenuActions.ShareSong(selectedSongs))
@@ -204,7 +210,7 @@ fun SearchScreen(
 
 		if (openMenu.value) {
 			SongListMenu(
-				songs = songs,
+				uiState = uiState,
 				menuAction = {
 					menuAction(it)
 					showSnackbar(it, context, scope, snackbarHostState)
