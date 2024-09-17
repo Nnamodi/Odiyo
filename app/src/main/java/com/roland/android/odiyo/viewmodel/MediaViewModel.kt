@@ -149,10 +149,16 @@ class MediaViewModel @Inject constructor(
 	private fun deleteSong(songsToDelete: List<SongDetails>) {
 		songsToDelete.forEach { song ->
 			val songDetails = SongDetails(song.id, song.uri)
-			val songToDelete = songs.find { it.id == songDetails.id }
+			val songToDelete = songs.find { it.id == song.id }
 			mediaRepository.deleteSongFromSystem(songDetails)
 			if (nowPlayingScreenUiState.musicQueue.contains(songToDelete)) {
-				mediaItems.value.removeAll { it == songToDelete?.uri?.toMediaItem }
+				val mediaItem = songToDelete?.uri?.toMediaItem
+				if (mediaScreenUiState.currentMediaItem == mediaItem) {
+					mediaSession?.player?.apply {
+						if (hasNextMediaItem()) seekToNextMediaItem() else seekToPreviousMediaItem()
+					}
+				}
+				mediaItems.value.removeAll { it == mediaItem }
 			}
 			viewModelScope.launch(Dispatchers.IO) {
 				val music = songs.find { it.id == songDetails.id }

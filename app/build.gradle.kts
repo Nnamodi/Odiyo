@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-//    alias(libs.plugins.ksp)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -71,6 +71,13 @@ android {
 
 dependencies {
 
+    // old dependencies
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation)
+    ksp(libs.hilt.compiler)
+    implementation(libs.navigation.anim)
+    implementation(libs.systembar)
+
     // android
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
@@ -97,7 +104,7 @@ dependencies {
     implementation(libs.glance)
     implementation(libs.glance.appwidget)
 
-    // media_lib
+    // media3
     implementation(libs.media3.player)
     implementation(libs.media3.session)
     implementation(libs.media3.ui)
@@ -106,18 +113,23 @@ dependencies {
     implementation(libs.material.icons)
     implementation(libs.material3)
 
+    // other modules
+    implementation(project(path = ":domain"))
+    implementation(project(path = ":data-repository"))
+    implementation(project(path = ":data-local"))
+    implementation(project(path = ":data-system"))
+
     // paging
-//    implementation(libs.paging.compose)
-//    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
 
     // palette
     implementation(libs.palette)
 
     // persistence
-//    implementation(libs.datastore)
-//    implementation(libs.room.ktx)
-//    implementation(libs.room.runtime)
-//    ksp(libs.room.compiler)
+    implementation(libs.datastore)
+    implementation(libs.room.ktx)
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
 
     // splash
     implementation(libs.splashscreen)

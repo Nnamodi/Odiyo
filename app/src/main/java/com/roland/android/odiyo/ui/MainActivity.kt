@@ -15,18 +15,23 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.view.WindowCompat.setDecorFitsSystemWindows
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.MediaItem.*
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.R.string.*
+import com.roland.android.odiyo.R.string.read_storage_rationale
+import com.roland.android.odiyo.R.string.read_storage_request
 import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.IntentOptions
@@ -159,9 +164,9 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	override fun onNewIntent(intent: Intent?) {
+	override fun onNewIntent(intent: Intent) {
 		super.onNewIntent(intent)
-		val newData = intent?.data
+		val newData = intent.data
 		audioIntent.value = newData
 		Log.d(/* tag = */ "AudioIntentInfo", /* msg = */ "$newData")
 	}

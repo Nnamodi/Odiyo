@@ -4,6 +4,11 @@ jetbrainsKotlinJvm = "1.9.0"
 kotlin = "1.9.0"
 ksp = "1.9.0-1.0.12"
 
+#old dependencies
+accompanist = "0.31.2-alpha"
+hilt = "2.46.1"
+hiltCompose = "1.1.0-alpha01"
+
 activityCompose = "1.9.3"
 appcompat = "1.7.0"
 coil = "2.3.0"
@@ -29,6 +34,13 @@ junitVersion = "1.2.1"
 mockito = "5.0.0"
 
 [libraries]
+#old dependencies
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltCompose" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+navigation-anim = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
+systembar = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

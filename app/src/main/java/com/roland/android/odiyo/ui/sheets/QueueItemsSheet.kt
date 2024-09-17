@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.material3.BottomSheetDefaults.ContainerColor
 import androidx.compose.runtime.*
@@ -136,7 +135,7 @@ fun QueueItem(
 	action: (QueueItemActions) -> Unit
 ) {
 	val interactionSource = remember { MutableInteractionSource() }
-	val ripple = rememberRipple(color = CustomColors.rippleColor(cardColor))
+	val ripple = ripple(color = CustomColors.rippleColor(cardColor))
 	val isPlaying = itemIndex == currentSongIndex
 	val color = when {
 		containerColor != ContainerColor && isPlaying -> MaterialTheme.colorScheme.inversePrimary

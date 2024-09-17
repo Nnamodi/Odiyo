@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 rootProject.name = "Odiyo"
 include ':app'
 include ':domain'
+include ':data-repository'
+include ':data-system'
+include ':data-local'
