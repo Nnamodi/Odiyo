@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="name_a_z">Name A - Z</string>
+    <string name="name_z_a">Name Z - A</string>
+    <string name="newest_first">Newest date first</string>
+    <string name="oldest_first">Oldest date first</string>
+</resources>
