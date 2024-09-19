@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="play">Play</string>
+    <string name="play_next">Play next</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="always_ask">Always ask</string>
+
+    <string name="follow_system">Follow system</string>
+    <string name="dark_theme">Dark</string>
+    <string name="light_theme">Light</string>
+
+    <string name="english" translatable="false">English</string>
+    <string name="french" translatable="false">Français</string>
+
+    <string name="ringtone">Ringtone</string>
+    <string name="alarm_sound">Alarm sound</string>
+    <string name="notification_tone">Notification tone</string>
+
     <string name="name_a_z">Name A - Z</string>
     <string name="name_z_a">Name Z - A</string>
     <string name="newest_first">Newest date first</string>
