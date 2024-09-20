@@ -1,31 +1,29 @@
 package com.roland.android.domain.repository
 
 import android.net.Uri
-import com.roland.android.domain.model.Music
+import kotlinx.coroutines.flow.Flow
 
 interface PlayerRepository {
 
 	fun playSong(
 		uri: Uri,
-		index: Int? = null,
+		index: Int,
 		collectionType: String = "",
 		collectionName: String = ""
 	)
 
-	fun playNext(uri: Uri)
+	fun playPause(): Flow<Boolean>
 
-	fun playNext(
-		song: List<Music>,
-		collectionType: String = "",
-		collectionName: String = ""
-	)
+	fun getCurrentStreamPosition(): Flow<Long>
 
-	fun addToQueue(uri: Uri)
+	fun seek(previous: Boolean, next: Boolean)
 
-	fun addToQueue(
-		song: List<Music>,
-		collectionType: String = "",
-		collectionName: String = ""
-	)
+	fun onSeekToPosition(position: Long)
+
+	fun setRepeatMode(repeatMode: Int): Flow<Int>
+
+	fun onShuffle(shuffle: Boolean)
+
+	fun onMuteDevice(deviceVolume: Int)
 
 }
