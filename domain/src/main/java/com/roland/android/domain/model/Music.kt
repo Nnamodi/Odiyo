@@ -5,23 +5,20 @@ import android.net.Uri
 import java.util.Date
 
 data class Music(
+	val generatedId: Int = 0,
 	val id: Long,
 	val uri: Uri,
 	val name: String,
-	var title: String,
-	var artist: String,
+	val title: String,
+	val artist: String,
 	val time: Long,
-	val bytes: Int = 0,
-	val addedOn: Long = 0,
-	val album: String = "",
-	val path: String = "",
-
-	val duration: String = "",
-	val size: String = "",
-	val dateAdded: String = "",
+	val bytes: Int,
+	val addedOn: Long,
+	val album: String,
+	val path: String,
+	val duration: String,
+	val size: String,
 	val artwork: Bitmap,
-
-	val generatedId: Int = 0,
 	val favorite: Boolean = false,
 	val lastPlayed: Date = Date(0),
 	val timesPlayed: Int? = 0

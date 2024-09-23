@@ -10,6 +10,8 @@ interface MusicUtilRepository {
 
 	fun favoriteSong(song: Music, favorite: Boolean)
 
+	fun deleteSong(song: Music)
+
 	fun setAsRingtone(songs: Music, ringType: Int)
 
 	fun shareSong(songs: List<Music>)
@@ -18,6 +20,8 @@ interface MusicUtilRepository {
 
 	fun toggleSortOption(option: SortOptions)
 
-	fun deleteSong(song: Music)
+	fun getPermissionStatus(): Flow<Boolean>
+
+	fun savePermissionStatus(permanentlyDenied: Boolean)
 
 }

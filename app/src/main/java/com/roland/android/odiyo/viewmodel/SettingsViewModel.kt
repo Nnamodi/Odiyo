@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.AppDataStore
 import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.states.SettingsUiState
@@ -41,12 +40,7 @@ class SettingsViewModel @Inject constructor(
 					Themes.Dark -> true
 					else -> null
 				}
-				val selectedTheme = when (theme) {
-					Themes.System -> R.string.follow_system
-					Themes.Dark -> R.string.dark_theme
-					Themes.Light -> R.string.light_theme
-				}
-				settingsUiState.update { it.copy(theme = selectedTheme) }
+				settingsUiState.update { it.copy(theme = theme.title) }
 			}
 		}
 		viewModelScope.launch {
@@ -57,13 +51,7 @@ class SettingsViewModel @Inject constructor(
 		viewModelScope.launch {
 			appDataStore.getMusicIntent().collectLatest { intentOption ->
 				musicIntentOption = intentOption
-				val option = when (intentOption) {
-					IntentOptions.Play -> R.string.play
-					IntentOptions.PlayNext -> R.string.play_next
-					IntentOptions.AddToQueue -> R.string.add_to_queue
-					else -> R.string.always_ask
-				}
-				settingsUiState.update { it.copy(musicIntentOption = option) }
+				settingsUiState.update { it.copy(musicIntentOption = intentOption.menuText) }
 			}
 		}
 		viewModelScope.launch {
