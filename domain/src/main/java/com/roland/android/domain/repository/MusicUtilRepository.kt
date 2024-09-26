@@ -12,9 +12,9 @@ interface MusicUtilRepository {
 
 	fun deleteSong(song: Music)
 
-	fun setAsRingtone(songs: Music, ringType: Int)
+	fun setAsRingtone(song: Music, ringType: Int)
 
-	fun shareSong(songs: List<Music>)
+	fun shareSongs(songs: List<Music>)
 
 	fun getSortOption(): Flow<SortOptions>
 

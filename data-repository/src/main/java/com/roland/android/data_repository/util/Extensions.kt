@@ -1,13 +1,13 @@
-package com.roland.android.domain.util
+package com.roland.android.data_repository.util
 
-import com.roland.android.domain.util.Constant.DATE
-import com.roland.android.domain.util.Constant.MB_DIVISOR
-import com.roland.android.domain.util.Constant.MB_FORMAT
+import com.roland.android.data_repository.util.Constants.DATE
+import com.roland.android.data_repository.util.Constants.MB_DIVISOR
+import com.roland.android.data_repository.util.Constants.MB_FORMAT
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-object Extension {
+object Extensions {
 
 	val Long.time: String
 		get() {
