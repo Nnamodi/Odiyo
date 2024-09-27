@@ -11,15 +11,13 @@ data class Music(
 	val name: String,
 	val title: String,
 	val artist: String,
-	val time: Long,
-	val bytes: Int,
-	val addedOn: Long,
 	val album: String,
 	val path: String,
+	val addedOn: String,
 	val duration: String,
 	val size: String,
-	val artwork: Bitmap,
+	val artwork: Bitmap? = null,
 	val favorite: Boolean = false,
 	val lastPlayed: Date = Date(0),
-	val timesPlayed: Int? = 0
+	val timesPlayed: Int = 0
 )

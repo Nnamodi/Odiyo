@@ -19,8 +19,4 @@ class SearchRepositoryImpl : SearchRepository, KoinComponent {
 	override fun getSearchHistory(): Flow<List<String>> {
 		return localMusicSource.getSearchHistory()
 	}
-
-	override fun saveSearchHistory() {
-		localMusicUtil.saveSearchHistory()
-	}
 }

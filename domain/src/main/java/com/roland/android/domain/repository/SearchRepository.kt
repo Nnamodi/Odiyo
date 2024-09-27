@@ -9,6 +9,4 @@ interface SearchRepository {
 
 	fun getSearchHistory(): Flow<List<String>>
 
-	fun saveSearchHistory()
-
 }

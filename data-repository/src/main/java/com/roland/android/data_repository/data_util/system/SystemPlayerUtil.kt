@@ -4,7 +4,7 @@ import android.net.Uri
 import com.roland.android.domain.model.Music
 import kotlinx.coroutines.flow.Flow
 
-interface PlayerUtil {
+interface SystemPlayerUtil {
 
 	fun playSong(
 		uri: Uri,
@@ -22,10 +22,6 @@ interface PlayerUtil {
 	fun seek(previous: Boolean, next: Boolean)
 
 	fun onSeekToPosition(position: Long)
-
-	fun setRepeatMode(repeatMode: Int): Flow<Int>
-
-	fun onShuffle(shuffle: Boolean)
 
 	fun onMuteDevice(deviceVolume: Int)
 

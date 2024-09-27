@@ -3,7 +3,9 @@ package com.roland.android.data_repository.repository
 import android.util.Log
 import com.roland.android.data_repository.data_source.local.LocalMusicSource
 import com.roland.android.data_repository.data_source.system.SystemMusicSource
-import com.roland.android.data_repository.data_util.system.PlayerUtil
+import com.roland.android.data_repository.data_util.local.LocalMusicUtil
+import com.roland.android.data_repository.data_util.system.SystemPlayerUtil
+import com.roland.android.data_repository.model.MusicFromSystem
 import com.roland.android.data_repository.util.Converters.convertToMusic
 import com.roland.android.domain.model.Album
 import com.roland.android.domain.model.Artist
@@ -20,8 +22,9 @@ import org.koin.core.component.inject
 
 class MusicRepositoryImpl : MusicRepository, KoinComponent {
 	private val localMusicSource by inject<LocalMusicSource>()
+	private val localMusicUtil by inject<LocalMusicUtil>()
 	private val systemMusicSource by inject<SystemMusicSource>()
-	private val playerUtil by inject<PlayerUtil>()
+	private val systemPlayerUtil by inject<SystemPlayerUtil>()
 	private val coroutineScope by inject<CoroutineScope>()
 	private var fetchedFromSystem = false
 
@@ -49,6 +52,8 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 				/* msg = */ "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}"
 			)
 			allSongsList = flowOf(allSongs)
+
+			syncDatabaseWithSystem(cachedSongs, songsFromSystem)
 		}
 		return allSongsList
 	}
@@ -66,7 +71,7 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 	}
 
 	override fun getCurrentSong(): Flow<Music> {
-		return playerUtil.getCurrentSong()
+		return systemPlayerUtil.getCurrentSong()
 	}
 
 	override fun getAlbums(): Flow<List<Album>> {
@@ -89,5 +94,26 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 			.map { systemList ->
 				systemList.map { it.convertToMusic() }
 			}
+	}
+
+	private fun syncDatabaseWithSystem(
+		songsFromDatabase: List<Music>,
+		songsFromSystem: List<MusicFromSystem>
+	) {
+		val newSongs = songsFromSystem.filterNot { song ->
+			songsFromDatabase.map { it.id }.contains(song.id)
+		}.map {
+			it.convertToMusic()
+		}
+		val removedSongs = songsFromDatabase.filterNot { song ->
+			songsFromSystem.map { it.id }.contains(song.id)
+		}
+
+		localMusicUtil.addNewSongs(newSongs)
+		if (removedSongs.isNotEmpty()) {
+			removedSongs.forEach {
+				localMusicUtil.deleteSong(it)
+			}
+		}
 	}
 }

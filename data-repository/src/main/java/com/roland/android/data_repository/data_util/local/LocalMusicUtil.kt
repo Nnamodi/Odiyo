@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalMusicUtil {
 
+	fun addNewSongs(songs: List<Music>)
+
 	fun renameSong(song: Music)
 
 	fun favoriteSong(song: Music, favorite: Boolean)
@@ -19,7 +21,5 @@ interface LocalMusicUtil {
 	fun getPermissionStatus(): Flow<Boolean>
 
 	fun savePermissionStatus(permanentlyDenied: Boolean)
-
-	fun saveSearchHistory()
 
 }

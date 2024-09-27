@@ -1,6 +1,7 @@
 package com.roland.android.domain.repository
 
 import android.net.Uri
+import com.roland.android.domain.model.ShuffleState
 import kotlinx.coroutines.flow.Flow
 
 interface PlayerRepository {
@@ -22,7 +23,7 @@ interface PlayerRepository {
 
 	fun setRepeatMode(repeatMode: Int): Flow<Int>
 
-	fun onShuffle(shuffle: Boolean)
+	fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState>
 
 	fun onMuteDevice(deviceVolume: Int)
 
