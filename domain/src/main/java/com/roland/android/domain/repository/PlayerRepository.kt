@@ -9,8 +9,8 @@ interface PlayerRepository {
 	fun playSong(
 		uri: Uri,
 		index: Int,
-		collectionType: String = "",
-		collectionName: String = ""
+		collectionType: String,
+		collectionName: String
 	)
 
 	fun playPause(): Flow<Boolean>

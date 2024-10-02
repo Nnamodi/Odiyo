@@ -1,6 +1,5 @@
 package com.roland.android.data_local.data_source
 
-import android.net.Uri
 import androidx.core.net.toUri
 import com.roland.android.data_local.database.MusicDao
 import com.roland.android.data_local.database.SearchDao
@@ -12,8 +11,7 @@ import com.roland.android.data_repository.data_source.local.LocalMusicSource
 import com.roland.android.domain.model.Music
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -66,18 +64,17 @@ class LocalMusicSourceImpl : LocalMusicSource, KoinComponent {
 	}
 
 	override fun getSongsOnQueue(): Flow<List<Music>> {
-		var urisOnQueue = emptyList<Uri>()
-		coroutineScope.launch {
-			urisOnQueue = musicQueueStore.getCurrentPlaylist().last()
-				.playlist.map { it.toUri() }
+		return combine(
+			musicQueueStore.getCurrentPlaylist(),
+			musicDao.getAllSongs()
+		) { urisOnQueue, allSongs ->
+			val uris = urisOnQueue.playlist.map { it.toUri() }
+			allSongs
+				.filter { musicEntity ->
+					uris.contains(musicEntity.uri)
+				}
+				.map { it.convertToMusic() }
 		}
-		return musicDao.getAllSongs()
-			.filter { allSongs ->
-				allSongs.map { it.uri }.containsAll(urisOnQueue)
-			}
-			.map { songsOnQueue ->
-				songsOnQueue.map { it.convertToMusic() }
-			}
 	}
 
 	override fun getSongsFromSearch(query: String): Flow<List<Music>> {

@@ -8,21 +8,13 @@ interface SystemMusicUtil {
 
 	fun playNext(uri: Uri)
 
-	fun playNext(
-		songs: List<Music>,
-		collectionType: String = "",
-		collectionName: String = ""
-	)
+	fun playNext(songs: List<Music>)
 
 	fun populateMusicQueue(songs: List<Music>)
 
 	fun addToQueue(uri: Uri)
 
-	fun addToQueue(
-		songs: List<Music>,
-		collectionType: String = "",
-		collectionName: String = ""
-	)
+	fun addToQueue(songs: List<Music>)
 
 	fun playFromQueue(song: QueueMediaItem)
 

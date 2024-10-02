@@ -14,7 +14,8 @@ class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
 	private val systemPlayerUtil by inject<SystemPlayerUtil>()
 
 	override fun playSong(uri: Uri, index: Int, collectionType: String, collectionName: String) {
-		systemPlayerUtil.playSong(uri, index, collectionType, collectionName)
+		systemPlayerUtil.playSong(uri, index)
+		localPlayerUtil.saveCurrentPlaylistDetails(collectionType, collectionName)
 	}
 
 	override fun playPause(): Flow<Boolean> {

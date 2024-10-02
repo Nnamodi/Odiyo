@@ -6,12 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SystemPlayerUtil {
 
-	fun playSong(
-		uri: Uri,
-		index: Int,
-		collectionType: String = "",
-		collectionName: String = ""
-	)
+	fun playSong(uri: Uri, index: Int)
 
 	fun playPause(): Flow<Boolean>
 

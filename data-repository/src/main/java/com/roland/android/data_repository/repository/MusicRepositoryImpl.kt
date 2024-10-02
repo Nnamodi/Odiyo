@@ -13,8 +13,8 @@ import com.roland.android.domain.model.Music
 import com.roland.android.domain.repository.MusicRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -35,25 +35,28 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 
 		var allSongsList = flowOf(emptyList<Music>())
 		coroutineScope.launch {
-			val cachedSongs = localMusicSource.getAllSongs().last()
-			val songsFromSystem = systemMusicSource.getAllSongs().last()
-			val songsFromDatabase = cachedSongs.filter { music ->
-				songsFromSystem.map { it.id }.contains(music.id)
-			}
-			val newSongs = songsFromSystem.filterNot { song ->
-				songsFromDatabase.map { it.id }.contains(song.id)
-			}.map {
-				it.convertToMusic()
-			}
-			val allSongs = songsFromDatabase.plus(newSongs)
-			fetchedFromSystem = true
-			Log.i(
-				/* tag = */ "DataInfo",
-				/* msg = */ "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}"
-			)
-			allSongsList = flowOf(allSongs)
+			combine(
+				localMusicSource.getAllSongs(),
+				systemMusicSource.getAllSongs()
+			) { cachedSongs, songsFromSystem ->
+				val songsFromDatabase = cachedSongs.filter { music ->
+					songsFromSystem.map { it.id }.contains(music.id)
+				}
+				val newSongs = songsFromSystem.filterNot { song ->
+					songsFromDatabase.map { it.id }.contains(song.id)
+				}.map {
+					it.convertToMusic()
+				}
+				val allSongs = songsFromDatabase.plus(newSongs)
+				fetchedFromSystem = true
+				Log.i(
+					/* tag = */ "DataInfo",
+					/* msg = */ "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}"
+				)
+				allSongsList = flowOf(allSongs)
 
-			syncDatabaseWithSystem(cachedSongs, songsFromSystem)
+				syncDatabaseWithSystem(cachedSongs, songsFromSystem)
+			}
 		}
 		return allSongsList
 	}
@@ -109,7 +112,9 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 			songsFromSystem.map { it.id }.contains(song.id)
 		}
 
-		localMusicUtil.addNewSongs(newSongs)
+		if (newSongs.isNotEmpty()) {
+			localMusicUtil.addNewSongs(newSongs)
+		}
 		if (removedSongs.isNotEmpty()) {
 			removedSongs.forEach {
 				localMusicUtil.deleteSong(it)

@@ -1,5 +1,8 @@
 package com.roland.android.data_local.data_util
 
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import com.roland.android.data_local.database.SearchDao
 import com.roland.android.data_local.datastore.SettingsStore
 import com.roland.android.data_repository.data_util.local.LocalSettingsUtil
@@ -11,7 +14,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class LocalSettingsUtilImpl : LocalSettingsUtil, KoinComponent {
+class LocalSettingsUtilImpl(
+	private val context: Context
+) : LocalSettingsUtil, KoinComponent {
 	private val searchDao by inject<SearchDao>()
 	private val settingsStore by inject<SettingsStore>()
 	private val coroutineScope by inject<CoroutineScope>()
@@ -53,6 +58,13 @@ class LocalSettingsUtilImpl : LocalSettingsUtil, KoinComponent {
 	}
 
 	override fun launchEmailApp(recipient: String) {
-		// TODO()
+		val intent = Intent(Intent.ACTION_MAIN)
+			.addCategory(Intent.CATEGORY_APP_EMAIL)
+			.putExtra(Intent.EXTRA_EMAIL, recipient)
+		try {
+			context.startActivity(intent)
+		} catch (e: Exception) {
+			Toast.makeText(context, e.localizedMessage, Toast.LENGTH_SHORT).show()
+		}
 	}
 }
