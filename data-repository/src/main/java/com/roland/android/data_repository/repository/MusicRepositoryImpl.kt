@@ -11,12 +11,9 @@ import com.roland.android.domain.model.Album
 import com.roland.android.domain.model.Artist
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.repository.MusicRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -25,7 +22,6 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 	private val localMusicUtil by inject<LocalMusicUtil>()
 	private val systemMusicSource by inject<SystemMusicSource>()
 	private val systemPlayerUtil by inject<SystemPlayerUtil>()
-	private val coroutineScope by inject<CoroutineScope>()
 	private var fetchedFromSystem = false
 
 	override fun getAllSongs(): Flow<List<Music>> {
@@ -33,32 +29,26 @@ class MusicRepositoryImpl : MusicRepository, KoinComponent {
 			return localMusicSource.getAllSongs()
 		}
 
-		var allSongsList = flowOf(emptyList<Music>())
-		coroutineScope.launch {
-			combine(
-				localMusicSource.getAllSongs(),
-				systemMusicSource.getAllSongs()
-			) { cachedSongs, songsFromSystem ->
-				val songsFromDatabase = cachedSongs.filter { music ->
-					songsFromSystem.map { it.id }.contains(music.id)
-				}
-				val newSongs = songsFromSystem.filterNot { song ->
-					songsFromDatabase.map { it.id }.contains(song.id)
-				}.map {
-					it.convertToMusic()
-				}
-				val allSongs = songsFromDatabase.plus(newSongs)
-				fetchedFromSystem = true
-				Log.i(
-					/* tag = */ "DataInfo",
-					/* msg = */ "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}"
-				)
-				allSongsList = flowOf(allSongs)
+		return combine(
+			localMusicSource.getAllSongs(),
+			systemMusicSource.getAllSongs()
+		) { cachedSongs, songsFromSystem ->
+			syncDatabaseWithSystem(cachedSongs, songsFromSystem)
 
-				syncDatabaseWithSystem(cachedSongs, songsFromSystem)
+			val songsFromDatabase = cachedSongs.filter { music ->
+				songsFromSystem.map { it.id }.contains(music.id)
 			}
+			val newSongs = songsFromSystem.filterNot { song ->
+				songsFromDatabase.map { it.id }.contains(song.id)
+			}.map {
+				it.convertToMusic()
+			}
+			val allSongs = songsFromDatabase.plus(newSongs)
+			Log.i("DataInfo", "${cachedSongs.size}, ${newSongs.size} | ${allSongs.size} | ${songsFromSystem.size}")
+
+			fetchedFromSystem = true
+			allSongs
 		}
-		return allSongsList
 	}
 
 	override fun getLastPlayedSongs(): Flow<List<Music>> {

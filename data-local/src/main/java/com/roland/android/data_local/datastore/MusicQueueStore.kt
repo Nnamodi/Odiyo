@@ -16,8 +16,6 @@ import org.koin.core.component.inject
 private val CURRENT_PLAYLIST = stringPreferencesKey("current_playlist")
 private val CURRENT_SONG_POSITION = intPreferencesKey("current_song_position")
 private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_position")
-private val MUSIC_COLLECTION_TYPE = stringPreferencesKey("collection_type")
-private val MUSIC_COLLECTION_NAME = stringPreferencesKey("collection_name")
 
 class MusicQueueStore : KoinComponent {
 	private val dataStore by inject<DataStore<Preferences>>()
@@ -40,22 +38,6 @@ class MusicQueueStore : KoinComponent {
 				playlist = preferences[CURRENT_PLAYLIST]?.split(LIST_SEPARATOR) ?: emptyList(),
 				currentSongPosition = preferences[CURRENT_SONG_POSITION] ?: 0,
 				currentSongSeekPosition = preferences[CURRENT_SONG_SEEK_POSITION] ?: 0
-			)
-		}
-	}
-
-	suspend fun saveCurrentPlaylistDetails(collectionType: String, collectionName: String) {
-		dataStore.edit { preference ->
-			preference[MUSIC_COLLECTION_TYPE] = collectionType
-			preference[MUSIC_COLLECTION_NAME] = collectionName
-		}
-	}
-
-	fun getCurrentPlaylistDetails(): Flow<NowPlayingFrom> {
-		return dataStore.data.map { preference ->
-			NowPlayingFrom(
-				collectionType = preference[MUSIC_COLLECTION_TYPE] ?: "",
-				collectionName = preference[MUSIC_COLLECTION_NAME] ?: ""
 			)
 		}
 	}

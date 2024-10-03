@@ -3,6 +3,7 @@ package com.roland.android.data_repository.repository
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.data_repository.data_util.system.SystemMusicUtil
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.repository.MusicUtilRepository
 import com.roland.android.domain.util.SortOptions
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,14 @@ class MusicUtilRepositoryImpl : MusicUtilRepository, KoinComponent {
 
 	override fun toggleSortOption(option: SortOptions) {
 		localMusicUtil.toggleSortOption(option)
+	}
+
+	override fun getCurrentPlaylistDetails(): Flow<NowPlayingFrom> {
+		return localMusicUtil.getCurrentPlaylistDetails()
+	}
+
+	override fun saveCurrentPlaylistDetails(details: NowPlayingFrom) {
+		localMusicUtil.saveCurrentPlaylistDetails(details)
 	}
 
 	override fun getPermissionStatus(): Flow<Boolean> {

@@ -5,6 +5,7 @@ import com.roland.android.data_local.datastore.MusicUtilStore
 import com.roland.android.data_local.util.Converters.convertToMusicEntity
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.util.SortOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +53,16 @@ class LocalMusicUtilImpl : LocalMusicUtil, KoinComponent {
 	override fun toggleSortOption(option: SortOptions) {
 		coroutineScope.launch {
 			musicUtilStore.saveSortPreference(option)
+		}
+	}
+
+	override fun getCurrentPlaylistDetails(): Flow<NowPlayingFrom> {
+		return musicUtilStore.getCurrentPlaylistDetails()
+	}
+
+	override fun saveCurrentPlaylistDetails(details: NowPlayingFrom) {
+		coroutineScope.launch {
+			musicUtilStore.saveCurrentPlaylistDetails(details)
 		}
 	}
 

@@ -5,8 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalPlayerUtil {
 
-	fun saveCurrentPlaylistDetails(collectionType: String, collectionName: String)
-
 	fun setRepeatMode(repeatMode: Int): Flow<Int>
 
 	fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState>

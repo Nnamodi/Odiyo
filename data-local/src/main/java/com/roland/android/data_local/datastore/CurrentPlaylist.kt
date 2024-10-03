@@ -5,8 +5,3 @@ data class CurrentPlaylist(
 	val currentSongPosition: Int,
 	val currentSongSeekPosition: Long
 )
-
-data class NowPlayingFrom(
-	val collectionType: String = "",
-	val collectionName: String = ""
-)

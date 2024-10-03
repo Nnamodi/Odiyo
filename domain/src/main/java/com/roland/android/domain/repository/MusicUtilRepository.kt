@@ -1,6 +1,7 @@
 package com.roland.android.domain.repository
 
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.util.SortOptions
 import kotlinx.coroutines.flow.Flow
 
@@ -19,6 +20,10 @@ interface MusicUtilRepository {
 	fun getSortOption(): Flow<SortOptions>
 
 	fun toggleSortOption(option: SortOptions)
+
+	fun getCurrentPlaylistDetails(): Flow<NowPlayingFrom>
+
+	fun saveCurrentPlaylistDetails(details: NowPlayingFrom)
 
 	fun getPermissionStatus(): Flow<Boolean>
 
