@@ -2,9 +2,10 @@ package com.roland.android.data_repository.repository
 
 import android.net.Uri
 import com.roland.android.data_repository.data_source.local.LocalMusicSource
-import com.roland.android.data_repository.data_util.local.LocalPlayerUtil
+import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.data_repository.data_util.system.SystemMusicUtil
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.model.QueueMediaItem
 import com.roland.android.domain.repository.MusicQueueRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,7 @@ import org.koin.core.component.inject
 
 class MusicQueueRepositoryImpl : MusicQueueRepository, KoinComponent {
 	private val localMusicSource by inject<LocalMusicSource>()
-	private val localPlayerUtil by inject<LocalPlayerUtil>()
+	private val localMusicUtil by inject<LocalMusicUtil>()
 	private val systemMusicUtil by inject<SystemMusicUtil>()
 
 	override fun getSongsOnQueue(): Flow<List<Music>> {
@@ -26,7 +27,8 @@ class MusicQueueRepositoryImpl : MusicQueueRepository, KoinComponent {
 
 	override fun playNext(songs: List<Music>, collectionType: String, collectionName: String) {
 		systemMusicUtil.playNext(songs)
-		localPlayerUtil.saveCurrentPlaylistDetails(collectionType, collectionName)
+		val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType)
+		localMusicUtil.saveCurrentPlaylistDetails(nowPlayingFrom)
 	}
 
 	override fun populateMusicQueue(songs: List<Music>) {
@@ -39,7 +41,8 @@ class MusicQueueRepositoryImpl : MusicQueueRepository, KoinComponent {
 
 	override fun addToQueue(songs: List<Music>, collectionType: String, collectionName: String) {
 		systemMusicUtil.addToQueue(songs)
-		localPlayerUtil.saveCurrentPlaylistDetails(collectionType, collectionName)
+		val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType)
+		localMusicUtil.saveCurrentPlaylistDetails(nowPlayingFrom)
 	}
 
 	override fun playFromQueue(song: QueueMediaItem) {

@@ -1,8 +1,11 @@
 package com.roland.android.data_repository.repository
 
 import android.net.Uri
+import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.data_repository.data_util.local.LocalPlayerUtil
 import com.roland.android.data_repository.data_util.system.SystemPlayerUtil
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.model.ShuffleState
 import com.roland.android.domain.repository.PlayerRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,20 +13,22 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
+	private val localMusicUtil by inject<LocalMusicUtil>()
 	private val localPlayerUtil by inject<LocalPlayerUtil>()
 	private val systemPlayerUtil by inject<SystemPlayerUtil>()
 
-	override fun playSong(uri: Uri, index: Int, collectionType: String, collectionName: String) {
-		systemPlayerUtil.playSong(uri, index)
-		localPlayerUtil.saveCurrentPlaylistDetails(collectionType, collectionName)
+	override fun playSong(
+		uri: Uri,
+		index: Int,
+		songsToPlay: List<Music>,
+		nowPlayingFrom: NowPlayingFrom
+	) {
+		systemPlayerUtil.playSong(uri, index, songsToPlay)
+		localMusicUtil.saveCurrentPlaylistDetails(nowPlayingFrom)
 	}
 
 	override fun playPause(): Flow<Boolean> {
 		return systemPlayerUtil.playPause()
-	}
-
-	override fun getCurrentStreamPosition(): Flow<Long> {
-		return systemPlayerUtil.getCurrentStreamPosition()
 	}
 
 	override fun seek(previous: Boolean, next: Boolean) {
@@ -42,7 +47,7 @@ class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
 		return localPlayerUtil.onShuffle(shouldShuffle, randomSeed)
 	}
 
-	override fun onMuteDevice(deviceVolume: Int) {
-		systemPlayerUtil.onMuteDevice(deviceVolume)
+	override fun onMuteDevice() {
+		systemPlayerUtil.onMuteDevice()
 	}
 }

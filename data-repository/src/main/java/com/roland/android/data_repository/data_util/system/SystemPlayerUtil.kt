@@ -6,18 +6,20 @@ import kotlinx.coroutines.flow.Flow
 
 interface SystemPlayerUtil {
 
-	fun playSong(uri: Uri, index: Int)
+	fun playSong(
+		uri: Uri,
+		index: Int,
+		songsToPlay: List<Music>
+	)
 
 	fun playPause(): Flow<Boolean>
 
-	fun getCurrentSong(): Flow<Music>
-
-	fun getCurrentStreamPosition(): Flow<Long>
+	fun getCurrentSong(): Flow<Music?>
 
 	fun seek(previous: Boolean, next: Boolean)
 
 	fun onSeekToPosition(position: Long)
 
-	fun onMuteDevice(deviceVolume: Int)
+	fun onMuteDevice()
 
 }

@@ -18,7 +18,7 @@ object Converters {
 		path = path,
 		addedOn = addedOn.date,
 		duration = millis.time,
-		size = bytes.toMb
+		size = "${bytes.toMb} MB"
 	)
 
 }

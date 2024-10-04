@@ -1,6 +1,8 @@
 package com.roland.android.data_local.data_util
 
+import android.net.Uri
 import com.roland.android.data_local.database.MusicDao
+import com.roland.android.data_local.datastore.MusicQueueStore
 import com.roland.android.data_local.datastore.MusicUtilStore
 import com.roland.android.data_local.util.Converters.convertToMusicEntity
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
@@ -15,6 +17,7 @@ import org.koin.core.component.inject
 
 class LocalMusicUtilImpl : LocalMusicUtil, KoinComponent {
 	private val musicDao by inject<MusicDao>()
+	private val musicQueueStore by inject<MusicQueueStore>()
 	private val musicUtilStore by inject<MusicUtilStore>()
 	private val coroutineScope by inject<CoroutineScope>()
 
@@ -63,6 +66,20 @@ class LocalMusicUtilImpl : LocalMusicUtil, KoinComponent {
 	override fun saveCurrentPlaylistDetails(details: NowPlayingFrom) {
 		coroutineScope.launch {
 			musicUtilStore.saveCurrentPlaylistDetails(details)
+		}
+	}
+
+	override fun saveCurrentPlaylist(
+		playlist: List<Uri>,
+		currentPosition: Int,
+		seekPosition: Long,
+	) {
+		coroutineScope.launch {
+			musicQueueStore.saveCurrentPlaylist(
+				playlist = playlist,
+				currentPosition = currentPosition,
+				seekPosition = seekPosition
+			)
 		}
 	}
 
