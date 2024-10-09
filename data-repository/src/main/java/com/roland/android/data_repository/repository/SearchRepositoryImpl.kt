@@ -1,17 +1,22 @@
 package com.roland.android.data_repository.repository
 
+import android.content.Context
 import com.roland.android.data_repository.data_source.local.LocalMusicSource
+import com.roland.android.data_repository.util.Converters.includeArtworks
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.repository.SearchRepository
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class SearchRepositoryImpl : SearchRepository, KoinComponent {
+class SearchRepositoryImpl(
+	private val context: Context
+) : SearchRepository, KoinComponent {
 	private val localMusicSource by inject<LocalMusicSource>()
 
 	override fun getSongsFromSearch(query: String): Flow<List<Music>> {
 		return localMusicSource.getSongsFromSearch(query)
+			.includeArtworks(context)
 	}
 
 	override fun getSearchHistory(): Flow<List<String>> {
