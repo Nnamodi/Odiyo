@@ -118,6 +118,7 @@ dependencies {
     implementation(project(path = ":data-repository"))
     implementation(project(path = ":data-local"))
     implementation(project(path = ":data-system"))
+    implementation(project(path = ":player"))
 
     // paging
     implementation(libs.paging.compose)
