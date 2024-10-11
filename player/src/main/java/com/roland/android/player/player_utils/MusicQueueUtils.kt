@@ -1,15 +1,15 @@
-package com.roland.android.data_system.player
+package com.roland.android.player.player_utils
 
 import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaSession
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
-import com.roland.android.data_system.player.States.currentMediaItem
-import com.roland.android.data_system.player.States.mediaItemsFlow
-import com.roland.android.data_system.util.Constants.NOTHING_PLAYING
-import com.roland.android.data_system.util.Constants.toMediaItem
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.QueueMediaItem
+import com.roland.android.player.player_utils.States.currentMediaItem
+import com.roland.android.player.player_utils.States.mediaItemsFlow
+import com.roland.android.player.util.Constants.NOTHING_PLAYING
+import com.roland.android.player.util.Constants.toMediaItem
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

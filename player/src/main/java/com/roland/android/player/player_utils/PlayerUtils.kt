@@ -1,4 +1,4 @@
-package com.roland.android.data_system.player
+package com.roland.android.player.player_utils
 
 import android.content.Context
 import android.media.AudioManager
@@ -7,10 +7,10 @@ import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaSession
 import com.roland.android.data_repository.data_source.local.LocalMusicSource
-import com.roland.android.data_system.player.States.currentMediaItem
-import com.roland.android.data_system.player.States.mediaItemsFlow
-import com.roland.android.data_system.util.Constants.toMediaItem
 import com.roland.android.domain.model.Music
+import com.roland.android.player.player_utils.States.currentMediaItem
+import com.roland.android.player.player_utils.States.mediaItemsFlow
+import com.roland.android.player.util.Constants.toMediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -91,6 +91,14 @@ class PlayerUtils(private val context: Context) : KoinComponent {
 			initialDeviceVolume = audioManager.getStreamVolume(streamType)
 			setVolume(0)
 		}
+	}
+
+	fun setRepeatMode(repeatMode: Int) {
+		mediaSession.player.repeatMode = repeatMode
+	}
+
+	fun setShuffleMode(shuffleMode: Boolean) {
+		mediaSession.player.shuffleModeEnabled = shuffleMode
 	}
 
 	private fun preparePlaylist() {

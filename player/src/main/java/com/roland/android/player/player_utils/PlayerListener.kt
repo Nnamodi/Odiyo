@@ -1,4 +1,4 @@
-package com.roland.android.data_system.player
+package com.roland.android.player.player_utils
 
 import android.content.Context
 import android.util.Log
@@ -8,14 +8,14 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
-import com.roland.android.data_system.player.States.currentDuration
-import com.roland.android.data_system.player.States.currentMediaItem
-import com.roland.android.data_system.player.States.currentMediaItemIndex
-import com.roland.android.data_system.player.States.isDeviceMuted
-import com.roland.android.data_system.player.States.isPlaying
-import com.roland.android.data_system.player.States.nowPlayingMetadata
-import com.roland.android.data_system.util.Constants.NOTHING_PLAYING
-import com.roland.android.data_system.util.Constants.UNRECOGNIZED_INPUT_FORMAT_EXCEPTION
+import com.roland.android.player.player_utils.States.currentDuration
+import com.roland.android.player.player_utils.States.currentMediaItem
+import com.roland.android.player.player_utils.States.currentMediaItemIndex
+import com.roland.android.player.player_utils.States.isDeviceMuted
+import com.roland.android.player.player_utils.States.isPlaying
+import com.roland.android.player.player_utils.States.nowPlayingMetadata
+import com.roland.android.player.util.Constants.NOTHING_PLAYING
+import com.roland.android.player.util.Constants.UNRECOGNIZED_INPUT_FORMAT_EXCEPTION
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

@@ -3,7 +3,7 @@ package com.roland.android.data_repository.repository
 import android.net.Uri
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.data_repository.data_util.local.LocalPlayerUtil
-import com.roland.android.data_repository.data_util.system.SystemPlayerUtil
+import com.roland.android.data_repository.data_util.player.SystemPlayerUtil
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.model.ShuffleState
@@ -40,10 +40,12 @@ class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
 	}
 
 	override fun setRepeatMode(repeatMode: Int): Flow<Int> {
+		systemPlayerUtil.setRepeatMode(repeatMode)
 		return localPlayerUtil.setRepeatMode(repeatMode)
 	}
 
 	override fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState> {
+		systemPlayerUtil.onShuffle(shouldShuffle, randomSeed)
 		return localPlayerUtil.onShuffle(shouldShuffle, randomSeed)
 	}
 

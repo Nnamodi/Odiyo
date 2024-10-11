@@ -9,51 +9,15 @@ import android.widget.Toast
 import com.roland.android.data_repository.data_util.system.SystemMusicUtil
 import com.roland.android.data_system.R
 import com.roland.android.data_system.database.MusicUtil
-import com.roland.android.data_system.player.MusicQueueUtils
 import com.roland.android.data_system.util.Converters.convertToSongDetails
-import com.roland.android.data_system.util.Converters.toMediaItems
 import com.roland.android.domain.model.Music
-import com.roland.android.domain.model.QueueMediaItem
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class SystemMusicUtilImpl(
 	private val context: Context
 ) : SystemMusicUtil, KoinComponent {
-	private val musicQueueUtils by inject<MusicQueueUtils>()
 	private val musicUtil by inject<MusicUtil>()
-
-	override fun playNext(uri: Uri) {
-		musicQueueUtils.playNext(uri)
-	}
-
-	override fun playNext(songs: List<Music>) {
-		musicQueueUtils.playNext(songs)
-	}
-
-	override fun populateMusicQueue(songs: List<Music>) {
-		musicQueueUtils.populateMusicQueue(songs.toMediaItems())
-	}
-
-	override fun addToQueue(uri: Uri) {
-		musicQueueUtils.addToQueue(uri)
-	}
-
-	override fun addToQueue(songs: List<Music>) {
-		musicQueueUtils.addToQueue(songs)
-	}
-
-	override fun playFromQueue(song: QueueMediaItem) {
-		musicQueueUtils.playSongFromQueue(song)
-	}
-
-	override fun duplicateSong(song: QueueMediaItem) {
-		musicQueueUtils.duplicateSongInQueue(song)
-	}
-
-	override fun removeSong(song: QueueMediaItem) {
-		musicQueueUtils.removeSongFromQueue(song)
-	}
 
 	override fun renameSong(song: Music) {
 		val songDetails = song.convertToSongDetails()

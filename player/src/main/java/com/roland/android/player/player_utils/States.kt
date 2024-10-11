@@ -1,4 +1,4 @@
-package com.roland.android.data_system.player
+package com.roland.android.player.player_utils
 
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
