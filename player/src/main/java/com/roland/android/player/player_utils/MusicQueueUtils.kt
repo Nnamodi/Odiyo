@@ -1,7 +1,6 @@
 package com.roland.android.player.player_utils
 
 import android.net.Uri
-import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaSession
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
 import com.roland.android.domain.model.Music
@@ -48,11 +47,6 @@ class MusicQueueUtils : KoinComponent {
 			}
 			localMusicUtil.saveCurrentPlaylist(songUris, currentMediaItemIndex, currentPosition)
 		}
-	}
-
-	fun populateMusicQueue(mediaItems: List<MediaItem>) {
-		mediaItemsFlow.value = mediaItems.toMutableList()
-		preparePlaylist()
 	}
 
 	fun addToQueue(uri: Uri) {

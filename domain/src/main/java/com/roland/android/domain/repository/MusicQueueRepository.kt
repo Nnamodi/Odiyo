@@ -17,8 +17,6 @@ interface MusicQueueRepository {
 		collectionName: String = ""
 	)
 
-	fun populateMusicQueue(songs: List<Music>)
-
 	fun addToQueue(uri: Uri)
 
 	fun addToQueue(

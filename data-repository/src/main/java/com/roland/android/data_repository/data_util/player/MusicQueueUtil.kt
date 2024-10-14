@@ -10,8 +10,6 @@ interface MusicQueueUtil {
 
 	fun playNext(songs: List<Music>)
 
-	fun populateMusicQueue(songs: List<Music>)
-
 	fun addToQueue(uri: Uri)
 
 	fun addToQueue(songs: List<Music>)

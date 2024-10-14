@@ -22,7 +22,7 @@ class LocalPlaylistUtilImpl : LocalPlaylistUtil, KoinComponent {
 
 	override fun updatePlaylist(playlist: Playlist) {
 		coroutineScope.launch {
-			val playlistEntity = playlist.convertToPlaylistEntity()
+			val playlistEntity = playlist.convertToPlaylistEntity(modified = true)
 			playlistDao.updatePlaylist(playlistEntity)
 		}
 	}

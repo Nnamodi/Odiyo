@@ -5,7 +5,6 @@ import com.roland.android.data_repository.data_util.player.MusicQueueUtil
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.QueueMediaItem
 import com.roland.android.player.player_utils.MusicQueueUtils
-import com.roland.android.player.util.Converters.toMediaItems
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -18,10 +17,6 @@ class MusicQueueUtilImpl : MusicQueueUtil, KoinComponent {
 
 	override fun playNext(songs: List<Music>) {
 		musicQueueUtils.playNext(songs)
-	}
-
-	override fun populateMusicQueue(songs: List<Music>) {
-		musicQueueUtils.populateMusicQueue(songs.toMediaItems())
 	}
 
 	override fun addToQueue(uri: Uri) {

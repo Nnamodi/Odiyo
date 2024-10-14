@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SearchDao {
-	@Query("SELECT * FROM searchqueryentity WHERE `query` LIKE :query")
+	@Query("SELECT * FROM musicentity WHERE `title` LIKE :query OR `artist` LIKE :query")
 	fun getSongsFromSearch(query: String): Flow<List<MusicEntity>>
 
-	@Query("SELECT * FROM searchqueryentity ORDER BY `query`")
+	@Query("SELECT * FROM searchqueryentity ORDER BY `id` DESC")
 	fun getSearchHistory(): Flow<List<SearchQueryEntity>>
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)

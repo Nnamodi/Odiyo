@@ -37,6 +37,7 @@ class PlayerUtils(private val context: Context) : KoinComponent {
 			mediaItemsFlow.value = mediaItems.toMutableList()
 			preparePlaylist()
 			seekTo(index, 0)
+			play()
 //			updateMusicQueue()
 			Log.d("ViewModelInfo", "playAudio: $index\n$uri")
 		}
@@ -67,7 +68,7 @@ class PlayerUtils(private val context: Context) : KoinComponent {
 
 	fun seek(previous: Boolean, next: Boolean) {
 		mediaSession.player.apply {
-			val songHasStarted = currentPosition >= 5000
+			val songHasStarted = currentPosition >= 5000 // streamed for 5secs or more
 			when {
 				previous -> if (songHasStarted) seekToPrevious() else seekToPreviousMediaItem()
 				next -> seekToNextMediaItem()

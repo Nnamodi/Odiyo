@@ -9,6 +9,6 @@ import org.koin.core.component.inject
 class GetCurrentSongUseCase : KoinComponent {
 	private val musicRepository: MusicRepository by inject()
 
-	operator fun invoke(): Flow<Music> =
+	operator fun invoke(): Flow<Music?> =
 		musicRepository.getCurrentSong()
 }

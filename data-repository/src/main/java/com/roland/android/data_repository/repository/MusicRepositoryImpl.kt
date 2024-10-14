@@ -33,6 +33,7 @@ class MusicRepositoryImpl(
 	override fun getAllSongs(): Flow<List<Music>> {
 		if (fetchedFromSystem) {
 			return localMusicSource.getAllSongs()
+				.includeArtworks(context)
 		}
 
 		return combine(
@@ -83,11 +84,11 @@ class MusicRepositoryImpl(
 	}
 
 	override fun getAlbums(): Flow<List<Album>> {
-		return systemMusicSource.getAlbums().includeArtworks()
+		return systemMusicSource.getAlbums().includeAlbumArtworks()
 	}
 
 	override fun getArtists(): Flow<List<Artist>> {
-		return systemMusicSource.getArtists().includeArtworks()
+		return systemMusicSource.getArtists().includeArtistArtworks()
 	}
 
 	override fun getSongsFromAlbum(selectionArgs: Array<String>): Flow<List<Music>> {
@@ -129,7 +130,7 @@ class MusicRepositoryImpl(
 		}
 	}
 
-	private fun Flow<List<Album>>.includeArtworks(): Flow<List<Album>> {
+	private fun Flow<List<Album>>.includeAlbumArtworks(): Flow<List<Album>> {
 		return map { albums ->
 			albums.map {
 				val artwork = it.getBitmap(context)
@@ -138,7 +139,7 @@ class MusicRepositoryImpl(
 		}
 	}
 
-	private fun Flow<List<Artist>>.includeArtworks(): Flow<List<Artist>> {
+	private fun Flow<List<Artist>>.includeArtistArtworks(): Flow<List<Artist>> {
 		return map { artists ->
 			artists.map {
 				val artwork = it.getBitmap(context)

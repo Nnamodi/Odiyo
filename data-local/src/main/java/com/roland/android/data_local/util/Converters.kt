@@ -6,6 +6,7 @@ import com.roland.android.data_repository.util.Constants.DATE
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.Playlist
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -54,12 +55,12 @@ object Converters {
 		dateModified = dateModified
 	)
 
-	fun Playlist.convertToPlaylistEntity() = PlaylistEntity(
+	fun Playlist.convertToPlaylistEntity(modified: Boolean = false) = PlaylistEntity(
 		id  = id,
 		name = name,
 		songs = songs,
 		dateCreated = dateCreated,
-		dateModified = dateModified
+		dateModified = if (modified) Calendar.getInstance().time else dateModified
 	)
 
 	fun String.toDate(): Date? {

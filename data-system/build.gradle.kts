@@ -42,11 +42,6 @@ dependencies {
 	implementation(platform(libs.koin.bom))
 	implementation(libs.koin.core)
 
-	// media3
-	implementation(libs.media3.player)
-	implementation(libs.media3.session)
-	implementation(libs.media3.ui)
-
 	// other modules
 	implementation(project(path = ":domain"))
 	implementation(project(path = ":data-repository"))

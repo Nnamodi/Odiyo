@@ -31,10 +31,6 @@ class MusicQueueRepositoryImpl : MusicQueueRepository, KoinComponent {
 		localMusicUtil.saveCurrentPlaylistDetails(nowPlayingFrom)
 	}
 
-	override fun populateMusicQueue(songs: List<Music>) {
-		musicQueueUtil.populateMusicQueue(songs)
-	}
-
 	override fun addToQueue(uri: Uri) {
 		musicQueueUtil.addToQueue(uri)
 	}
