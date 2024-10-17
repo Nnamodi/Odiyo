@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface PlayerRepository {
 
+	fun playSong(uri: Uri)
+
 	fun playSong(
 		uri: Uri,
 		index: Int,
@@ -21,7 +23,11 @@ interface PlayerRepository {
 
 	fun onSeekToPosition(position: Long)
 
+	fun getRepeatMode(): Flow<Int>
+
 	fun setRepeatMode(repeatMode: Int): Flow<Int>
+
+	fun getShuffleState(): Flow<ShuffleState>
 
 	fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState>
 

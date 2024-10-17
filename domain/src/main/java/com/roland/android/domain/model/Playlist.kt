@@ -8,7 +8,7 @@ data class Playlist(
 	val id: Int = 0,
 	val name: String,
 	val songs: List<Uri>,
-	val numOfSongs: Int,
+	val numOfSongs: Int = 0,
 	val dateCreated: Date = Date(),
 	val dateModified: Date = Date(),
 	val artwork: Bitmap? = null

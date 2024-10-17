@@ -1,4 +1,4 @@
-package com.roland.android.data_local.datastore
+package com.roland.android.domain.model
 
 data class CurrentPlaylist(
 	val playlist: List<String>,

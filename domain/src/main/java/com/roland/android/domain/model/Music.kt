@@ -14,10 +14,17 @@ data class Music(
 	val album: String,
 	val path: String,
 	val addedOn: String,
-	val duration: String,
+	val duration: Long,
 	val size: String,
 	val artwork: Bitmap? = null,
 	val favorite: Boolean = false,
 	val lastPlayed: Date = Date(0),
 	val timesPlayed: Int = 0
+)
+
+data class SongDetails(
+	val id: Long,
+	val uri: Uri,
+	val title: String? = null,
+	val artist: String? = null
 )

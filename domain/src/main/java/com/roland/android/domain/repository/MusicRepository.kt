@@ -21,8 +21,8 @@ interface MusicRepository {
 
 	fun getArtists(): Flow<List<Artist>>
 
-	fun getSongsFromAlbum(selectionArgs: Array<String>): Flow<List<Music>>
+	fun getSongsFromAlbum(albumName: String): Flow<List<Music>>
 
-	fun getSongsFromArtist(selectionArgs: Array<String>): Flow<List<Music>>
+	fun getSongsFromArtist(artistName: String): Flow<List<Music>>
 
 }

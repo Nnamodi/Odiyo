@@ -15,8 +15,8 @@ class GetSongsFromCollectionUseCase : KoinComponent {
 		return when (collectionType) {
 			CollectionType.LastPlayed -> musicRepository.getLastPlayedSongs()
 			CollectionType.Favorites -> musicRepository.getFavoriteSongs()
-			is CollectionType.FromAlbum -> musicRepository.getSongsFromAlbum(collectionType.selectionArgs)
-			is CollectionType.FromArtist -> musicRepository.getSongsFromArtist(collectionType.selectionArgs)
+			is CollectionType.FromAlbum -> musicRepository.getSongsFromAlbum(collectionType.albumName)
+			is CollectionType.FromArtist -> musicRepository.getSongsFromArtist(collectionType.artistName)
 			is CollectionType.FromPlaylist -> playlistRepository.getSongsFromPlaylist(collectionType.playlistName)
 		}
 	}
@@ -25,33 +25,7 @@ class GetSongsFromCollectionUseCase : KoinComponent {
 sealed class CollectionType {
 	data object LastPlayed : CollectionType()
 	data object Favorites : CollectionType()
-	data class FromAlbum(val selectionArgs: Array<String>) : CollectionType() {
-		override fun equals(other: Any?): Boolean {
-			if (this === other) return true
-			if (javaClass != other?.javaClass) return false
-
-			other as FromAlbum
-
-			return selectionArgs.contentEquals(other.selectionArgs)
-		}
-
-		override fun hashCode(): Int {
-			return selectionArgs.contentHashCode()
-		}
-	}
-	data class FromArtist(val selectionArgs: Array<String>) : CollectionType() {
-		override fun equals(other: Any?): Boolean {
-			if (this === other) return true
-			if (javaClass != other?.javaClass) return false
-
-			other as FromArtist
-
-			return selectionArgs.contentEquals(other.selectionArgs)
-		}
-
-		override fun hashCode(): Int {
-			return selectionArgs.contentHashCode()
-		}
-	}
+	data class FromAlbum(val albumName: String) : CollectionType()
+	data class FromArtist(val artistName: String) : CollectionType()
 	data class FromPlaylist(val playlistName: String) : CollectionType()
 }
