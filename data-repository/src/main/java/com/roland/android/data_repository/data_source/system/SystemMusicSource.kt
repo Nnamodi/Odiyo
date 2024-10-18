@@ -13,8 +13,8 @@ interface SystemMusicSource {
 
 	fun getArtists(): Flow<List<Artist>>
 
-	fun getSongsFromAlbum(selectionArgs: Array<String>): Flow<List<MusicFromSystem>>
+	fun getSongsFromAlbum(albumName: String): Flow<List<MusicFromSystem>>
 
-	fun getSongsFromArtist(selectionArgs: Array<String>): Flow<List<MusicFromSystem>>
+	fun getSongsFromArtist(artistName: String): Flow<List<MusicFromSystem>>
 
 }

@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface SystemPlayerUtil {
 
+	fun playSong(uri: Uri)
+
 	fun playSong(
 		uri: Uri,
 		index: Int,

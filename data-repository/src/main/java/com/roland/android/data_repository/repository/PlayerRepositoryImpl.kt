@@ -17,6 +17,11 @@ class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
 	private val localPlayerUtil by inject<LocalPlayerUtil>()
 	private val systemPlayerUtil by inject<SystemPlayerUtil>()
 
+	override fun playSong(uri: Uri) {
+		systemPlayerUtil.playSong(uri)
+		localMusicUtil.saveCurrentPlaylistDetails(NowPlayingFrom())
+	}
+
 	override fun playSong(
 		uri: Uri,
 		index: Int,
@@ -39,9 +44,17 @@ class PlayerRepositoryImpl : PlayerRepository, KoinComponent {
 		systemPlayerUtil.onSeekToPosition(position)
 	}
 
+	override fun getRepeatMode(): Flow<Int> {
+		return localPlayerUtil.getRepeatMode()
+	}
+
 	override fun setRepeatMode(repeatMode: Int): Flow<Int> {
 		systemPlayerUtil.setRepeatMode(repeatMode)
 		return localPlayerUtil.setRepeatMode(repeatMode)
+	}
+
+	override fun getShuffleState(): Flow<ShuffleState> {
+		return localPlayerUtil.getShuffleState()
 	}
 
 	override fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState> {

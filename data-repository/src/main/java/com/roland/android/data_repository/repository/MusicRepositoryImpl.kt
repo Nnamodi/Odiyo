@@ -91,16 +91,16 @@ class MusicRepositoryImpl(
 		return systemMusicSource.getArtists().includeArtistArtworks()
 	}
 
-	override fun getSongsFromAlbum(selectionArgs: Array<String>): Flow<List<Music>> {
-		return systemMusicSource.getSongsFromAlbum(selectionArgs)
+	override fun getSongsFromAlbum(albumName: String): Flow<List<Music>> {
+		return systemMusicSource.getSongsFromAlbum(albumName)
 			.map { systemList ->
 				systemList.map { it.convertToMusic() }
 			}
 			.includeArtworks(context)
 	}
 
-	override fun getSongsFromArtist(selectionArgs: Array<String>): Flow<List<Music>> {
-		return systemMusicSource.getSongsFromArtist(selectionArgs)
+	override fun getSongsFromArtist(artistName: String): Flow<List<Music>> {
+		return systemMusicSource.getSongsFromArtist(artistName)
 			.map { systemList ->
 				systemList.map { it.convertToMusic() }
 			}

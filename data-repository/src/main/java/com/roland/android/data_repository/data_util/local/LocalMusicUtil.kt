@@ -1,6 +1,6 @@
 package com.roland.android.data_repository.data_util.local
 
-import android.net.Uri
+import com.roland.android.domain.model.CurrentPlaylist
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.util.SortOptions
@@ -24,11 +24,9 @@ interface LocalMusicUtil {
 
 	fun saveCurrentPlaylistDetails(details: NowPlayingFrom)
 
-	fun saveCurrentPlaylist(
-		playlist: List<Uri>,
-		currentPosition: Int,
-		seekPosition: Long,
-	)
+	fun getCurrentPlaylist(): Flow<CurrentPlaylist>
+
+	fun saveCurrentPlaylist(currentPlaylist: CurrentPlaylist)
 
 	fun getPermissionStatus(): Flow<Boolean>
 

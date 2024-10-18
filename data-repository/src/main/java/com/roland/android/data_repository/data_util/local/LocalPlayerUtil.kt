@@ -5,7 +5,11 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalPlayerUtil {
 
+	fun getRepeatMode(): Flow<Int>
+
 	fun setRepeatMode(repeatMode: Int): Flow<Int>
+
+	fun getShuffleState(): Flow<ShuffleState>
 
 	fun onShuffle(shouldShuffle: Boolean, randomSeed: Int): Flow<ShuffleState>
 

@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import com.roland.android.data_repository.model.MusicFromSystem
 import com.roland.android.data_repository.util.Extensions.date
 import com.roland.android.data_repository.util.Extensions.getBitmap
-import com.roland.android.data_repository.util.Extensions.time
 import com.roland.android.data_repository.util.Extensions.toMb
 import com.roland.android.domain.model.Album
 import com.roland.android.domain.model.Artist
@@ -25,7 +24,7 @@ object Converters {
 		album = album,
 		path = path,
 		addedOn = addedOn.date,
-		duration = millis.time,
+		duration = millis,
 		size = "${bytes.toMb} MB"
 	)
 
