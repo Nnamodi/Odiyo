@@ -1,11 +1,11 @@
 package com.roland.android.data_local.data_util
 
-import android.net.Uri
 import com.roland.android.data_local.database.MusicDao
 import com.roland.android.data_local.datastore.MusicQueueStore
 import com.roland.android.data_local.datastore.MusicUtilStore
 import com.roland.android.data_local.util.Converters.convertToMusicEntity
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
+import com.roland.android.domain.model.CurrentPlaylist
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.util.SortOptions
@@ -69,17 +69,13 @@ class LocalMusicUtilImpl : LocalMusicUtil, KoinComponent {
 		}
 	}
 
-	override fun saveCurrentPlaylist(
-		playlist: List<Uri>,
-		currentPosition: Int,
-		seekPosition: Long,
-	) {
+	override fun getCurrentPlaylist(): Flow<CurrentPlaylist> {
+		return musicQueueStore.getCurrentPlaylist()
+	}
+
+	override fun saveCurrentPlaylist(currentPlaylist: CurrentPlaylist) {
 		coroutineScope.launch {
-			musicQueueStore.saveCurrentPlaylist(
-				playlist = playlist,
-				currentPosition = currentPosition,
-				seekPosition = seekPosition
-			)
+			musicQueueStore.saveCurrentPlaylist(currentPlaylist)
 		}
 	}
 

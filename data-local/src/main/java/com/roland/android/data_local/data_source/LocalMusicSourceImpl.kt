@@ -67,8 +67,8 @@ class LocalMusicSourceImpl : LocalMusicSource, KoinComponent {
 		return combine(
 			musicQueueStore.getCurrentPlaylist(),
 			musicDao.getAllSongs()
-		) { urisOnQueue, allSongs ->
-			val uris = urisOnQueue.playlist.map { it.toUri() }
+		) { queue, allSongs ->
+			val uris = queue.playlist.map { it.toUri() }
 			allSongs
 				.filter { musicEntity ->
 					uris.contains(musicEntity.uri)

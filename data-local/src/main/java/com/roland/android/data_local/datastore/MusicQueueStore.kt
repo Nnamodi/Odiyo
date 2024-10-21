@@ -1,6 +1,5 @@
 package com.roland.android.data_local.datastore
 
-import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -8,6 +7,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.roland.android.data_local.util.Constants.LIST_SEPARATOR
+import com.roland.android.domain.model.CurrentPlaylist
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
@@ -20,15 +20,11 @@ private val CURRENT_SONG_SEEK_POSITION = longPreferencesKey("current_song_seek_p
 class MusicQueueStore : KoinComponent {
 	private val dataStore by inject<DataStore<Preferences>>()
 
-	suspend fun saveCurrentPlaylist(
-		playlist: List<Uri>,
-		currentPosition: Int,
-		seekPosition: Long,
-	) {
+	suspend fun saveCurrentPlaylist(currentPlaylist: CurrentPlaylist) {
 		dataStore.edit { preferences ->
-			preferences[CURRENT_PLAYLIST] = playlist.joinToString(LIST_SEPARATOR)
-			preferences[CURRENT_SONG_POSITION] = currentPosition
-			preferences[CURRENT_SONG_SEEK_POSITION] = seekPosition
+			preferences[CURRENT_PLAYLIST] = currentPlaylist.playlist.joinToString(LIST_SEPARATOR)
+			preferences[CURRENT_SONG_POSITION] = currentPlaylist.currentSongPosition
+			preferences[CURRENT_SONG_SEEK_POSITION] = currentPlaylist.currentSongSeekPosition
 		}
 	}
 
