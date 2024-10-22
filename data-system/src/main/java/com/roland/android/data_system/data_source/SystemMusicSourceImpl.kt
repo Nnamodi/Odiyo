@@ -32,11 +32,11 @@ class SystemMusicSourceImpl : SystemMusicSource, KoinComponent {
 		return artistsSource.getArtists()
 	}
 
-	override fun getSongsFromAlbum(selectionArgs: Array<String>): Flow<List<MusicFromSystem>> {
-		return musicSource.getSongs(albumSelection, selectionArgs)
+	override fun getSongsFromAlbum(albumName: String): Flow<List<MusicFromSystem>> {
+		return musicSource.getSongs(albumSelection, arrayOf(albumName))
 	}
 
-	override fun getSongsFromArtist(selectionArgs: Array<String>): Flow<List<MusicFromSystem>> {
-		return musicSource.getSongs(artistSelection, selectionArgs)
+	override fun getSongsFromArtist(artistName: String): Flow<List<MusicFromSystem>> {
+		return musicSource.getSongs(artistSelection, arrayOf(artistName))
 	}
 }
