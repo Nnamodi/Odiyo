@@ -1,8 +1,10 @@
 package com.roland.android.player.player_utils
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.media3.session.MediaSession
 import com.roland.android.data_repository.data_util.local.LocalMusicUtil
+import com.roland.android.domain.model.CurrentPlaylist
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.QueueMediaItem
 import com.roland.android.player.player_utils.States.currentMediaItem
@@ -15,6 +17,18 @@ import org.koin.core.component.inject
 class MusicQueueUtils : KoinComponent {
 	private val mediaSession by inject<MediaSession>()
 	private val localMusicUtil by inject<LocalMusicUtil>()
+
+	fun restorePlaylistDetails(playlistDetails: CurrentPlaylist) {
+		mediaSession.player.apply {
+			val mediaItems = playlistDetails.playlist.map { it.toUri().toMediaItem }
+			mediaItemsFlow.value = mediaItems.toMutableList()
+			preparePlaylist()
+			seekTo(
+				playlistDetails.currentSongPosition,
+				playlistDetails.currentSongSeekPosition
+			)
+		}
+	}
 
 	fun playNext(uri: Uri) {
 		val mediaItem = uri.toMediaItem
@@ -45,7 +59,12 @@ class MusicQueueUtils : KoinComponent {
 				mediaItemsFlow.value = mediaItems.toMutableList()
 				preparePlaylist()
 			}
-			localMusicUtil.saveCurrentPlaylist(songUris, currentMediaItemIndex, currentPosition)
+			val currentPlaylist = CurrentPlaylist(
+				playlist = songUris.map { it.toString() },
+				currentSongPosition = currentMediaItemIndex,
+				currentSongSeekPosition = currentPosition
+			)
+			localMusicUtil.saveCurrentPlaylist(currentPlaylist)
 		}
 	}
 
@@ -76,7 +95,12 @@ class MusicQueueUtils : KoinComponent {
 				mediaItemsFlow.value = mediaItems.toMutableList()
 				preparePlaylist()
 			}
-			localMusicUtil.saveCurrentPlaylist(songUris, currentMediaItemIndex, currentPosition)
+			val currentPlaylist = CurrentPlaylist(
+				playlist = songUris.map { it.toString() },
+				currentSongPosition = currentMediaItemIndex,
+				currentSongSeekPosition = currentPosition
+			)
+			localMusicUtil.saveCurrentPlaylist(currentPlaylist)
 		}
 	}
 

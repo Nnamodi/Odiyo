@@ -4,6 +4,7 @@ import android.net.Uri
 import com.roland.android.data_repository.data_util.player.SystemPlayerUtil
 import com.roland.android.domain.model.Music
 import com.roland.android.player.player_utils.PlayerUtils
+import com.roland.android.player.util.Constants.toMediaItem
 import com.roland.android.player.util.Converters.toMediaItems
 import kotlinx.coroutines.flow.Flow
 import org.koin.core.component.KoinComponent
@@ -11,6 +12,14 @@ import org.koin.core.component.inject
 
 class SystemPlayerUtilImpl : SystemPlayerUtil, KoinComponent {
 	private val playerUtils by inject<PlayerUtils>()
+
+	override fun playSong(uri: Uri) {
+		playerUtils.playSong(
+			uri = uri,
+			index = 0,
+			mediaItems = listOf(uri.toMediaItem)
+		)
+	}
 
 	override fun playSong(
 		uri: Uri,
