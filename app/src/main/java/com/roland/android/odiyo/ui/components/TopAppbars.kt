@@ -2,15 +2,50 @@ package com.roland.android.odiyo.ui.components
 
 import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.*
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,10 +60,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.data.NowPlayingFrom
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.states.MediaItemsUiState
+import com.roland.android.odiyo.data.State
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ALL_SONGS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
@@ -36,6 +71,8 @@ import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
 import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
 import com.roland.android.odiyo.ui.navigation.SEARCH
+import com.roland.android.odiyo.ui.navigation.Screens
+import com.roland.android.odiyo.ui.screens.search.SearchUiState
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -66,20 +103,19 @@ fun MainAppBar(navigateToSettings: () -> Unit) {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun AppBar(
-	navigateUp: () -> Unit,
-	navigateToSearch: () -> Unit = {},
+	navigate: (Screens) -> Unit,
 	title: String? = null
 ) {
 	TopAppBar(
 		title = { title?.let { Text(it) } },
 		navigationIcon = {
-			IconButton(onClick = navigateUp) {
+			IconButton(onClick = { navigate(Screens.Back) }) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
 		},
 		actions = {
 			if (title == null) {
-				IconButton(onClick = navigateToSearch) {
+				IconButton(onClick = { navigate(Screens.SearchScreen) }) {
 					Icon(
 						imageVector = Icons.Rounded.Search,
 						contentDescription = stringResource(R.string.search_icon_desc),
@@ -98,16 +134,18 @@ fun NowPlayingTopAppBar(
 	nowPlayingFrom: NowPlayingFrom,
 	backgroundColor: Color,
 	componentColor: Color,
-	goToCollection: (String, String) -> Unit,
-	navigateUp: () -> Unit,
+	navigate: (Screens) -> Unit,
 	openMoreOptions: () -> Unit
 ) {
 	val interactionSource = remember { MutableInteractionSource() }
-	val ripple = rememberRipple(color = CustomColors.rippleColor(backgroundColor))
+	val ripple = ripple(color = CustomColors.rippleColor(backgroundColor))
 
 	CenterAlignedTopAppBar(
 		navigationIcon = {
-			NowPlayingIconButton(onClick = navigateUp, color = backgroundColor) {
+			NowPlayingIconButton(
+				onClick = { navigate(Screens.Back) },
+				color = backgroundColor
+			) {
 				Icon(
 					imageVector = Icons.Rounded.ArrowBackIosNew,
 					contentDescription = stringResource(R.string.back_icon_desc),
@@ -131,7 +169,12 @@ fun NowPlayingTopAppBar(
 							interactionSource = interactionSource,
 							indication = ripple,
 							enabled = song.uri != "".toUri() && nowPlayingFrom.collectionType.isNotEmpty()
-						) { goToCollection(nowPlayingFrom.collectionName, nowPlayingFrom.collectionType) }
+						) {
+							navigate(Screens.ListScreen(
+								nowPlayingFrom.collectionName,
+								nowPlayingFrom.collectionType
+							))
+						}
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
 					horizontalAlignment = Alignment.CenterHorizontally
@@ -167,8 +210,7 @@ fun MediaItemsAppBar(
 	collectionType: String = "",
 	collectionIsPlaylist: Boolean = false,
 	songsNotEmpty: Boolean,
-	addSongs: (String) -> Unit = {},
-	navigateUp: () -> Unit,
+	navigate: (Screens) -> Unit,
 	openMenu: () -> Unit
 ) {
 	TopAppBar(
@@ -185,14 +227,14 @@ fun MediaItemsAppBar(
 			)
 		},
 		navigationIcon = {
-			IconButton(onClick = navigateUp) {
+			IconButton(onClick = { navigate(Screens.Back) }) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
 			}
 		},
 		actions = {
 			if (songsNotEmpty) {
 				if (collectionIsPlaylist) {
-					IconButton(onClick = { addSongs(collectionName) }) {
+					IconButton(onClick = { navigate(Screens.AddSongsScreen(collectionName)) }) {
 						Icon(
 							imageVector = Icons.Rounded.Add,
 							contentDescription = stringResource(R.string.add_songs),
@@ -244,15 +286,15 @@ fun SelectionModeTopBar(
 	)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
-	uiState: MediaItemsUiState,
+	uiState: SearchUiState,
 	onSearch: (String) -> Unit,
-	closeSearchScreen: () -> Unit,
+	navigate: (Screens) -> Unit,
 	openMenu: () -> Unit
 ) {
-	val (_, _, _, searchQuery, history, searchResult, allSongs) = uiState
+	val (searchQuery, searchResult, history, allSongs) = uiState
 	var active by rememberSaveable { mutableStateOf(false) }
 	var query by rememberSaveable { mutableStateOf(searchQuery) }
 	val paddingValue by animateDpAsState(if (active) 0.dp else 10.dp, label = "padding value")
@@ -289,7 +331,7 @@ fun SearchBar(
 					if (active) {
 						active = false
 						if (query.isEmpty()) query = searchQuery
-					} else closeSearchScreen()
+					} else navigate(Screens.Back)
 				}
 			) {
 				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
@@ -301,7 +343,7 @@ fun SearchBar(
 					Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
 				}
 			}
-			if (!active && searchResult.isNotEmpty()) {
+			if (!active && searchResult is State.Success && searchResult.data.isNotEmpty()) {
 				IconButton(onClick = openMenu) {
 					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options), tint = MaterialTheme.colorScheme.onSurface)
 				}
