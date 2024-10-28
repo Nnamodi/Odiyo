@@ -1,8 +1,8 @@
 package com.roland.android.odiyo.util
 
 import android.net.Uri
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.Playlist
 
 sealed interface QueueItemActions {
 

@@ -1,22 +1,30 @@
 package com.roland.android.odiyo.util
 
 import android.net.Uri
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.ui.dialog.SortOptions
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
+import com.roland.android.domain.model.Playlist
+import com.roland.android.domain.util.SortOptions
 
 sealed interface MediaMenuActions {
 
+	data class PlayAudio(
+		val uri: Uri,
+		val index: Int,
+		val songsToPlay: List<Music>,
+		val nowPlayingFrom: NowPlayingFrom
+	) : MediaMenuActions
+
 	data class PlayNext(
 		val songs: List<Music>,
-		val collectionType: String? = null,
-		val collectionName: String? = null,
+		val collectionType: String,
+		val collectionName: String,
 	) : MediaMenuActions
 
 	data class AddToQueue(
 		val songs: List<Music>,
-		val collectionType: String? = null,
-		val collectionName: String? = null,
+		val collectionType: String,
+		val collectionName: String,
 	) : MediaMenuActions
 
 	data class RenameSong(val details: SongDetails): MediaMenuActions
@@ -27,7 +35,7 @@ sealed interface MediaMenuActions {
 
 	data class AddToPlaylist(val songs: List<Music>, val playlist: Playlist): MediaMenuActions
 
-	data class RemoveFromPlaylist(val songs: List<Music>, val playlistName: String): MediaMenuActions
+	data class RemoveFromPlaylist(val songs: List<Music>, val playlist: Playlist): MediaMenuActions
 
 	data class SetAsRingtone(val music: Music, val ringType: Int): MediaMenuActions
 
@@ -35,7 +43,7 @@ sealed interface MediaMenuActions {
 
 	data class SortSongs(val sortOptions: SortOptions): MediaMenuActions
 
-	data class DeleteSongs(val songs: List<SongDetails>): MediaMenuActions
+	data class DeleteSongs(val songs: List<Music>): MediaMenuActions
 
 }
 

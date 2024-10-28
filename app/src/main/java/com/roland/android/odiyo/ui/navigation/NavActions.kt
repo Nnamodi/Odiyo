@@ -9,6 +9,21 @@ class NavActions(
 	private val storagePermissionGranted: Boolean,
 	private val requestPermission: (Boolean) -> Unit
 ) {
+
+	fun navigate(screen: Screens) {
+		when(screen) {
+			Screens.MediaScreen -> navigateToMediaScreen()
+			Screens.PlaylistsScreen -> navigateToPlaylistScreen()
+			Screens.NowPlayingScreen -> navigateToNowPlayingScreen()
+			is Screens.AboutUsScreen -> navigateToAboutUsScreen(screen.screenToShow)
+			is Screens.AddSongsScreen -> navigateToAddSongsScreen(screen.playlistToAddTo)
+			is Screens.ListScreen -> navigateToMediaItemScreen(screen.collectionName, screen.collectionType)
+			Screens.SearchScreen -> navigateToSearch()
+			Screens.SettingsScreen -> navigateToSettingsScreen()
+			Screens.Back -> navController.navigateUp()
+		}
+	}
+
 	fun navigateToMediaScreen() {
 		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(AppRoute.MediaScreen.route)
@@ -58,22 +73,34 @@ fun concealMinimizedView(navController: NavHostController): Boolean {
 }
 
 sealed class AppRoute(val route: String) {
-	object LibraryScreen: AppRoute("library_screen")
-	object MediaScreen: AppRoute("media_screen")
-	object PlaylistsScreen: AppRoute("playlists_screen")
-	object NowPlayingScreen: AppRoute("now_playing_screen")
-	object SettingsScreen: AppRoute("settings_screen")
-	object SearchScreen: AppRoute("search_screen")
-	object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
+	data object LibraryScreen: AppRoute("library_screen")
+	data object MediaScreen: AppRoute("media_screen")
+	data object PlaylistsScreen: AppRoute("playlists_screen")
+	data object NowPlayingScreen: AppRoute("now_playing_screen")
+	data object SettingsScreen: AppRoute("settings_screen")
+	data object SearchScreen: AppRoute("search_screen")
+	data object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
 		fun routeWithName(collectionName: String, collectionType: String) =
 			String.format("media_item_screen/%s/%s", collectionName, collectionType)
 	}
-	object AddSongsScreen: AppRoute("add_songs_screen/{playlistToAddTo}") {
+	data object AddSongsScreen: AppRoute("add_songs_screen/{playlistToAddTo}") {
 		fun routeWithName(playlistToAddTo: String) = String.format("add_songs_screen/%s", playlistToAddTo)
 	}
-	object AboutUsScreen: AppRoute("about_us_screen/{screenToShow}") {
+	data object AboutUsScreen: AppRoute("about_us_screen/{screenToShow}") {
 		fun routeToScreen(screenToShow: String) = String.format("about_us_screen/%s", screenToShow)
 	}
+}
+
+sealed class Screens {
+	data object MediaScreen : Screens()
+	data object PlaylistsScreen : Screens()
+	data object NowPlayingScreen : Screens()
+	data object SettingsScreen : Screens()
+	data object SearchScreen : Screens()
+	data class ListScreen(val collectionName: String, val collectionType: String) : Screens()
+	data class AddSongsScreen(val playlistToAddTo: String) : Screens()
+	data class AboutUsScreen(val screenToShow: String): Screens()
+	data object Back : Screens()
 }
 
 // Collection types
@@ -88,3 +115,6 @@ const val ALL_SONGS = "all_songs"
 const val ADD_TO_PLAYLIST = "add_to_playlist"
 const val ABOUT_US = "about_us"
 const val SUPPORT = "support"
+
+typealias CollectionName = String
+typealias CollectionType = String
