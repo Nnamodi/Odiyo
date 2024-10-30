@@ -1,6 +1,6 @@
-package com.roland.android.odiyo.util
+package com.roland.android.odiyo.ui.screens.playlists
 
-import com.roland.android.odiyo.model.Playlist
+import com.roland.android.domain.model.Playlist
 
 sealed interface PlaylistMenuActions {
 
