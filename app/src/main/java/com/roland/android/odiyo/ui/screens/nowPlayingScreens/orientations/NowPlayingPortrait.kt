@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui.screens.nowPlayingScreens
+package com.roland.android.odiyo.ui.screens.nowPlayingScreens.orientations
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.RepeatOne
-import androidx.compose.material.icons.rounded.VolumeOff
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,11 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.Player
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.states.NowPlayingUiState
 import com.roland.android.odiyo.ui.components.NowPlayingIconButton
-import com.roland.android.odiyo.ui.screens.MediaControls
-import com.roland.android.odiyo.ui.screens.MediaDescription
-import com.roland.android.odiyo.util.MediaControls
+import com.roland.android.odiyo.ui.navigation.Screens
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.MediaControls
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.MediaDescription
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingUiState
 
 @Composable
 fun NowPlayingPortraitView(
@@ -35,7 +35,7 @@ fun NowPlayingPortraitView(
 	componentColor: Color,
 	backgroundColor: Color,
 	mediaControl: (MediaControls) -> Unit,
-	goToCollection: (String, String) -> Unit,
+	goToCollection: (Screens) -> Unit,
 	openMusicQueue: (Boolean) -> Unit
 ) {
 	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
@@ -86,7 +86,7 @@ fun MediaUtilActionsPortrait(
 			toggled = uiState.deviceMuted, color = backgroundColor
 		) {
 			Icon(
-				imageVector = Icons.Rounded.VolumeOff,
+				imageVector = Icons.AutoMirrored.Rounded.VolumeOff,
 				contentDescription = stringResource(if (uiState.deviceMuted) R.string.unmute else R.string.mute),
 				modifier = Modifier.fillMaxSize(0.75f)
 			)
