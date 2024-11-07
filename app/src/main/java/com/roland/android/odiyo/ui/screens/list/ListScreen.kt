@@ -1,0 +1,314 @@
+package com.roland.android.odiyo.ui.screens.list
+
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.util.SortOptions
+import com.roland.android.odiyo.R
+import com.roland.android.odiyo.data.State
+import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.mediaSource.previewPlaylist
+import com.roland.android.odiyo.ui.components.MediaItem
+import com.roland.android.odiyo.ui.components.MediaItemsAppBar
+import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.SelectionModeItems
+import com.roland.android.odiyo.ui.components.SelectionModeTopBar
+import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.selectSemantics
+import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
+import com.roland.android.odiyo.ui.dialog.SortDialog
+import com.roland.android.odiyo.ui.menu.SongListMenu
+import com.roland.android.odiyo.ui.navigation.ADD_TO_PLAYLIST
+import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
+import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
+import com.roland.android.odiyo.ui.navigation.Screens
+import com.roland.android.odiyo.ui.screens.CommonScreen
+import com.roland.android.odiyo.ui.screens.LoadingListUi
+import com.roland.android.odiyo.ui.screens.media.tabs.selectedSongs
+import com.roland.android.odiyo.ui.sheets.MediaItemSheet
+import com.roland.android.odiyo.ui.theme.OdiyoTheme
+import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
+import com.roland.android.odiyo.util.Permissions.writeStoragePermission
+import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListScreen(
+	uiState: ListUiState,
+	previousScreenIsNowPlayingScreen: Boolean,
+	playAudio: (Uri, Int, String, String) -> Unit,
+	menuAction: (MediaMenuActions) -> Unit,
+	closeSelectionMode: (Boolean) -> Unit,
+	navigate: (Screens) -> Unit
+) {
+	val (songsState, collectionName, collectionType, sortOption, playlists, currentMediaItem) = uiState
+	val sheetState = rememberModalBottomSheetState(true)
+	val openBottomSheet = remember { mutableStateOf(false) }
+	val openMenu = rememberSaveable { mutableStateOf(false) }
+	val openAddToPlaylistDialog = rememberSaveable { mutableStateOf(false) }
+	val openSortDialog = rememberSaveable { mutableStateOf(false) }
+	val openDeleteDialog = remember { mutableStateOf(false) }
+	val openPermissionDialog = remember { mutableStateOf(false) }
+	val writeStoragePermissionGranted = remember { mutableStateOf(false) }
+	var permission by remember { mutableStateOf("") }
+	var songClicked by remember { mutableStateOf<Music?>(null) }
+	val context = LocalContext.current
+	val snackbarHostState = remember { SnackbarHostState() }
+	val scope = rememberCoroutineScope()
+	val selectedSongsId = rememberSaveable { mutableStateOf(emptySet<Long>()) }
+	val inSelectMode by remember { derivedStateOf { selectedSongsId.value.isNotEmpty() } }
+	val snackbarYOffset = if (inSelectMode) 10.dp else 80.dp
+	val lazyColumnBottomPadding = if (inSelectMode) 24.dp else 100.dp
+	val collectionIsFromUserCuratedPlaylistScreen by remember(collectionName, collectionType) {
+		derivedStateOf {
+			(collectionType == PLAYLISTS) && !previousScreenIsNowPlayingScreen
+		}
+	}
+	val requestPermissionLauncher = rememberPermissionLauncher(
+		onResult = { writeStoragePermissionGranted.value = it }
+	)
+	closeSelectionMode(!inSelectMode)
+
+	context.writeStoragePermission({ permission = it }) { isGranted ->
+		writeStoragePermissionGranted.value = isGranted
+		Log.d("PermissionInfo", "Storage write permission granted: $isGranted")
+	}
+
+	Scaffold(
+		topBar = {
+			if (inSelectMode) {
+				SelectionModeTopBar(selectedSongsId.value.size) { selectedSongsId.value = emptySet() }
+			} else {
+				val songs = if (songsState is State.Success) songsState.data else emptyList()
+				MediaItemsAppBar(
+					collectionName = collectionName, collectionType = collectionType,
+					collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
+					songsNotEmpty = songs.isNotEmpty(),
+					navigate = navigate
+				) { openMenu.value = true }
+			}
+		},
+		bottomBar = {
+			SelectionModeBottomBar(inSelectMode, collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen) { items ->
+				val songs = if (songsState is State.Success) songsState.data else emptyList()
+				val selectedSongs = selectedSongs(selectedSongsId.value, songs)
+				when (items) {
+					SelectionModeItems.PlayNext -> {
+						menuAction(MediaMenuActions.PlayNext(selectedSongs, collectionType, collectionName))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.AddToQueue -> {
+						menuAction(MediaMenuActions.AddToQueue(selectedSongs, collectionType, collectionName))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.AddToPlaylist -> openAddToPlaylistDialog.value = true
+					SelectionModeItems.Share -> {
+						menuAction(MediaMenuActions.ShareSong(selectedSongs))
+						selectedSongsId.value = emptySet()
+					}
+					SelectionModeItems.Delete -> if (collectionIsFromUserCuratedPlaylistScreen) {
+						menuAction(MediaMenuActions.RemoveFromPlaylist(selectedSongs, getPlaylist(collectionName, playlists)))
+						selectedSongsId.value = emptySet()
+					} else {
+						openPermissionDialog.value = !writeStoragePermissionGranted.value
+						openDeleteDialog.value = writeStoragePermissionGranted.value
+					}
+				}
+				showSnackbar(items, context, scope, snackbarHostState, collectionIsFromUserCuratedPlaylistScreen)
+			}
+		},
+		snackbarHost = {
+			SnackbarHost(snackbarHostState, Modifier.absoluteOffset(y = -snackbarYOffset)) {
+				Snackbar(Modifier.padding(horizontal = 16.dp)) {
+					Text(it.visuals.message)
+				}
+			}
+		}
+	) { innerPadding ->
+		CommonScreen(
+			state = songsState,
+			loadingScreen = { LoadingListUi(Modifier.padding(innerPadding)) }
+		) { songs ->
+			LazyColumn(
+				modifier = Modifier.padding(innerPadding),
+				contentPadding = PaddingValues(bottom = lazyColumnBottomPadding)
+			) {
+				item {
+					SongListHeader(
+						songs = songs,
+						inSelectMode = inSelectMode,
+						playAllSongs = { uri, index ->
+							playAudio(uri, index, collectionType, collectionName)
+						}
+					)
+				}
+				itemsIndexed(
+					items = songs,
+					key = { _, song -> song.id }
+				) { index, song ->
+					val selected by remember { derivedStateOf { selectedSongsId.value.contains(song.id) } }
+
+					MediaItem(
+						modifier = Modifier.selectSemantics(
+							inSelectionMode = inSelectMode,
+							selected = selected,
+							onClick = { playAudio(song.uri, index, collectionType, collectionName) },
+							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
+							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
+						).animateItem(
+							fadeInSpec = null,
+							fadeOutSpec = null,
+							placementSpec = tween(1000)
+						),
+						song = song,
+						currentMediaItem = currentMediaItem,
+						inSelectionMode = inSelectMode,
+						selected = selected,
+						openMenuSheet = { songClicked = it; openBottomSheet.value = true }
+					)
+				}
+			}
+
+			if (openMenu.value) {
+				SongListMenu(
+					collectionName = collectionName,
+					collectionType = collectionType,
+					songs = songs,
+					menuAction = {
+						menuAction(it)
+						showSnackbar(it, context, scope, snackbarHostState)
+					},
+					showSortAction = (collectionType != LAST_PLAYED) && (collectionName != RECENTLY_ADDED),
+					openSortDialog = { openSortDialog.value = it }
+				) { openMenu.value = it }
+			}
+
+			if (openAddToPlaylistDialog.value &&
+				(songClicked != null || selectedSongsId.value.isNotEmpty())) {
+				val selectedSongs = if (inSelectMode) {
+					selectedSongs(selectedSongsId.value, songs)
+				} else listOf(songClicked!!)
+
+				AddToPlaylistDialog(
+					songs = selectedSongs,
+					playlists = playlists,
+					addSongToPlaylist = {
+						selectedSongsId.value = emptySet()
+						menuAction(it); openDeleteDialog.value = false
+						showSnackbar(it, context, scope, snackbarHostState)
+					},
+					openDialog = { openAddToPlaylistDialog.value = it }
+				)
+			}
+
+			if (openDeleteDialog.value) {
+				DeleteDialog(
+					delete = {
+						val selectedSongs = selectedSongs(selectedSongsId.value, songs)
+						menuAction(MediaMenuActions.DeleteSongs(selectedSongs))
+						openDeleteDialog.value = false
+					},
+					openDialog = { openDeleteDialog.value = it },
+					multipleSongs = selectedSongsId.value.size > 1
+				)
+			}
+		}
+
+		if (openBottomSheet.value && songClicked != null) {
+			MediaItemSheet(
+				song = songClicked!!,
+				scaffoldState = sheetState,
+				collectionIsPlaylist = collectionIsFromUserCuratedPlaylistScreen,
+				goToCollection = { collectionName, collectionType ->
+					navigate(Screens.ListScreen(collectionName, collectionType))
+				},
+				openBottomSheet = { openBottomSheet.value = it },
+				openAddToPlaylistDialog = { openAddToPlaylistDialog.value = true },
+				menuAction = {
+					menuAction(it)
+					showSnackbar(it, context, scope, snackbarHostState, songClicked!!)
+				},
+				removeFromPlaylist = { music ->
+					val playlist = getPlaylist(collectionName, playlists)
+					val action = MediaMenuActions.RemoveFromPlaylist(listOf(music), playlist)
+					menuAction(action)
+					showSnackbar(action, context, scope, snackbarHostState, music)
+				}
+			)
+		}
+
+		if (openSortDialog.value) {
+			SortDialog(
+				selectedOption = sortOption,
+				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
+			) { openSortDialog.value = it }
+		}
+
+		if (openPermissionDialog.value) {
+			PermissionDialog(
+				permissionMessage = stringResource(R.string.write_storage_permission_message),
+				requestPermission = { requestPermissionLauncher.launch(permission) },
+				openDialog = { openPermissionDialog.value = it }
+			)
+		}
+	}
+
+	if (inSelectMode) {
+		BackHandler { selectedSongsId.value = emptySet() }
+	}
+}
+
+@Preview
+@Composable
+fun ListScreenPreview() {
+	OdiyoTheme {
+		val uiState by remember { mutableStateOf(
+			ListUiState(
+				songs = previewData.takeLast(5),
+				collectionName = "Does it have to be me?",
+				collectionType = ADD_TO_PLAYLIST,
+				sortOption = SortOptions.NameAZ,
+				playlists = previewPlaylist
+			)
+		) }
+
+		ListScreen(
+			uiState = uiState,
+			previousScreenIsNowPlayingScreen = false,
+			playAudio = { _, _, _, _ -> },
+			menuAction = {},
+			closeSelectionMode = {},
+		) {}
+	}
+}
