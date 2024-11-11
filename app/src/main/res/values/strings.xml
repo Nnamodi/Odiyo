@@ -41,9 +41,7 @@
     <string name="add">Add</string>
     <string name="remove">Remove</string>
     <string name="add_to_queue">Add to queue</string>
-    <string name="remove_from_queue">Remove from queue</string>
     <string name="delete_dialog_text">You will not be able to recover %s again</string>
-    <string name="nothing_here">Nothing here</string>
     <string name="play_all_songs">Play all (%d)</string>
     <string name="playing_from_album">Playing from album:</string>
     <string name="playing_from_artist">Playing from artist:</string>
@@ -105,7 +103,7 @@
     <string name="ringtone">Ringtone</string>
     <string name="alarm_sound">Alarm sound</string>
     <string name="notification_tone">Notification tone</string>
-    <string name="setting_up_playlist">Setting up playlist...</string>
+    <string name="setting_up_playlist">Setting up playlist…</string>
     <string name="settings">Settings</string>
     <string name="theme">Theme</string>
     <string name="save_history">Save history</string>
