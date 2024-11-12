@@ -2,8 +2,8 @@ package com.roland.android.player.notification
 
 import android.content.Context
 import androidx.annotation.OptIn
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.ui.PlayerNotificationManager
 import com.roland.android.player.R
@@ -28,7 +28,7 @@ class PlayerNotification(context: Context) : KoinComponent {
 			setChannelNameResourceId(R.string.notification_channel)
 			setMediaDescriptionAdapter(PlayerNotificationAdapter(context, mediaSession))
 			setNextActionIconResourceId(R.drawable.skip_next_icon)
-//			setNotificationListener(MediaNotificationListener(service))
+//			setNotificationListener(PlayerNotificationListener(service))
 			setPauseActionIconResourceId(R.drawable.pause_icon)
 			setPlayActionIconResourceId(R.drawable.play_icon)
 			setPreviousActionIconResourceId(R.drawable.skip_previous_icon)
@@ -43,7 +43,7 @@ class PlayerNotification(context: Context) : KoinComponent {
 		}
 	}
 
-	fun showNotification(player: ExoPlayer) {
+	fun showNotification(player: Player) {
 		notificationManager.setPlayer(player)
 	}
 

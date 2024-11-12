@@ -10,8 +10,8 @@ import com.roland.android.data_repository.data_util.player.MusicQueueUtil
 import com.roland.android.data_repository.data_util.player.SystemPlayerUtil
 import com.roland.android.player.data_util.MusicQueueUtilImpl
 import com.roland.android.player.data_util.SystemPlayerUtilImpl
+import com.roland.android.player.notification.PlayerNotification
 import com.roland.android.player.player_utils.MusicQueueUtils
-import com.roland.android.player.player_utils.PlayerListener
 import com.roland.android.player.player_utils.PlayerUtils
 import org.koin.dsl.module
 
@@ -41,8 +41,8 @@ object PlayerModule {
 		single { provideAudioAttributes() }
 		single { provideExoPlayer(get<Context>().applicationContext, get()) }
 		single { provideMediaSession(get<Context>().applicationContext, get(), get()) }
+		single { PlayerNotification(get<Context>().applicationContext) }
 		single { MusicQueueUtils() }
-		single { PlayerListener(get<Context>().applicationContext) }
 		single { PlayerUtils(get<Context>().applicationContext) }
 		factory<MusicQueueUtil> { MusicQueueUtilImpl() }
 		factory<SystemPlayerUtil> { SystemPlayerUtilImpl() }
