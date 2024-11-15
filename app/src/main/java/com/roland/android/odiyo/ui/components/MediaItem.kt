@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.components
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -25,7 +24,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,25 +38,25 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import com.roland.android.domain.model.Music
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.time
 import com.roland.android.odiyo.util.WindowType
 import com.roland.android.odiyo.util.rememberWindowSize
+import com.roland.android.player.util.Constants.toMediaItem
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecentSongItem(
 	modifier: Modifier = Modifier,
-	itemIndex: Int,
 	song: Music,
 	currentMediaItem: MediaItem,
-	playSong: (Uri, Int) -> Unit,
+	playSong: () -> Unit,
 	openMenuSheet: () -> Unit
 ) {
 	val portraitImageSize = LocalConfiguration.current.screenWidthDp / 2.5
 	val landscapeImageSize = LocalConfiguration.current.screenHeightDp / 2.2
 	val windowSize = rememberWindowSize()
 	val imageSize by remember(windowSize.width) {
-		mutableStateOf(
+		mutableDoubleStateOf(
 			if (windowSize.width == WindowType.Landscape) landscapeImageSize else portraitImageSize
 		)
 	}
@@ -69,7 +68,7 @@ fun RecentSongItem(
 			.width(imageSize.dp + 16.dp)
 			.clip(MaterialTheme.shapes.large)
 			.combinedClickable(
-				onClick = { playSong(song.uri, itemIndex) },
+				onClick = playSong,
 				onLongClick = openMenuSheet
 			)
 			.padding(8.dp),
@@ -157,7 +156,7 @@ fun MediaItem(
 				)
 				if (showTrailingIcon) {
 					Text(
-						song.duration,
+						song.duration.time,
 						color = textColor,
 						style = MaterialTheme.typography.bodySmall,
 						modifier = Modifier

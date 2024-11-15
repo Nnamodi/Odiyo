@@ -1,8 +1,8 @@
-package com.roland.android.odiyo.util
+package com.roland.android.odiyo.util.actions
 
-import android.net.Uri
 import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.Playlist
+import com.roland.android.domain.model.QueueMediaItem
 
 sealed interface QueueItemActions {
 
@@ -17,8 +17,3 @@ sealed interface QueueItemActions {
 	data class AddToPlaylist(val songs: List<Music>, val playlist: Playlist): QueueItemActions
 
 }
-
-data class QueueMediaItem(
-	val index: Int,
-	val uri: Uri
-)

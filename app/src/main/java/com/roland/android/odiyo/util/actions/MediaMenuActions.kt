@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.util
+package com.roland.android.odiyo.util.actions
 
 import android.net.Uri
 import com.roland.android.domain.model.Music
@@ -17,14 +17,14 @@ sealed interface MediaMenuActions {
 
 	data class PlayNext(
 		val songs: List<Music>,
-		val collectionType: String,
-		val collectionName: String,
+		val collectionType: String? = null,
+		val collectionName: String? = null,
 	) : MediaMenuActions
 
 	data class AddToQueue(
 		val songs: List<Music>,
-		val collectionType: String,
-		val collectionName: String,
+		val collectionType: String? = null,
+		val collectionName: String? = null,
 	) : MediaMenuActions
 
 	data class RenameSong(val details: SongDetails): MediaMenuActions

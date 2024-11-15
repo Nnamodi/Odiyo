@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.util
+package com.roland.android.odiyo.util.actions
 
 import android.net.Uri
 

@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui.components
+package com.roland.android.odiyo.ui.components.appbars
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.AddToQueue
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.Queue
 import androidx.compose.material.icons.rounded.RemoveCircle
 import androidx.compose.material.icons.rounded.Share
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.ui.components.SelectionModeItems.Delete
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeItems.Delete
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 
 @Composable
@@ -45,7 +45,7 @@ fun SelectionModeBottomBar(
 	collectionIsPlaylist: Boolean = false,
 	onClick: (SelectionModeItems) -> Unit
 ) {
-	val items = SelectionModeItems.values()
+	val items = SelectionModeItems.entries.toTypedArray()
 	val navigationBarHeight = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding() + 10.dp
 	val bottomPadding = if (inSelectionMode && isSongsScreen) 10.dp else navigationBarHeight
 
@@ -103,7 +103,7 @@ fun SelectionItems(nameRes: Int, icon: ImageVector, onClick: () -> Unit) {
 enum class SelectionModeItems(val titleRes: Int, val icon: ImageVector) {
 	PlayNext(R.string.play_next, Icons.Rounded.Queue),
 	AddToQueue(R.string.queue_up, Icons.Rounded.AddToQueue),
-	AddToPlaylist(R.string.add, Icons.Rounded.PlaylistAdd),
+	AddToPlaylist(R.string.add, Icons.AutoMirrored.Rounded.PlaylistAdd),
 	Share(R.string.share, Icons.Rounded.Share),
 	Delete(R.string.delete, Icons.Rounded.Delete)
 }

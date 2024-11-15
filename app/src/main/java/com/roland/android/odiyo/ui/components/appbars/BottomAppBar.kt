@@ -1,6 +1,5 @@
-package com.roland.android.odiyo.ui.components
+package com.roland.android.odiyo.ui.components.appbars
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -8,19 +7,40 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.PauseCircleOutline
 import androidx.compose.material.icons.rounded.PlayCircleOutline
-import androidx.compose.material.icons.rounded.QueueMusic
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -34,26 +54,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.roland.android.domain.model.Music
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.getBitmap
-import com.roland.android.odiyo.states.NowPlayingUiState
+import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.components.NowPlayingIconButton
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingUiState
 import com.roland.android.odiyo.ui.sheets.QueueItemsSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
-import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
 	uiState: NowPlayingUiState,
-	playPause: (Uri, Int?) -> Unit,
+	playPause: (Uri) -> Unit,
 	queueAction: (QueueItemActions) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	moveToNowPlayingScreen: () -> Unit,
@@ -64,15 +85,10 @@ fun BottomAppBar(
 	val scaffoldState = rememberModalBottomSheetState(true)
 	val context = LocalContext.current
 	val scope = rememberCoroutineScope()
-	val currentSong = if (uiState.musicQueue.isNotEmpty()) {
-		uiState.musicQueue[uiState.currentSongIndex]
-	} else null
-	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
 	val openMusicQueue = remember { mutableStateOf(false) }
 	val openAddToPlaylistDialog = remember { mutableStateOf(false) }
 	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
-	val artwork by remember(currentSong?.id) { mutableStateOf(currentSong?.getBitmap(context)) }
-	val generatedColor = nowPlayingBackgroundColor(artwork)
+	val generatedColor = nowPlayingBackgroundColor(currentSong?.artwork)
 	val generatedColorIsDark = generatedColor.luminance() < 0.1
 	val queueIsNotEmpty by remember(uiState.musicQueue) {
 		derivedStateOf { uiState.musicQueue.isNotEmpty() }
@@ -90,7 +106,7 @@ fun BottomAppBar(
 			NowPlayingMinimizedView(
 				uiState = uiState,
 				currentSong = currentSong,
-				artwork = artwork,
+				artwork = currentSong?.artwork,
 				generatedColor = generatedColor,
 				playPause = playPause,
 				showMusicQueue = { openMusicQueue.value = it },
@@ -124,18 +140,18 @@ fun BottomAppBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NowPlayingMinimizedView(
+private fun NowPlayingMinimizedView(
 	uiState: NowPlayingUiState,
 	currentSong: Music?,
 	artwork: Bitmap?,
 	generatedColor: Color,
-	playPause: (Uri, Int?) -> Unit,
+	playPause: (Uri) -> Unit,
 	showMusicQueue: (Boolean) -> Unit,
 	moveToNowPlayingScreen: () -> Unit
 ) {
 	val context = LocalContext.current
 	val defaultMediaArt = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-	val maxSeekValue = currentSong?.time?.toFloat() ?: 1f
+	val maxSeekValue = currentSong?.duration?.toFloat() ?: 1f
 	val indication = ripple(color = CustomColors.rippleColor(generatedColor))
 	val interactionSource = remember { MutableInteractionSource() }
 
@@ -182,15 +198,15 @@ fun NowPlayingMinimizedView(
 				}
 			}
 			NowPlayingIconButton(
-				onClick = { currentSong?.uri?.let { playPause(it, null) } },
+				onClick = { currentSong?.uri?.let(playPause) },
 				modifier = Modifier
 					.padding(start = 24.dp)
 					.size(30.dp),
 				color = generatedColor
 			) {
 				Icon(
-					imageVector = if (uiState.playingState) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
-					contentDescription = if (uiState.playingState) stringResource(R.string.pause) else stringResource(R.string.play),
+					imageVector = if (uiState.isPlaying) Icons.Rounded.PauseCircleOutline else Icons.Rounded.PlayCircleOutline,
+					contentDescription = if (uiState.isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
 					modifier = Modifier.fillMaxSize()
 				)
 			}
@@ -202,7 +218,7 @@ fun NowPlayingMinimizedView(
 				color = generatedColor
 			) {
 				Icon(
-					imageVector = Icons.Rounded.QueueMusic,
+					imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
 					contentDescription = stringResource(R.string.music_queue),
 					modifier = Modifier.fillMaxSize()
 				)
@@ -243,7 +259,7 @@ fun BottomAppBarPreview() {
 		) {
 			BottomAppBar(
 				uiState = uiState,
-				playPause = { _, _ -> uiState = uiState.copy(playingState = !uiState.playingState) },
+				playPause = { uiState = uiState.copy(isPlaying = !uiState.isPlaying) },
 				queueAction = {},
 				menuAction = {},
 				moveToNowPlayingScreen = {},

@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.ui.components
+package com.roland.android.odiyo.ui.components.appbars
 
 import android.content.Context
 import androidx.compose.animation.core.animateDpAsState
@@ -35,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -64,6 +65,7 @@ import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
+import com.roland.android.odiyo.ui.components.NowPlayingIconButton
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ALL_SONGS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
@@ -170,10 +172,12 @@ fun NowPlayingTopAppBar(
 							indication = ripple,
 							enabled = song.uri != "".toUri() && nowPlayingFrom.collectionType.isNotEmpty()
 						) {
-							navigate(Screens.ListScreen(
-								nowPlayingFrom.collectionName,
-								nowPlayingFrom.collectionType
-							))
+							navigate(
+								Screens.ListScreen(
+									nowPlayingFrom.collectionName,
+									nowPlayingFrom.collectionType
+								)
+							)
 						}
 						.fillMaxWidth(0.75f)
 						.padding(4.dp),
@@ -307,48 +311,54 @@ fun SearchBar(
 	}
 
 	SearchBar(
+		inputField = { SearchBarDefaults.InputField(
+			query = query,
+			onQueryChange = { query = it },
+			onSearch = { search(it) },
+			expanded = active,
+			onExpandedChange = { active = it; if (!it && query.isEmpty()) query = searchQuery },
+			placeholder = {
+				Row(
+					Modifier
+						.alpha(0.6f)
+						.basicMarquee(),
+					horizontalArrangement = Arrangement.Center,
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Icon(Icons.Rounded.Search, null)
+					Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
+				}
+			},
+			leadingIcon = {
+				IconButton(
+					onClick = {
+						if (active) {
+							active = false
+							if (query.isEmpty()) query = searchQuery
+						} else navigate(Screens.Back)
+					}
+				) {
+					Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
+				}
+			},
+			trailingIcon = {
+				if (query.isNotEmpty() && active) {
+					IconButton(onClick = { query = "" }) {
+						Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
+					}
+				}
+				if (!active && searchResult is State.Success && searchResult.data.isNotEmpty()) {
+					IconButton(onClick = openMenu) {
+						Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options), tint = MaterialTheme.colorScheme.onSurface)
+					}
+				}
+			}
+		)},
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(horizontal = paddingValue),
-		query = query,
-		onQueryChange = { query = it },
-		onSearch = { search(it) },
-		active = active,
-		onActiveChange = { active = it; if (!it && query.isEmpty()) query = searchQuery },
-		placeholder = {
-			Row(
-				Modifier
-					.alpha(0.6f)
-					.basicMarquee(), Arrangement.Center, Alignment.CenterVertically
-			) {
-				Icon(Icons.Rounded.Search, null)
-				Text(stringResource(R.string.search), Modifier.padding(start = 4.dp), softWrap = false)
-			}
-		},
-		leadingIcon = {
-			IconButton(
-				onClick = {
-					if (active) {
-						active = false
-						if (query.isEmpty()) query = searchQuery
-					} else navigate(Screens.Back)
-				}
-			) {
-				Icon(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back_icon_desc))
-			}
-		},
-		trailingIcon = {
-			if (query.isNotEmpty() && active) {
-				IconButton(onClick = { query = "" }) {
-					Icon(Icons.Rounded.Clear, stringResource(R.string.clear_icon_desc))
-				}
-			}
-			if (!active && searchResult is State.Success && searchResult.data.isNotEmpty()) {
-				IconButton(onClick = openMenu) {
-					Icon(Icons.Rounded.MoreVert, stringResource(R.string.more_options), tint = MaterialTheme.colorScheme.onSurface)
-				}
-			}
-		}
+		expanded = active,
+		onExpandedChange = { active = it; if (!it && query.isEmpty()) query = searchQuery }
 	) {
 		val (searchHistory, suggestions) = searchSuggestions(query, history, allSongs)
 		val bottomPadding = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()

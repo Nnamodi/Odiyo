@@ -1,4 +1,4 @@
-package com.roland.android.odiyo.util
+package com.roland.android.odiyo.util.actions
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -63,14 +63,30 @@ class MediaMenuActionsImpl : KoinComponent {
 		playerRepository.playSong(uri, index, songsToPlay, nowPlayingFrom)
 	}
 
-	private fun onPlayNext(songs: List<Music>, collectionName: String, collectionType: String) {
+	private fun onPlayNext(
+		songs: List<Music>,
+		collectionName: String?,
+		collectionType: String?
+	) {
+		if (collectionName == null || collectionType == null) {
+			musicQueueRepository.playNext(songs, null)
+			return
+		}
 		val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType).takeIf {
 			songs.size > mediaItemsFlow.value.size
 		}
 		musicQueueRepository.playNext(songs, nowPlayingFrom)
 	}
 
-	private fun onAddToQueue(songs: List<Music>, collectionName: String, collectionType: String) {
+	private fun onAddToQueue(
+		songs: List<Music>,
+		collectionName: String?,
+		collectionType: String?
+	) {
+		if (collectionName == null || collectionType == null) {
+			musicQueueRepository.addToQueue(songs, null)
+			return
+		}
 		val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType).takeIf {
 			songs.size > mediaItemsFlow.value.size
 		}

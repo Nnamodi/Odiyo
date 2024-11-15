@@ -1,10 +1,10 @@
-package com.roland.android.odiyo.mediaSource
+package com.roland.android.odiyo.data
 
 import androidx.core.net.toUri
-import com.roland.android.odiyo.model.Album
-import com.roland.android.odiyo.model.Artist
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
+import com.roland.android.domain.model.Album
+import com.roland.android.domain.model.Artist
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.Playlist
 
 val previewData = listOf(
 	Music(
@@ -13,7 +13,11 @@ val previewData = listOf(
 		name = "",
 		title = "He is the same",
 		artist = "John Bellion",
-		time = 198963
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 198963,
+		size = ""
 	),
 	Music(
 		id = 1,
@@ -21,15 +25,23 @@ val previewData = listOf(
 		name = "",
 		title = "Jantamanta",
 		artist = "MAVINS",
-		time = 615976
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 615976,
+		size = ""
 	),
 	Music(
 		id = 2,
 		uri = "2".toUri(),
 		name = "",
-		title = "Duke and the spear for old times' sake",
+		title = "Duke and the spear for old durations' sake",
 		artist = "James Hadley-chase",
-		time = 542155
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 542155,
+		size = ""
 	),
 	Music(
 		id = 3,
@@ -37,7 +49,11 @@ val previewData = listOf(
 		name = "",
 		title = "I'm real",
 		artist = "Ja Rule",
-		time = 947149
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 947149,
+		size = ""
 	),
 	Music(
 		id = 4,
@@ -45,11 +61,11 @@ val previewData = listOf(
 		name = "Lil Wayne - My president is black || roland.com.mp3",
 		title = "My president is black",
 		artist = "Lil Wayne",
-		time = 259464,
-		bytes = 6849581,
-		addedOn = 1597243262,
 		album = "Indiana",
-		path = "/storage/emulated/0/Xender/audio/Lil Wayne - My president is black || roland.com.mp3"
+		path = "/storage/emulated/0/Xender/audio/Lil Wayne - My president is black || roland.com.mp3",
+		addedOn = "24 July, 2006",
+		duration = 259464,
+		size = "6.8 MB",
 	),
 	Music(
 		id = 5,
@@ -57,15 +73,23 @@ val previewData = listOf(
 		name = "",
 		title = "Yellow",
 		artist = "Coldplay",
-		time = 345698
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 345698,
+		size = ""
 	),
 	Music(
 		id = 6,
 		uri = "6".toUri(),
 		name = "",
-		title = "Caribbean time to time",
+		title = "Caribbean duration to duration",
 		artist = "High Sea Crew",
-		time = 202056
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 202056,
+		size = ""
 	),
 	Music(
 		id = 7,
@@ -73,15 +97,23 @@ val previewData = listOf(
 		name = "",
 		title = "Country road",
 		artist = "Afleck Sam",
-		time = 641208
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 641208,
+		size = ""
 	),
 	Music(
 		id = 8,
 		uri = "8".toUri(),
 		name = "",
-		title = "All time low",
+		title = "All duration low",
 		artist = "John Bellion",
-		time = 118946
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 118946,
+		size = ""
 	),
 	Music(
 		id = 9,
@@ -89,7 +121,11 @@ val previewData = listOf(
 		name = "",
 		title = "Cold heart",
 		artist = "Elton John",
-		time = 858963
+		album = "",
+		path = "",
+		addedOn = "",
+		duration = 858963,
+		size = ""
 	)
 )
 
