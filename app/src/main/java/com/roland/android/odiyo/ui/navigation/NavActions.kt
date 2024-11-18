@@ -9,7 +9,6 @@ class NavActions(
 	private val storagePermissionGranted: Boolean,
 	private val requestPermission: (Boolean) -> Unit
 ) {
-
 	fun navigate(screen: Screens) {
 		when(screen) {
 			Screens.MediaScreen -> navigateToMediaScreen()
@@ -17,43 +16,50 @@ class NavActions(
 			Screens.NowPlayingScreen -> navigateToNowPlayingScreen()
 			is Screens.AboutUsScreen -> navigateToAboutUsScreen(screen.screenToShow)
 			is Screens.AddSongsScreen -> navigateToAddSongsScreen(screen.playlistToAddTo)
-			is Screens.ListScreen -> navigateToMediaItemScreen(screen.collectionName, screen.collectionType)
+			is Screens.ListScreen -> navigateToListScreen(screen.collectionName, screen.collectionType)
 			Screens.SearchScreen -> navigateToSearch()
 			Screens.SettingsScreen -> navigateToSettingsScreen()
 			Screens.Back -> navController.navigateUp()
 		}
 	}
 
-	fun navigateToMediaScreen() {
+	private fun navigateToMediaScreen() {
 		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(AppRoute.MediaScreen.route)
 	}
-	fun navigateToPlaylistScreen() {
+
+	private fun navigateToPlaylistScreen() {
 		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(AppRoute.PlaylistsScreen.route)
 	}
-	fun navigateToNowPlayingScreen() {
+
+	private fun navigateToNowPlayingScreen() {
 		navController.navigate(AppRoute.NowPlayingScreen.route)
 	}
-	fun navigateToSettingsScreen() {
+
+	private fun navigateToSettingsScreen() {
 		navController.navigate(AppRoute.SettingsScreen.route)
 	}
-	fun navigateToSearch() {
+
+	private fun navigateToSearch() {
 		navController.navigate(AppRoute.SearchScreen.route)
 	}
-	fun navigateToMediaItemScreen(collectionName: String, collectionType: String) {
+
+	private fun navigateToListScreen(collectionName: String, collectionType: String) {
 		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(
-			AppRoute.MediaItemsScreen.routeWithName(collectionName, collectionType)
+			AppRoute.ListScreen.routeWithName(collectionName, collectionType)
 		)
 	}
-	fun navigateToAddSongsScreen(playlistToAddSongs: String) {
+
+	private fun navigateToAddSongsScreen(playlistToAddSongs: String) {
 		if (!storagePermissionGranted) { requestPermission(true); return }
 		navController.navigate(
 			AppRoute.AddSongsScreen.routeWithName(playlistToAddSongs)
 		)
 	}
-	fun navigateToAboutUsScreen(screenToShow: String) {
+
+	private fun navigateToAboutUsScreen(screenToShow: String) {
 		navController.navigate(
 			AppRoute.AboutUsScreen.routeToScreen(screenToShow)
 		)
@@ -73,15 +79,15 @@ fun concealMinimizedView(navController: NavHostController): Boolean {
 }
 
 sealed class AppRoute(val route: String) {
-	data object LibraryScreen: AppRoute("library_screen")
+	data object HomeScreen: AppRoute("home_screen")
 	data object MediaScreen: AppRoute("media_screen")
 	data object PlaylistsScreen: AppRoute("playlists_screen")
 	data object NowPlayingScreen: AppRoute("now_playing_screen")
 	data object SettingsScreen: AppRoute("settings_screen")
 	data object SearchScreen: AppRoute("search_screen")
-	data object MediaItemsScreen: AppRoute("media_item_screen/{collectionName}/{collectionType}") {
+	data object ListScreen: AppRoute("list_screen/{collectionName}/{collectionType}") {
 		fun routeWithName(collectionName: String, collectionType: String) =
-			String.format("media_item_screen/%s/%s", collectionName, collectionType)
+			String.format("list_screen/%s/%s", collectionName, collectionType)
 	}
 	data object AddSongsScreen: AppRoute("add_songs_screen/{playlistToAddTo}") {
 		fun routeWithName(playlistToAddTo: String) = String.format("add_songs_screen/%s", playlistToAddTo)
