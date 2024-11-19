@@ -21,7 +21,7 @@ import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.menu.SongListMenu.AddToQueue
 import com.roland.android.odiyo.ui.menu.SongListMenu.PlayNext
 import com.roland.android.odiyo.ui.menu.SongListMenu.SortBy
-import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.actions.MediaMenuActions
 
 @Composable
 fun SongListMenu(

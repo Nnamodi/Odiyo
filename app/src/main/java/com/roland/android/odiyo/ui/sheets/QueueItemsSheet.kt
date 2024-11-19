@@ -3,14 +3,41 @@ package com.roland.android.odiyo.ui.sheets
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetDefaults.ContainerColor
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SwipeToDismissBoxValue.Settled
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,14 +53,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.QueueMediaItem
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.ui.components.SwipeableItem
 import com.roland.android.odiyo.ui.components.rememberSwipeToDismissState
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
-import com.roland.android.odiyo.util.*
+import com.roland.android.odiyo.util.actions.QueueItemActions
+import com.roland.android.odiyo.util.sheetHeight
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +78,7 @@ fun QueueItemsSheet(
 ) {
 	val scope = rememberCoroutineScope()
 	val lazyListState = rememberLazyListState()
-	val componentColor = if (containerColor != ContainerColor) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onBackground
+	val componentColor = if (containerColor != ContainerColor) colorScheme.background else colorScheme.onBackground
 	val containerColorBlend = ColorUtils.blendARGB(Color.White.toArgb(), containerColor.toArgb(), 0.95f)
 	val customContainerColor = if (containerColor == ContainerColor) containerColor else Color(containerColorBlend)
 
@@ -78,14 +107,14 @@ fun QueueItemsSheet(
 					TextButton(
 						onClick = { saveQueue(); openBottomSheet(false) },
 						colors = ButtonDefaults.textButtonColors(
-							contentColor = if (containerColor != ContainerColor) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.primary
+							contentColor = if (containerColor != ContainerColor) colorScheme.inversePrimary else colorScheme.primary
 						)
 					) {
 						Text(stringResource(R.string.save_queue))
 					}
 				}
 			}
-			Divider(color = Color.White.copy(alpha = 0.5f))
+			HorizontalDivider(color = Color.White.copy(alpha = 0.5f))
 			LazyColumn(
 				modifier = Modifier.heightIn(min = 10.dp, max = sheetHeight().dp),
 				contentPadding = PaddingValues(bottom = 14.dp),
@@ -96,7 +125,10 @@ fun QueueItemsSheet(
 					key = { index, song -> "$index-${song.id}" }
 				) { index, song ->
 					val dismissState = rememberSwipeToDismissState(index, song.uri, queueAction)
-					val elevation by animateDpAsState(targetValue = if (dismissState.dismissDirection != null) 4.dp else 0.dp)
+					val elevation by animateDpAsState(
+						targetValue = if (dismissState.dismissDirection == Settled) 0.dp else 4.dp,
+						label = "item elevation value"
+					)
 					val backgroundColorBlend = ColorUtils.blendARGB(Color.Black.toArgb(), containerColor.toArgb(), 0.75f)
 
 					SwipeableItem(
@@ -138,8 +170,8 @@ fun QueueItem(
 	val ripple = ripple(color = CustomColors.rippleColor(cardColor))
 	val isPlaying = itemIndex == currentSongIndex
 	val color = when {
-		containerColor != ContainerColor && isPlaying -> MaterialTheme.colorScheme.inversePrimary
-		containerColor == ContainerColor && isPlaying -> MaterialTheme.colorScheme.primary
+		containerColor != ContainerColor && isPlaying -> colorScheme.inversePrimary
+		containerColor == ContainerColor && isPlaying -> colorScheme.primary
 		else -> componentColor
 	}
 
@@ -179,7 +211,7 @@ fun QueueItem(
 				color = color
 			)
 		}
-		if (!itemIsLast) Divider(color = containerColor)
+		if (!itemIsLast) HorizontalDivider(color = containerColor)
 	}
 }
 

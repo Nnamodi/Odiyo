@@ -9,15 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.DialogButtonText
+import com.roland.android.odiyo.ui.screens.settings.SettingsActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.SettingsActions
 
 @Composable
 fun ContactUsDialog(
@@ -30,7 +29,6 @@ fun ContactUsDialog(
 			Text(stringResource(R.string.contact_us))
 		},
 		text = {
-			val context = LocalContext.current
 			val contactAddress = stringResource(R.string.contact_address_info)
 
 			Column {
@@ -43,7 +41,7 @@ fun ContactUsDialog(
 				Text(
 					text = contactAddress,
 					modifier = Modifier.clickable {
-						launchEmailApp(SettingsActions.ContactUs(context, contactAddress))
+						launchEmailApp(SettingsActions.ContactUs(contactAddress))
 					},
 					color = MaterialTheme.colorScheme.primary,
 					textDecoration = TextDecoration.Underline
