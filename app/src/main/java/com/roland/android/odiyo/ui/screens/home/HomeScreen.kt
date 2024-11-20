@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.screens.home
 
-import android.net.Uri
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -45,10 +44,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.ui.components.MainAppBar
 import com.roland.android.odiyo.ui.components.RecentSongItem
+import com.roland.android.odiyo.ui.components.appbars.MainAppBar
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
@@ -59,14 +59,13 @@ import com.roland.android.odiyo.ui.screens.CommonScreen
 import com.roland.android.odiyo.ui.screens.LoadingRowUi
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.actions.MediaMenuActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
 	uiState: HomeUiState,
-	playSong: (Uri, Int, String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	navigate: (Screens) -> Unit
 ) {
@@ -130,11 +129,11 @@ fun HomeScreen(
 								fadeOutSpec = null,
 								placementSpec = tween(1000)
 							),
-							itemIndex = index,
 							song = song,
 							currentMediaItem = currentMediaItem,
-							playSong = { uri, id ->
-								playSong(uri, id, PLAYLISTS, RECENTLY_ADDED)
+							playSong = {
+								val nowPlayingFrom = NowPlayingFrom(RECENTLY_ADDED, PLAYLISTS)
+								menuAction(MediaMenuActions.PlayAudio(song.uri, index, songs, nowPlayingFrom))
 							}
 						) {
 							longClickedSong = song
@@ -211,7 +210,6 @@ private fun HomeScreenPreview() {
 	OdiyoTheme {
 		HomeScreen(
 			uiState = HomeUiState(),
-			playSong = { _, _, _, _ -> },
 			menuAction = {},
 			navigate = {}
 		)

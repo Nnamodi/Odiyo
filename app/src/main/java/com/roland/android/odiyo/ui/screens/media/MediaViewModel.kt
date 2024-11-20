@@ -13,9 +13,9 @@ import com.roland.android.domain.repository.PlayerRepository
 import com.roland.android.domain.usecase.GetAllMediaUseCase
 import com.roland.android.domain.usecase.GetPlaylistsUseCase
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.util.AudioIntentActions
-import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.MediaMenuActionsImpl
+import com.roland.android.odiyo.util.actions.AudioIntentActions
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.MediaMenuActionsImpl
 import com.roland.android.player.player_utils.States.currentMediaItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,7 +34,8 @@ class MediaViewModel : ViewModel(), KoinComponent {
 
 	private val _mediaUiState = MutableStateFlow(MediaUiState())
 	var mediaUiState by mutableStateOf(_mediaUiState.value); private set
-	private var canAccessStorage by mutableStateOf(false)
+	var canAccessStorage by mutableStateOf(false)
+	var songsFetched by mutableStateOf(false)
 
 	init {
 		viewModelScope.launch {
@@ -55,6 +56,7 @@ class MediaViewModel : ViewModel(), KoinComponent {
 						currentMediaItem = mediaItem ?: MediaItem.EMPTY
 					)
 				}
+				songsFetched = allMedia.allSongs.isNotEmpty()
 				canAccessStorage = permissionStatus
 			}
 		}
@@ -81,5 +83,9 @@ class MediaViewModel : ViewModel(), KoinComponent {
 		}
 //		updateMusicQueue()
 		Log.d("ViewModelInfo", "audioIntentAction: $action")
+	}
+
+	fun savePermissionStatus(permanentlyDenied: Boolean) {
+		musicUtilRepository.savePermissionStatus(permanentlyDenied)
 	}
 }

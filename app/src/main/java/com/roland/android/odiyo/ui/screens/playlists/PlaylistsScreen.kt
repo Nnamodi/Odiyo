@@ -44,9 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.domain.model.Playlist
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewPlaylist
+import com.roland.android.odiyo.data.previewPlaylist
 import com.roland.android.odiyo.ui.components.MediaImage
-import com.roland.android.odiyo.ui.components.MediaItemsAppBar
+import com.roland.android.odiyo.ui.components.appbars.MediaItemsAppBar
 import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
 import com.roland.android.odiyo.ui.navigation.CollectionName
 import com.roland.android.odiyo.ui.navigation.CollectionType

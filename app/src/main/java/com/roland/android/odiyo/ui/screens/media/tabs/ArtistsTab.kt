@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.roland.android.domain.model.Artist
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.mediaSource.previewArtist
+import com.roland.android.odiyo.data.previewArtist
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.screens.CommonScreen

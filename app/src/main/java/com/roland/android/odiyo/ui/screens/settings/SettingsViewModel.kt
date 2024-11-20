@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.roland.android.domain.repository.SettingsRepository
 import com.roland.android.domain.util.IntentOptions
 import com.roland.android.domain.util.Themes
-import com.roland.android.odiyo.service.Util.settingsUiState
 import com.roland.android.odiyo.util.Haptic
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
@@ -24,7 +24,8 @@ class SettingsViewModel : ViewModel(), KoinComponent {
 	var isDarkTheme by mutableStateOf<Boolean?>(null); private set
 	var musicIntentOption by mutableStateOf(IntentOptions.AlwaysAsk); private set
 
-	var settingsScreenUiState by mutableStateOf(SettingsUiState()); private set
+	private var _settingsUiState = MutableStateFlow(SettingsUiState())
+	var settingsUiState by mutableStateOf(_settingsUiState.value); private set
 
 	init {
 		viewModelScope.launch {
@@ -34,7 +35,7 @@ class SettingsViewModel : ViewModel(), KoinComponent {
 				settingsRepository.getMusicIntentOption(),
 			) { theme, shouldSaveSearch, musicIntentOption ->
 				isDarkTheme = theme.isDark()
-				settingsUiState.update {
+				_settingsUiState.update {
 					it.copy(
 						theme = theme.title,
 						shouldSaveSearchHistory = shouldSaveSearch,
@@ -44,8 +45,8 @@ class SettingsViewModel : ViewModel(), KoinComponent {
 			}
 		}
 		viewModelScope.launch {
-			settingsUiState.collectLatest {
-				settingsScreenUiState = it
+			_settingsUiState.collectLatest {
+				settingsUiState = it
 			}
 		}
 	}
@@ -65,7 +66,7 @@ class SettingsViewModel : ViewModel(), KoinComponent {
 	}
 
 	private fun shouldSaveSearchHistory() {
-		val shouldSave = settingsScreenUiState.shouldSaveSearchHistory
+		val shouldSave = settingsUiState.shouldSaveSearchHistory
 		settingsRepository.toggleShouldSaveHistory(!shouldSave)
 		haptic.vibrate()
 	}

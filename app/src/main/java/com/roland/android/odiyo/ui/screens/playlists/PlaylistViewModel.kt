@@ -13,7 +13,7 @@ import com.roland.android.domain.repository.PlaylistUtilRepository
 import com.roland.android.domain.usecase.CollectionType
 import com.roland.android.domain.usecase.GetPlaylistsUseCase
 import com.roland.android.domain.usecase.GetSongsFromCollectionUseCase
-import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
+import com.roland.android.odiyo.data.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
 import com.roland.android.player.player_utils.States.mediaItemsFlow
 import kotlinx.coroutines.flow.collectLatest

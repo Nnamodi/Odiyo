@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.screens.list
 
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
@@ -30,17 +29,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.domain.util.SortOptions
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
+import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.data.previewPlaylist
 import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.MediaItemsAppBar
-import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
-import com.roland.android.odiyo.ui.components.SelectionModeItems
-import com.roland.android.odiyo.ui.components.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.appbars.MediaItemsAppBar
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeItems
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
@@ -57,17 +57,16 @@ import com.roland.android.odiyo.ui.screens.LoadingListUi
 import com.roland.android.odiyo.ui.screens.media.tabs.selectedSongs
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.actions.MediaMenuActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
 	uiState: ListUiState,
 	previousScreenIsNowPlayingScreen: Boolean,
-	playAudio: (Uri, Int, String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	navigate: (Screens) -> Unit
@@ -169,7 +168,8 @@ fun ListScreen(
 						songs = songs,
 						inSelectMode = inSelectMode,
 						playAllSongs = { uri, index ->
-							playAudio(uri, index, collectionType, collectionName)
+							val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType)
+							menuAction(MediaMenuActions.PlayAudio(uri, index, songs, nowPlayingFrom))
 						}
 					)
 				}
@@ -183,7 +183,10 @@ fun ListScreen(
 						modifier = Modifier.selectSemantics(
 							inSelectionMode = inSelectMode,
 							selected = selected,
-							onClick = { playAudio(song.uri, index, collectionType, collectionName) },
+							onClick = {
+								val nowPlayingFrom = NowPlayingFrom(collectionName, collectionType)
+								menuAction(MediaMenuActions.PlayAudio(song.uri, index, songs, nowPlayingFrom))
+							},
 							onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
 							toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 						).animateItem(
@@ -272,7 +275,7 @@ fun ListScreen(
 			SortDialog(
 				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
-			) { openSortDialog.value = it }
+			) { openSortDialog.value = false }
 		}
 
 		if (openPermissionDialog.value) {
@@ -295,7 +298,7 @@ fun ListScreenPreview() {
 	OdiyoTheme {
 		val uiState by remember { mutableStateOf(
 			ListUiState(
-				songs = previewData.takeLast(5),
+				songs = State.Success(previewData.takeLast(5)),
 				collectionName = "Does it have to be me?",
 				collectionType = ADD_TO_PLAYLIST,
 				sortOption = SortOptions.NameAZ,
@@ -306,7 +309,6 @@ fun ListScreenPreview() {
 		ListScreen(
 			uiState = uiState,
 			previousScreenIsNowPlayingScreen = false,
-			playAudio = { _, _, _, _ -> },
 			menuAction = {},
 			closeSelectionMode = {},
 		) {}

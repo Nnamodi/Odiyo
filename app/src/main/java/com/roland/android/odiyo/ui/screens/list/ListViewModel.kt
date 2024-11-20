@@ -16,8 +16,8 @@ import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.navigation.FAVORITES
 import com.roland.android.odiyo.ui.navigation.LAST_PLAYED
-import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.MediaMenuActionsImpl
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.MediaMenuActionsImpl
 import com.roland.android.player.player_utils.States.currentMediaItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine

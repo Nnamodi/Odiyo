@@ -9,13 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.Playlist
 import com.roland.android.domain.repository.MusicQueueRepository
 import com.roland.android.domain.repository.MusicUtilRepository
 import com.roland.android.domain.repository.PlayerRepository
+import com.roland.android.domain.repository.PlaylistUtilRepository
 import com.roland.android.domain.usecase.GetPlaylistsUseCase
 import com.roland.android.domain.usecase.GetSongsOnQueueUseCase
-import com.roland.android.odiyo.service.Util.mediaItems
-import com.roland.android.odiyo.util.MediaControls
+import com.roland.android.odiyo.util.actions.QueueItemActions
 import com.roland.android.player.player_utils.States.currentDuration
 import com.roland.android.player.player_utils.States.currentMediaItemIndex
 import com.roland.android.player.player_utils.States.isPlaying
@@ -26,11 +27,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.Calendar
 
 class NowPlayingViewModel : ViewModel(), KoinComponent {
 	private val getSongsOnQueueUseCase by inject<GetSongsOnQueueUseCase>()
 	private val musicQueueRepository by inject<MusicQueueRepository>()
 	private val musicUtilRepository by inject<MusicUtilRepository>()
+	private val playlistUtilRepository by inject<PlaylistUtilRepository>()
 	private val playerRepository by inject<PlayerRepository>()
 	private val getPlaylistsUseCase by inject<GetPlaylistsUseCase>()
 
@@ -106,7 +109,7 @@ class NowPlayingViewModel : ViewModel(), KoinComponent {
 			MediaControls.RepeatMode -> setRepeatMode()
 			is MediaControls.Seek -> onSeek(action.previous, action.next)
 			is MediaControls.SeekToPosition -> onSeekToPosition(action.position)
-			is MediaControls.Share -> onShareSong(listOf(action.music))
+			is MediaControls.Share -> onShareSong(listOf(action.song))
 			MediaControls.Shuffle -> onShuffle()
 			MediaControls.Mute -> onMuteDevice()
 		}
@@ -151,7 +154,7 @@ class NowPlayingViewModel : ViewModel(), KoinComponent {
 
 	private fun onShuffle() {
 		viewModelScope.launch(Dispatchers.IO) {
-			val randomSeed = (0..mediaItems.value.size).random()
+			val randomSeed = (0..nowPlayingUiState.musicQueue.size).random()
 			playerRepository.onShuffle(nowPlayingUiState.shuffleState, randomSeed)
 				.collect { shuffleState ->
 					_nowPlayingUiState.update {
@@ -163,6 +166,27 @@ class NowPlayingViewModel : ViewModel(), KoinComponent {
 
 	private fun onMuteDevice() {
 		playerRepository.onMuteDevice()
+	}
+
+	fun queueActions(action: QueueItemActions) {
+		when (action) {
+			is QueueItemActions.Play -> musicQueueRepository.playFromQueue(action.item)
+			is QueueItemActions.DuplicateSong -> musicQueueRepository.duplicateSong(action.item)
+			is QueueItemActions.CreatePlaylist -> playlistUtilRepository.createPlaylist(action.playlist)
+			is QueueItemActions.AddToPlaylist -> addToPlaylist(action.songs, action.playlist)
+			is QueueItemActions.RemoveSong -> musicQueueRepository.removeSong(action.item)
+		}
+	}
+
+	private fun addToPlaylist(songs: List<Music>, playlist: Playlist) {
+		val songsUri = songs.map { it.uri }
+		val updatedPlaylist = Playlist(
+			id = playlist.id,
+			name = playlist.name,
+			songs = playlist.songs + songsUri,
+			dateModified = Calendar.getInstance().time
+		)
+		playlistUtilRepository.updatePlaylist(updatedPlaylist)
 	}
 
 	override fun onCleared() {

@@ -57,10 +57,10 @@ import androidx.core.net.toUri
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.roland.android.domain.model.Music
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.ui.components.MediaImage
 import com.roland.android.odiyo.ui.components.NowPlayingIconButton
-import com.roland.android.odiyo.ui.components.NowPlayingTopAppBar
+import com.roland.android.odiyo.ui.components.appbars.NowPlayingTopAppBar
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.navigation.ARTISTS
 import com.roland.android.odiyo.ui.navigation.Screens
@@ -72,10 +72,10 @@ import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.CustomColors.nowPlayingBackgroundColor
 import com.roland.android.odiyo.ui.theme.color.CustomColors.sliderColor
-import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.QueueItemActions
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
 import com.roland.android.odiyo.util.WindowType
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.QueueItemActions
 import com.roland.android.odiyo.util.rememberWindowSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

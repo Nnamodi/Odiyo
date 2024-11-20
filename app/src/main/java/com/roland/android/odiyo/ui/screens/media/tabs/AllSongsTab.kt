@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.screens.media.tabs
 
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
@@ -37,15 +36,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
-import com.roland.android.odiyo.ui.components.SelectionModeItems
-import com.roland.android.odiyo.ui.components.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeItems
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
@@ -53,22 +53,22 @@ import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.dialog.SortDialog
 import com.roland.android.odiyo.ui.navigation.ALL_SONGS
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.navigation.RECENTLY_ADDED
 import com.roland.android.odiyo.ui.navigation.Screens
 import com.roland.android.odiyo.ui.screens.CommonScreen
 import com.roland.android.odiyo.ui.screens.LoadingListUi
 import com.roland.android.odiyo.ui.screens.media.MediaUiState
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.actions.MediaMenuActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllSongsTab(
 	uiState: MediaUiState,
-	playAudio: (Uri, Int?, String, String) -> Unit,
 	menuAction: (MediaMenuActions) -> Unit,
 	closeSelectionMode: (Boolean) -> Unit,
 	navigate: (Screens) -> Unit
@@ -147,7 +147,8 @@ fun AllSongsTab(
 				SongListHeader(
 					songs = songs, showSortAction = true, inSelectMode = inSelectMode,
 					playAllSongs = { uri, index ->
-						playAudio(uri, index, PLAYLISTS, ALL_SONGS)
+						val nowPlayingFrom = NowPlayingFrom(ALL_SONGS, PLAYLISTS)
+						menuAction(MediaMenuActions.PlayAudio(uri, index, songs, nowPlayingFrom))
 					},
 					openSortDialog = { openSortDialog.value = true }
 				)
@@ -162,7 +163,10 @@ fun AllSongsTab(
 							modifier = Modifier.selectSemantics(
 								inSelectionMode = inSelectMode,
 								selected = selected,
-								onClick = { playAudio(song.uri, index, PLAYLISTS, ALL_SONGS) },
+								onClick = {
+									val nowPlayingFrom = NowPlayingFrom(RECENTLY_ADDED, PLAYLISTS)
+									menuAction(MediaMenuActions.PlayAudio(song.uri, index, songs, nowPlayingFrom))
+								},
 								onLongClick = { if (!inSelectMode) { selectedSongsId.value += song.id } },
 								toggleSelection = { if (it) selectedSongsId.value += song.id else selectedSongsId.value -= song.id }
 							).animateItem(
@@ -211,7 +215,7 @@ fun AllSongsTab(
 			SortDialog(
 				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
-			) { openSortDialog.value = it }
+			) { openSortDialog.value = false }
 		}
 
 		if (openAddToPlaylistDialog.value &&
@@ -279,8 +283,7 @@ fun AllSongsTabPreview() {
 			color = MaterialTheme.colorScheme.background
 		) {
 			AllSongsTab(
-				uiState = MediaUiState(allSongs = previewData),
-				playAudio = { _, _, _, _ -> },
+				uiState = MediaUiState(allSongs = State.Success(previewData)),
 				menuAction = {},
 				closeSelectionMode = {}
 			) {}

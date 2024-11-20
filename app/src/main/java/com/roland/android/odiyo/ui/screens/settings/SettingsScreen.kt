@@ -51,20 +51,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
+import com.roland.android.domain.util.LanguageOptions
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.states.SettingsUiState
-import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.components.appbars.AppBar
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
 import com.roland.android.odiyo.ui.dialog.ContactUsDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
 import com.roland.android.odiyo.ui.dialog.LanguageChooserDialog
-import com.roland.android.odiyo.ui.dialog.LanguageOptions
 import com.roland.android.odiyo.ui.dialog.ThemeDialog
 import com.roland.android.odiyo.ui.navigation.ABOUT_US
 import com.roland.android.odiyo.ui.navigation.SUPPORT
 import com.roland.android.odiyo.ui.navigation.Screens
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.SettingsActions
 import kotlinx.coroutines.launch
 
 @Composable
@@ -215,7 +213,7 @@ fun SettingsScreen(
 				val locale = LocaleListCompat.forLanguageTags(it)
 				AppCompatDelegate.setApplicationLocales(locale)
 			},
-			openDialog = { openLanguageChooserDialog.value = false }
+			closeDialog = { openLanguageChooserDialog.value = false }
 		)
 	}
 
@@ -300,7 +298,7 @@ private fun Container(
 	}
 }
 
-private fun optionsCategory(@StringRes category: Int) = OptionsMenu.values().filter { it.category == category }
+private fun optionsCategory(@StringRes category: Int) = OptionsMenu.entries.filter { it.category == category }
 
 fun String.getLanguage() = when (this) {
 	LanguageOptions.English.local -> LanguageOptions.English.title

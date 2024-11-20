@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.ui.components.AppBar
+import com.roland.android.odiyo.ui.components.appbars.AppBar
 import com.roland.android.odiyo.ui.navigation.ABOUT_US
 import com.roland.android.odiyo.ui.navigation.SUPPORT
 import com.roland.android.odiyo.ui.navigation.Screens

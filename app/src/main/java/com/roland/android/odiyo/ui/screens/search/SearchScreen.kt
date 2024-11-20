@@ -35,14 +35,14 @@ import com.roland.android.domain.model.Music
 import com.roland.android.domain.model.NowPlayingFrom
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.data.State
-import com.roland.android.odiyo.mediaSource.previewData
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.ui.components.EmptyListScreen
 import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.components.SearchBar
-import com.roland.android.odiyo.ui.components.SelectionModeBottomBar
-import com.roland.android.odiyo.ui.components.SelectionModeItems
-import com.roland.android.odiyo.ui.components.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.SongListHeader
+import com.roland.android.odiyo.ui.components.appbars.SearchBar
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeBottomBar
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeItems
+import com.roland.android.odiyo.ui.components.appbars.SelectionModeTopBar
 import com.roland.android.odiyo.ui.components.selectSemantics
 import com.roland.android.odiyo.ui.dialog.AddToPlaylistDialog
 import com.roland.android.odiyo.ui.dialog.DeleteDialog
@@ -53,13 +53,13 @@ import com.roland.android.odiyo.ui.navigation.SEARCH
 import com.roland.android.odiyo.ui.navigation.Screens
 import com.roland.android.odiyo.ui.screens.CommonScreen
 import com.roland.android.odiyo.ui.screens.LoadingListUi
-import com.roland.android.odiyo.ui.screens.selectedSongs
+import com.roland.android.odiyo.ui.screens.media.tabs.selectedSongs
 import com.roland.android.odiyo.ui.sheets.MediaItemSheet
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
 import com.roland.android.odiyo.util.SnackbarUtils.showSnackbar
+import com.roland.android.odiyo.util.actions.MediaMenuActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -282,7 +282,7 @@ fun SearchScreen(
 			SortDialog(
 				selectedOption = sortOption,
 				onSortPicked = { menuAction(MediaMenuActions.SortSongs(it)) }
-			) { openSortDialog.value = it }
+			) { openSortDialog.value = false }
 		}
 
 		if (openPermissionDialog.value) {
