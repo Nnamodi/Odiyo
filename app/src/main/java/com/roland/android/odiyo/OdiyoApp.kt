@@ -35,21 +35,19 @@ class OdiyoApp : Application() {
 			)
 		}
 		// mediaSession and notificationManager will be initialized and managed in the Service class for background media playback
-		mediaSession = MediaSession.Builder(this, player)
-			.setSessionActivity(this.pendingIntent)
-			.build()
-		mediaSession?.player?.addListener(PlayerListener(this))
-		notificationManager = OdiyoNotificationManager(this, mediaSession!!)
-		notificationManager.showNotification(player)
+		mediaSession.player.addListener(PlayerListener(this))
+		notificationManager.showNotification(mediaSession.player)
 	}
 
 	override fun onTerminate() {
 		super.onTerminate()
 		notificationManager.hideNotification()
-		mediaSession?.apply {
-			player.apply { removeListener(PlayerListener(this@OdiyoApp)); release() }
+		mediaSession.apply {
+			player.apply {
+				removeListener(PlayerListener(this@OdiyoApp))
+				release()
+			}
 			release()
-			mediaSession = null
 		}
 	}
 }
