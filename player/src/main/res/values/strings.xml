@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel">Music player</string>
+    <string name="channel_description">Shows currently playing music in Odiyo</string>
+</resources>

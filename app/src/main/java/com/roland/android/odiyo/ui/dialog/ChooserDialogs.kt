@@ -1,6 +1,5 @@
 package com.roland.android.odiyo.ui.dialog
 
-import android.media.RingtoneManager
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,25 +27,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.util.LanguageOptions
+import com.roland.android.domain.util.RingtoneOptions
+import com.roland.android.domain.util.SortOptions
+import com.roland.android.domain.util.Themes
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.model.Music
+import com.roland.android.odiyo.data.previewData
 import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import kotlin.enums.EnumEntries
 
 @Composable
 fun LanguageChooserDialog(
 	selectedOption: String,
 	onLanguagePicked: (String?) -> Unit,
-	openDialog: (Boolean) -> Unit
+	closeDialog: () -> Unit
 ) {
 	ChooserDialog(
 		title = R.string.choose_language,
 		selectedOption = selectedOption,
-		languageOptions = LanguageOptions.values(),
+		languageOptions = LanguageOptions.entries,
 		onLanguagePicked = onLanguagePicked,
-		openDialog = openDialog
+		closeDialog = closeDialog
 	)
 }
 
@@ -54,15 +58,15 @@ fun LanguageChooserDialog(
 fun SetRingtoneDialog(
 	song: Music,
 	onRingtoneSet: (MediaMenuActions) -> Unit,
-	openDialog: (Boolean) -> Unit
+	closeDialog: () -> Unit
 ) {
 	ChooserDialog(
 		title = R.string.set_as,
 		selectedOption = null,
 		song = song,
-		ringtoneOptions = RingtoneOptions.values(),
+		ringtoneOptions = RingtoneOptions.entries,
 		onRingPicked = onRingtoneSet,
-		openDialog = openDialog
+		closeDialog = closeDialog
 	)
 }
 
@@ -70,14 +74,14 @@ fun SetRingtoneDialog(
 fun SortDialog(
 	selectedOption: SortOptions,
 	onSortPicked: (SortOptions) -> Unit,
-	openDialog: (Boolean) -> Unit
+	closeDialog: () -> Unit
 ) {
 	ChooserDialog(
 		title = R.string.sort_by,
 		selectedOption = selectedOption,
-		sortOptions = SortOptions.values(),
+		sortOptions = SortOptions.entries,
 		onSortPicked = onSortPicked,
-		openDialog = openDialog
+		closeDialog = closeDialog
 	)
 }
 
@@ -90,7 +94,7 @@ fun ThemeDialog(
 	ChooserDialog(
 		title = R.string.choose_theme,
 		selectedOption = selectedTheme,
-		themeOptions = Themes.values(),
+		themeOptions = Themes.entries,
 		onThemePicked = onThemeChanged
 	) { closeDialog() }
 }
@@ -100,18 +104,18 @@ private fun <T>ChooserDialog(
 	@StringRes title: Int,
 	selectedOption: T?,
 	song: Music? = null,
-	languageOptions: Array<LanguageOptions>? = null,
-	ringtoneOptions: Array<RingtoneOptions>? = null,
-	sortOptions: Array<SortOptions>? = null,
-	themeOptions: Array<Themes>? = null,
+	languageOptions: EnumEntries<LanguageOptions>? = null,
+	ringtoneOptions: EnumEntries<RingtoneOptions>? = null,
+	sortOptions: EnumEntries<SortOptions>? = null,
+	themeOptions: EnumEntries<Themes>? = null,
 	onLanguagePicked: (String) -> Unit = {},
 	onRingPicked: (MediaMenuActions) -> Unit = {},
 	onSortPicked: (SortOptions) -> Unit = {},
 	onThemePicked: (Themes) -> Unit = {},
-	openDialog: (Boolean) -> Unit
+	closeDialog: () -> Unit
 ) {
 	AlertDialog(
-		onDismissRequest = { openDialog(false) },
+		onDismissRequest = { closeDialog() },
 		title = {
 			Text(text = stringResource(title))
 		},
@@ -124,7 +128,7 @@ private fun <T>ChooserDialog(
 							selected = selectedOption == option.local
 						) {
 							onLanguagePicked(option.local)
-							openDialog(false)
+							closeDialog()
 						}
 					}
 				}
@@ -137,7 +141,7 @@ private fun <T>ChooserDialog(
 							song?.let { song ->
 								onRingPicked(MediaMenuActions.SetAsRingtone(song, option.ringType))
 							}
-							openDialog(false)
+							closeDialog()
 						}
 					}
 				}
@@ -148,7 +152,7 @@ private fun <T>ChooserDialog(
 							selected = selectedOption == option
 						) {
 							onSortPicked(option)
-							openDialog(false)
+							closeDialog()
 						}
 					}
 				}
@@ -159,14 +163,14 @@ private fun <T>ChooserDialog(
 							selected = (selectedOption as Int) == option.title
 						) {
 							onThemePicked(option)
-							openDialog(false)
+							closeDialog()
 						}
 					}
 				}
 			}
 		},
 		confirmButton = {
-			TextButton(onClick = { openDialog(false) }) {
+			TextButton(onClick = { closeDialog() }) {
 				DialogButtonText(stringResource(R.string.close))
 			}
 		}
@@ -206,31 +210,6 @@ private fun Option(
 			)
 		}
 	}
-}
-
-enum class LanguageOptions(val title: Int, val local: String) {
-	FollowSystem(R.string.follow_system, ""),
-	English(R.string.english, "en"),
-	French(R.string.french, "fr")
-}
-
-private enum class RingtoneOptions(val title: Int, val ringType: Int) {
-	Ringtone(R.string.ringtone, RingtoneManager.TYPE_RINGTONE),
-	Alarm(R.string.alarm_sound, RingtoneManager.TYPE_ALARM),
-	Notification(R.string.notification_tone, RingtoneManager.TYPE_NOTIFICATION),
-}
-
-enum class SortOptions(val title: Int) {
-	NameAZ(R.string.name_a_z),
-	NameZA(R.string.name_z_a),
-	NewestFirst(R.string.newest_first),
-	OldestFirst(R.string.oldest_first)
-}
-
-enum class Themes(val title: Int) {
-	System(R.string.follow_system),
-	Dark(R.string.dark_theme),
-	Light(R.string.light_theme)
 }
 
 @Preview

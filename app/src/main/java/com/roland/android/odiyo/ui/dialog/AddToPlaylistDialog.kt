@@ -1,10 +1,21 @@
 package com.roland.android.odiyo.ui.dialog
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,17 +27,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.Playlist
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
+import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.data.previewPlaylist
 import com.roland.android.odiyo.ui.components.DialogButtonText
-import com.roland.android.odiyo.ui.screens.CreatePlaylistButton
-import com.roland.android.odiyo.ui.screens.PlaylistItem
+import com.roland.android.odiyo.ui.screens.playlists.CreatePlaylistButton
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistItem
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.MediaMenuActions
-import com.roland.android.odiyo.util.QueueItemActions
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.QueueItemActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,11 +53,11 @@ fun AddToPlaylistDialog(
 	val dialogMaxHeight = LocalConfiguration.current.screenHeightDp * 0.65
 
 	if (!openPlaylistDialog.value) {
-		AlertDialog(
+		BasicAlertDialog(
+			onDismissRequest = { openDialog(false) },
 			modifier = Modifier
 				.clip(MaterialTheme.shapes.extraLarge)
-				.background(AlertDialogDefaults.containerColor),
-			onDismissRequest = { openDialog(false) }
+				.background(AlertDialogDefaults.containerColor)
 		) {
 			Column(
 				modifier = Modifier
@@ -70,8 +81,18 @@ fun AddToPlaylistDialog(
 						PlaylistItem(
 							playlist = playlist,
 							onItemClick = { _, _ ->
-								if (songsFromMusicQueue) saveQueueToPlaylist(QueueItemActions.AddToPlaylist(songs, playlist))
-								else addSongToPlaylist(MediaMenuActions.AddToPlaylist(songs, playlist))
+								if (songsFromMusicQueue) saveQueueToPlaylist(
+									QueueItemActions.AddToPlaylist(
+										songs,
+										playlist
+									)
+								)
+								else addSongToPlaylist(
+									MediaMenuActions.AddToPlaylist(
+										songs,
+										playlist
+									)
+								)
 								openDialog(false)
 							},
 							parentContentIsDialog = true,

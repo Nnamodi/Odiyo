@@ -1,13 +1,14 @@
 package com.roland.android.odiyo.ui.navigation
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraphBuilder
-import com.google.accompanist.navigation.animation.composable
+import androidx.navigation.compose.composable
 
 private val LEFT = AnimatedContentTransitionScope.SlideDirection.Left
 private val RIGHT = AnimatedContentTransitionScope.SlideDirection.Right
@@ -15,7 +16,6 @@ private val DOWN = AnimatedContentTransitionScope.SlideDirection.Down
 private val UP = AnimatedContentTransitionScope.SlideDirection.Up
 private const val DURATION_MILLIS = 700
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.composableI(
 	route: String,
 	arguments: List<NamedNavArgument> = emptyList(),
@@ -28,7 +28,6 @@ fun NavGraphBuilder.composableI(
 	exitTransition = null, popEnterTransition = null, content = content
 )
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.composableII(
 	route: String,
 	arguments: List<NamedNavArgument> = emptyList(),

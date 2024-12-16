@@ -6,11 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddToQueue
-import androidx.compose.material.icons.rounded.HelpOutline
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Queue
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,16 +13,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
+import com.roland.android.domain.util.IntentOptions
 import com.roland.android.odiyo.R
 import com.roland.android.odiyo.ui.components.DialogButtonText
+import com.roland.android.odiyo.ui.screens.settings.SettingsActions
 import com.roland.android.odiyo.ui.sheets.SheetItem
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.AudioIntentActions
-import com.roland.android.odiyo.util.SettingsActions
+import com.roland.android.odiyo.util.actions.AudioIntentActions
 
 @Composable
 fun AudioIntentDialog(
@@ -38,7 +33,7 @@ fun AudioIntentDialog(
 	onSelected: (SettingsActions) -> Unit = {},
 	openDialog: () -> Unit
 ) {
-	val optionsMenu = IntentOptions.values().toMutableList()
+	val optionsMenu = IntentOptions.entries.toMutableList()
 	if (!parentIsSettings) optionsMenu.remove(IntentOptions.AlwaysAsk)
 
 	AlertDialog(
@@ -59,7 +54,7 @@ fun AudioIntentDialog(
 					}
 
 					SheetItem(
-						icon = option.icon,
+						iconRes = option.iconRes,
 						menuText = stringResource(option.menuText),
 						modifier = Modifier.clip(MaterialTheme.shapes.medium),
 						selected = selectedOption == option.menuText
@@ -80,13 +75,6 @@ fun AudioIntentDialog(
 			}
 		}
 	)
-}
-
-enum class IntentOptions(val icon: ImageVector, val menuText: Int) {
-	Play(Icons.Rounded.PlayArrow, R.string.play),
-	PlayNext(Icons.Rounded.Queue, R.string.play_next),
-	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
-	AlwaysAsk(Icons.Rounded.HelpOutline, R.string.always_ask)
 }
 
 @Preview

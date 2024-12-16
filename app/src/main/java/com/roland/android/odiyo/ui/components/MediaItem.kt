@@ -1,18 +1,30 @@
 package com.roland.android.odiyo.ui.components
 
-import android.net.Uri
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,47 +32,43 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
+import com.roland.android.domain.model.Music
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.service.Util.getBitmap
-import com.roland.android.odiyo.service.Util.toMediaItem
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.time
 import com.roland.android.odiyo.util.WindowType
 import com.roland.android.odiyo.util.rememberWindowSize
+import com.roland.android.player.util.Constants.toMediaItem
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RecentSongItem(
 	modifier: Modifier = Modifier,
-	itemIndex: Int,
 	song: Music,
 	currentMediaItem: MediaItem,
-	playSong: (Uri, Int) -> Unit,
+	playSong: () -> Unit,
 	openMenuSheet: () -> Unit
 ) {
-	val context = LocalContext.current
-	val artwork by remember { mutableStateOf(song.getBitmap(context)) }
 	val portraitImageSize = LocalConfiguration.current.screenWidthDp / 2.5
 	val landscapeImageSize = LocalConfiguration.current.screenHeightDp / 2.2
 	val windowSize = rememberWindowSize()
 	val imageSize by remember(windowSize.width) {
-		mutableStateOf(
+		mutableDoubleStateOf(
 			if (windowSize.width == WindowType.Landscape) landscapeImageSize else portraitImageSize
 		)
 	}
 	val isPlaying = song.uri.toMediaItem == currentMediaItem
-	val color = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+	val color = if (isPlaying) colorScheme.primary else colorScheme.onBackground
 
 	Column(
 		modifier = modifier
 			.width(imageSize.dp + 16.dp)
 			.clip(MaterialTheme.shapes.large)
 			.combinedClickable(
-				onClick = { playSong(song.uri, itemIndex) },
+				onClick = playSong,
 				onLongClick = openMenuSheet
 			)
 			.padding(8.dp),
@@ -69,7 +77,7 @@ fun RecentSongItem(
 	) {
 		MediaImage(
 			modifier = Modifier.size(imageSize.dp),
-			artwork = artwork
+			artwork = song.artwork
 		)
 		Column(
 			modifier = Modifier
@@ -103,11 +111,9 @@ fun MediaItem(
 	showTrailingIcon: Boolean = true,
 	openMenuSheet: (Music) -> Unit
 ) {
-	val context = LocalContext.current
-	val artwork by remember { mutableStateOf(song.getBitmap(context)) }
 	val isPlaying = song.uri.toMediaItem == currentMediaItem
-	val textColor = if (isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
-	val itemColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.background
+	val textColor = if (isPlaying) colorScheme.primary else colorScheme.onBackground
+	val itemColor = if (selected) colorScheme.primary.copy(alpha = 0.3f) else colorScheme.background
 
 	Row(
 		modifier = modifier
@@ -123,7 +129,7 @@ fun MediaItem(
 			modifier = Modifier
 				.padding(end = 8.dp)
 				.size(50.dp),
-			artwork = artwork
+			artwork = song.artwork
 		)
 		Column(
 			modifier = Modifier.weight(1f),
@@ -150,7 +156,7 @@ fun MediaItem(
 				)
 				if (showTrailingIcon) {
 					Text(
-						song.duration(),
+						song.duration.time,
 						color = textColor,
 						style = MaterialTheme.typography.bodySmall,
 						modifier = Modifier
@@ -177,7 +183,7 @@ fun CheckIcon(selected: Boolean) {
 	Icon(
 		imageVector = if (selected) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
 		contentDescription = null,
-		tint = MaterialTheme.colorScheme.primary,
+		tint = colorScheme.primary,
 		modifier = Modifier.padding(12.dp)
 	)
 }

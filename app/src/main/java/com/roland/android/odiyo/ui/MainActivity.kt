@@ -10,41 +10,43 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.view.WindowCompat.setDecorFitsSystemWindows
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.MediaItem.*
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.roland.android.domain.util.IntentOptions
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.R.string.*
-import com.roland.android.odiyo.service.Util.readStoragePermissionGranted
+import com.roland.android.odiyo.R.string.read_storage_rationale
+import com.roland.android.odiyo.R.string.read_storage_request
+import com.roland.android.odiyo.data.readStoragePermissionGranted
 import com.roland.android.odiyo.ui.dialog.AudioIntentDialog
-import com.roland.android.odiyo.ui.dialog.IntentOptions
 import com.roland.android.odiyo.ui.dialog.PermissionDialog
 import com.roland.android.odiyo.ui.navigation.AppRoute
 import com.roland.android.odiyo.ui.navigation.NavActions
+import com.roland.android.odiyo.ui.screens.media.MediaViewModel
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingViewModel
+import com.roland.android.odiyo.ui.screens.settings.SettingsViewModel
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.AudioIntentActions
 import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
 import com.roland.android.odiyo.util.Permissions.readStoragePermission
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.storagePermissionPermanentlyDenied
-import com.roland.android.odiyo.viewmodel.MediaViewModel
-import com.roland.android.odiyo.viewmodel.SettingsViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.roland.android.odiyo.util.actions.AudioIntentActions
+import org.koin.androidx.compose.koinViewModel
 
-@AndroidEntryPoint
-@OptIn(ExperimentalAnimationApi::class)
 class MainActivity : AppCompatActivity() {
 	private lateinit var audioIntent: MutableState<Uri?>
 
@@ -57,9 +59,10 @@ class MainActivity : AppCompatActivity() {
 		setTheme(R.style.Theme_Odiyo)
 
 		setContent {
-			val mediaViewModel: MediaViewModel = hiltViewModel()
-			val settingsViewModel: SettingsViewModel = hiltViewModel()
-			val navController = rememberAnimatedNavController()
+			val mediaViewModel: MediaViewModel = koinViewModel()
+			val nowPlayingViewModel: NowPlayingViewModel = koinViewModel()
+			val settingsViewModel: SettingsViewModel = koinViewModel()
+			val navController = rememberNavController()
 			val openPermissionDialog = remember { mutableStateOf(!mediaViewModel.canAccessStorage) }
 			var permission by remember { mutableStateOf("") }
 			val isDarkTheme = settingsViewModel.isDarkTheme ?: isSystemInDarkTheme()
@@ -87,12 +90,7 @@ class MainActivity : AppCompatActivity() {
 					modifier = Modifier.fillMaxSize(),
 					color = MaterialTheme.colorScheme.background
 				) {
-					AppRoute(
-						navActions, navController, mediaViewModel,
-						nowPlayingViewModel = hiltViewModel(),
-						playlistViewModel = hiltViewModel(),
-						settingsViewModel = settingsViewModel
-					)
+					AppRoute(navActions, navController)
 
 					if (openPermissionDialog.value) {
 						PermissionDialog(
@@ -108,11 +106,10 @@ class MainActivity : AppCompatActivity() {
 						)
 					}
 
-					val uiState by remember(mediaViewModel.nowPlayingScreenUiState) {
-						mutableStateOf(mediaViewModel.nowPlayingScreenUiState)
+					val uiState by remember(nowPlayingViewModel.nowPlayingUiState) {
+						mutableStateOf(nowPlayingViewModel.nowPlayingUiState)
 					}
-					if ((audioIntent.value != null) && mediaViewModel.songsFetched &&
-						(mediaViewModel.currentMediaItems.size == uiState.musicQueue.size)) {
+					if ((audioIntent.value != null) && mediaViewModel.songsFetched) {
 						val audioIntentAction: (AudioIntentActions) -> Unit = {
 							mediaViewModel.audioIntentAction(it)
 							audioIntent.value = null
@@ -129,7 +126,9 @@ class MainActivity : AppCompatActivity() {
 										openDialog = { audioIntent.value = null }
 									)
 								} else {
-									mediaViewModel.playAudioFromIntent(audioIntent.value!!)
+									mediaViewModel.audioIntentAction(
+										AudioIntentActions.Play(audioIntent.value!!)
+									)
 									audioIntent.value = null
 								}
 							}
@@ -159,9 +158,9 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	override fun onNewIntent(intent: Intent?) {
+	override fun onNewIntent(intent: Intent) {
 		super.onNewIntent(intent)
-		val newData = intent?.data
+		val newData = intent.data
 		audioIntent.value = newData
 		Log.d(/* tag = */ "AudioIntentInfo", /* msg = */ "$newData")
 	}

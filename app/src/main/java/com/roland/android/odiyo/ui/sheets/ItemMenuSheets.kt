@@ -4,16 +4,49 @@ import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.rounded.AddAlert
+import androidx.compose.material.icons.rounded.AddToQueue
+import androidx.compose.material.icons.rounded.Album
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Queue
+import androidx.compose.material.icons.rounded.RemoveCircle
+import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,33 +54,49 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
+import androidx.media3.common.MediaItem
+import com.roland.android.domain.model.Music
+import com.roland.android.domain.model.Playlist
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewData
-import com.roland.android.odiyo.mediaSource.previewPlaylist
-import com.roland.android.odiyo.model.Music
-import com.roland.android.odiyo.model.Playlist
-import com.roland.android.odiyo.service.Util
+import com.roland.android.odiyo.data.previewData
+import com.roland.android.odiyo.data.previewPlaylist
 import com.roland.android.odiyo.ui.components.MediaItem
-import com.roland.android.odiyo.ui.dialog.*
+import com.roland.android.odiyo.ui.dialog.CreateOrRenamePlaylistDialog
+import com.roland.android.odiyo.ui.dialog.DeleteDialog
+import com.roland.android.odiyo.ui.dialog.PermissionDialog
+import com.roland.android.odiyo.ui.dialog.RenameSongDialog
+import com.roland.android.odiyo.ui.dialog.SetRingtoneDialog
+import com.roland.android.odiyo.ui.dialog.SongDetailsDialog
 import com.roland.android.odiyo.ui.navigation.ALBUMS
 import com.roland.android.odiyo.ui.navigation.ARTISTS
-import com.roland.android.odiyo.ui.screens.PlaylistItem
-import com.roland.android.odiyo.ui.sheets.MenuItems.*
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistItem
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistMenuActions
+import com.roland.android.odiyo.ui.sheets.MenuItems.AddToFavorite
+import com.roland.android.odiyo.ui.sheets.MenuItems.AddToPlaylist
+import com.roland.android.odiyo.ui.sheets.MenuItems.AddToQueue
+import com.roland.android.odiyo.ui.sheets.MenuItems.Delete
+import com.roland.android.odiyo.ui.sheets.MenuItems.Details
+import com.roland.android.odiyo.ui.sheets.MenuItems.GoToAlbum
+import com.roland.android.odiyo.ui.sheets.MenuItems.GoToArtist
+import com.roland.android.odiyo.ui.sheets.MenuItems.PlayNext
+import com.roland.android.odiyo.ui.sheets.MenuItems.Rename
+import com.roland.android.odiyo.ui.sheets.MenuItems.SetAsRingtone
+import com.roland.android.odiyo.ui.sheets.MenuItems.Share
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
 import com.roland.android.odiyo.ui.theme.color.CustomColors
 import com.roland.android.odiyo.ui.theme.color.dark_tertiaryContainer
-import com.roland.android.odiyo.util.MediaMenuActions
 import com.roland.android.odiyo.util.Permissions.launchDeviceSettingsUi
 import com.roland.android.odiyo.util.Permissions.rememberPermissionLauncher
 import com.roland.android.odiyo.util.Permissions.writeStoragePermission
-import com.roland.android.odiyo.util.PlaylistMenuActions
-import com.roland.android.odiyo.util.SongDetails
+import com.roland.android.odiyo.util.actions.MediaMenuActions
+import com.roland.android.odiyo.util.actions.SongDetails
 import com.roland.android.odiyo.util.sheetHeight
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +112,7 @@ fun MediaItemSheet(
 	menuAction: (MediaMenuActions) -> Unit,
 	removeFromPlaylist: (Music) -> Unit = {}
 ) {
-	val menuItems = MenuItems.values().toMutableList()
+	val menuItems = MenuItems.entries.toMutableList()
 
 	ItemMenuSheet(
 		modifier = modifier,
@@ -79,7 +128,7 @@ fun MediaItemSheet(
 					.clip(BottomSheetDefaults.ExpandedShape)
 					.clickable {},
 				song = song,
-				currentMediaItem = Util.NOTHING_PLAYING,
+				currentMediaItem = MediaItem.EMPTY,
 				inSelectionMode = false,
 				selected = false,
 				showTrailingIcon = false,
@@ -134,7 +183,7 @@ fun PlaylistItemSheet(
 	playlistMenuAction: (PlaylistMenuActions) -> Unit
 ) {
 	val menuItems = mutableListOf(PlayNext, AddToQueue, Rename, Delete)
-	if (playlist.numOfSongs() == 0) menuItems.removeAll(setOf(PlayNext, AddToQueue))
+	if (playlist.numOfSongs == 0) menuItems.removeAll(setOf(PlayNext, AddToQueue))
 
 	ItemMenuSheet(
 		item = playlist,
@@ -308,7 +357,7 @@ private fun <T>ItemMenuSheet(
 					openWriteSettingsUi.value = true
 				}
 			},
-			openDialog = { openRingtoneDialog.value = false }
+			closeDialog = { openRingtoneDialog.value = false }
 		)
 	}
 
@@ -322,9 +371,7 @@ private fun <T>ItemMenuSheet(
 			playlistMenuAction(PlaylistMenuActions.DeletePlaylist(playlist))
 		} else {
 			val song = item as Music
-			menuAction(MediaMenuActions.DeleteSongs(
-				listOf(SongDetails(song.id, song.uri))
-			))
+			menuAction(MediaMenuActions.DeleteSongs(listOf(song)))
 		} }
 		DeleteDialog(
 			delete = {
@@ -359,16 +406,17 @@ private fun <T>ItemMenuSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SheetItem(
-	icon: ImageVector,
-	menuText: String,
 	modifier: Modifier = Modifier,
+	icon: ImageVector? = null,
+	@DrawableRes iconRes: Int? = null,
+	menuText: String,
 	componentColor: Color = MaterialTheme.colorScheme.onBackground,
 	backgroundColor: Color = BottomSheetDefaults.ContainerColor,
 	selected: Boolean = false,
 	action: () -> Unit
 ) {
 	val interactionSource = remember { MutableInteractionSource() }
-	val ripple = rememberRipple(color = CustomColors.rippleColor(backgroundColor))
+	val ripple = ripple(color = CustomColors.rippleColor(backgroundColor))
 	val contentColor = if (selected) MaterialTheme.colorScheme.primary else componentColor
 
 	Row(
@@ -378,10 +426,18 @@ fun SheetItem(
 			.padding(horizontal = 20.dp, vertical = 16.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		Icon(
-			modifier = Modifier.padding(start = 14.dp), imageVector = icon,
-			contentDescription = null, tint = contentColor
-		)
+		icon?.let {
+			Icon(
+				imageVector = it, modifier = Modifier.padding(start = 14.dp),
+				contentDescription = null, tint = contentColor
+			)
+		}
+		iconRes?.let {
+			Icon(
+				painter = painterResource(it), modifier = Modifier.padding(start = 14.dp),
+				contentDescription = null, tint = contentColor
+			)
+		}
 		Spacer(Modifier.width(20.dp))
 		Text(text = menuText, color = contentColor, fontSize = 20.sp)
 		Spacer(Modifier.weight(1f))
@@ -403,7 +459,7 @@ private enum class MenuItems(
 	AddToQueue(Icons.Rounded.AddToQueue, R.string.add_to_queue),
 	Rename(Icons.Rounded.Edit, R.string.rename),
 	AddToFavorite(Icons.Rounded.Favorite, R.string.add_to_favorite),
-	AddToPlaylist(Icons.Rounded.PlaylistAdd, R.string.add_to_playlist),
+	AddToPlaylist(Icons.AutoMirrored.Rounded.PlaylistAdd, R.string.add_to_playlist),
 	SetAsRingtone(Icons.Rounded.AddAlert, R.string.set_as_ringtone),
 	Share(Icons.Rounded.Share, R.string.share),
 	GoToAlbum(Icons.Rounded.Album, R.string.go_to_album),

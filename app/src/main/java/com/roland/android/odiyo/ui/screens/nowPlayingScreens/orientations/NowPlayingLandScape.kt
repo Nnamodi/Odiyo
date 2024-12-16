@@ -1,0 +1,173 @@
+package com.roland.android.odiyo.ui.screens.nowPlayingScreens.orientations
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Repeat
+import androidx.compose.material.icons.rounded.RepeatOne
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
+import com.roland.android.odiyo.R
+import com.roland.android.odiyo.ui.components.MediaImage
+import com.roland.android.odiyo.ui.components.NowPlayingIconButton
+import com.roland.android.odiyo.ui.navigation.Screens
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.MediaControls
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.MediaDescription
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingUiState
+import com.roland.android.odiyo.util.WindowType
+import com.roland.android.odiyo.util.rememberWindowSize
+
+@Composable
+fun NowPlayingLandscapeView(
+	paddingValues: PaddingValues,
+	uiState: NowPlayingUiState,
+	componentColor: Color,
+	backgroundColor: Color,
+	mediaControl: (MediaControls) -> Unit,
+	goToCollection: (Screens) -> Unit,
+	openMusicQueue: (Boolean) -> Unit
+) {
+	val imageSize = LocalConfiguration.current.screenWidthDp * 0.35
+	val inMultiWindowMode = rememberWindowSize().width == WindowType.Portrait
+	val currentSong = uiState.musicQueue.getOrNull(uiState.currentSongIndex)
+	var songIsFavorite by remember { mutableStateOf(currentSong?.favorite == true) }
+	songIsFavorite = currentSong?.favorite == true
+
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.padding(paddingValues)
+			.padding(start = 30.dp),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		if (!inMultiWindowMode) {
+			MediaImage(
+				modifier = Modifier
+					.size(imageSize.dp)
+					.padding(end = 14.dp),
+				artwork = currentSong?.artwork
+			)
+		}
+
+		Column(
+			modifier = Modifier
+				.fillMaxHeight()
+				.padding(bottom = 10.dp)
+				.weight(1f),
+			horizontalAlignment = Alignment.CenterHorizontally,
+			verticalArrangement = Arrangement.SpaceEvenly
+		) {
+			Row {
+				if (inMultiWindowMode) {
+					MediaImage(
+						modifier = Modifier
+							.size(imageSize.dp)
+							.padding(end = 14.dp),
+						artwork = currentSong?.artwork
+					)
+				}
+
+				Column(
+					modifier = Modifier
+						.weight(1f)
+						.then(if (inMultiWindowMode) Modifier.height(imageSize.dp) else Modifier),
+					verticalArrangement = Arrangement.SpaceBetween
+				) {
+					MediaDescription(
+						currentSong = currentSong, componentColor = componentColor,
+						backgroundColor = backgroundColor, portraitView = false,
+						inMultiWindowMode = inMultiWindowMode, onFavorite = mediaControl,
+						goToCollection = goToCollection
+					)
+					if (inMultiWindowMode) {
+						Row(Modifier.fillMaxWidth(), Arrangement.End) { NowPlayingIconButton(
+							onClick = { mediaControl(MediaControls.Favorite(currentSong!!)) },
+							modifier = Modifier
+								.size(50.dp)
+								.padding(start = 4.dp),
+							toggled = songIsFavorite, color = backgroundColor
+						) {
+							Icon(
+								imageVector = if (songIsFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+								contentDescription = stringResource(if (songIsFavorite) R.string.remove_from_favorite else R.string.add_to_favorite),
+								modifier = Modifier.fillMaxSize(0.75f)
+							)
+						} }
+					}
+				}
+			}
+
+			MediaControls(
+				uiState = uiState, currentSong = currentSong,
+				backgroundColor = backgroundColor,
+				mediaControl = mediaControl, showMusicQueue = openMusicQueue,
+			)
+		}
+
+		MediaUtilActionsLandscape(
+			uiState = uiState, backgroundColor = backgroundColor,
+			mediaControl = mediaControl
+		)
+	}
+}
+
+@Composable
+fun MediaUtilActionsLandscape(
+	uiState: NowPlayingUiState,
+	backgroundColor: Color,
+	mediaControl: (MediaControls) -> Unit
+) {
+	Column(
+		modifier = Modifier
+			.fillMaxHeight()
+			.padding(horizontal = 10.dp),
+		horizontalAlignment = Alignment.CenterHorizontally
+	) {
+		NowPlayingIconButton(
+			onClick = { mediaControl(MediaControls.Mute) },
+			modifier = Modifier.size(50.dp),
+			toggled = uiState.deviceMuted, color = backgroundColor
+		) {
+			Icon(
+				imageVector = Icons.AutoMirrored.Rounded.VolumeOff,
+				contentDescription = stringResource(if (uiState.deviceMuted) R.string.unmute else R.string.mute),
+				modifier = Modifier.fillMaxSize(0.75f)
+			)
+		}
+		Spacer(Modifier.weight(1f))
+		NowPlayingIconButton(
+			onClick = { mediaControl(MediaControls.RepeatMode) },
+			modifier = Modifier.size(50.dp), color = backgroundColor,
+			toggled = uiState.repeatMode != Player.REPEAT_MODE_OFF
+		) {
+			Icon(
+				imageVector = if (uiState.repeatMode == Player.REPEAT_MODE_ONE) Icons.Rounded.RepeatOne else Icons.Rounded.Repeat,
+				contentDescription = stringResource(R.string.repeat_mode),
+				modifier = Modifier.fillMaxSize(0.75f)
+			)
+		}
+	}
+}

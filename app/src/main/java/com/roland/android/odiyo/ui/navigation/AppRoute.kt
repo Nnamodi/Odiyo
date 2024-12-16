@@ -1,50 +1,70 @@
 package com.roland.android.odiyo.ui.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.roland.android.odiyo.ui.components.BottomAppBar
-import com.roland.android.odiyo.ui.screens.*
-import com.roland.android.odiyo.viewmodel.MediaViewModel
-import com.roland.android.odiyo.viewmodel.NowPlayingViewModel
-import com.roland.android.odiyo.viewmodel.PlaylistViewModel
-import com.roland.android.odiyo.viewmodel.SettingsViewModel
+import com.roland.android.odiyo.ui.components.appbars.BottomAppBar
+import com.roland.android.odiyo.ui.screens.home.HomeScreen
+import com.roland.android.odiyo.ui.screens.home.HomeViewModel
+import com.roland.android.odiyo.ui.screens.list.AddSongsScreen
+import com.roland.android.odiyo.ui.screens.list.ListScreen
+import com.roland.android.odiyo.ui.screens.list.ListViewModel
+import com.roland.android.odiyo.ui.screens.media.MediaScreen
+import com.roland.android.odiyo.ui.screens.media.MediaViewModel
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.MediaControls
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingScreen
+import com.roland.android.odiyo.ui.screens.nowPlayingScreens.NowPlayingViewModel
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistViewModel
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistsScreen
+import com.roland.android.odiyo.ui.screens.search.SearchScreen
+import com.roland.android.odiyo.ui.screens.search.SearchViewModel
+import com.roland.android.odiyo.ui.screens.settings.AboutUsScreen
+import com.roland.android.odiyo.ui.screens.settings.SettingsScreen
+import com.roland.android.odiyo.ui.screens.settings.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppRoute(
 	navActions: NavActions,
 	navController: NavHostController,
-	mediaViewModel: MediaViewModel,
-	nowPlayingViewModel: NowPlayingViewModel,
-	playlistViewModel: PlaylistViewModel,
-	settingsViewModel: SettingsViewModel
+	homeViewModel: HomeViewModel = koinViewModel(),
+	listViewModel: ListViewModel = koinViewModel(),
+	mediaViewModel: MediaViewModel = koinViewModel(),
+	nowPlayingViewModel: NowPlayingViewModel = koinViewModel(),
+	playlistViewModel: PlaylistViewModel = koinViewModel(),
+	searchViewModel: SearchViewModel = koinViewModel(),
+	settingsViewModel: SettingsViewModel = koinViewModel()
 ) {
-	val context = LocalContext.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	var selectionModeClosed by remember { mutableStateOf(true) } // determines whether items in a LazyColumn are being selected.
 
 	Scaffold(
 		bottomBar = {
 			BottomAppBar(
-				uiState = mediaViewModel.nowPlayingScreenUiState,
-				playPause = mediaViewModel::playAudio,
-				queueAction = mediaViewModel::queueAction,
-				menuAction = { mediaViewModel.menuAction(context, it) },
-				moveToNowPlayingScreen = navActions::navigateToNowPlayingScreen,
+				uiState = nowPlayingViewModel.nowPlayingUiState,
+				playPause = { nowPlayingViewModel.mediaControl(MediaControls.PlayPause) },
+				queueAction = nowPlayingViewModel::queueActions,
+				menuAction = mediaViewModel::menuAction,
+				moveToNowPlayingScreen = { navActions.navigate(Screens.NowPlayingScreen) },
 				snackbarHostState = snackbarHostState,
 				concealBottomBar = concealMinimizedView(navController),
 				inSelectionMode = !selectionModeClosed
@@ -58,77 +78,56 @@ fun AppRoute(
 			}
 		}
 	) {
-		AnimatedNavHost(
+		NavHost(
 			navController = navController,
-			startDestination = AppRoute.LibraryScreen.route
+			startDestination = AppRoute.HomeScreen.route
 		) {
-			composable(AppRoute.LibraryScreen.route) {
-				LibraryScreen(
-					uiState = mediaViewModel.mediaScreenUiState,
-					playSong = { uri, index, collectionType, collectionName ->
-						mediaViewModel.apply {
-							resetPlaylist(recentSongs)
-							playAudio(uri, index, collectionType, collectionName)
-						}
-						navActions.navigateToNowPlayingScreen()
-					},
-					menuAction = { mediaViewModel.menuAction(context, it) },
-					navigateToMediaScreen = navActions::navigateToMediaScreen,
-					navigateToMediaItemScreen = navActions::navigateToMediaItemScreen,
-					navigateToPlaylistsScreen = navActions::navigateToPlaylistScreen,
-					navigateToSettingsScreen = navActions::navigateToSettingsScreen
+			composable(AppRoute.HomeScreen.route) {
+				HomeScreen(
+					uiState = homeViewModel.homeUiState,
+					menuAction = mediaViewModel::menuAction,
+					navigate = navActions::navigate
 				)
 			}
 			composableI(AppRoute.MediaScreen.route) {
 				MediaScreen(
-					songsTab = { SongsTab(mediaViewModel, navActions) { selectionModeClosed = it } },
-					albumsTab = { AlbumsTab(mediaViewModel, navActions) },
-					artistsTab = { ArtistsTab(mediaViewModel, navActions) },
+					uiState = mediaViewModel.mediaUiState,
 					inSelectMode = !selectionModeClosed,
-					navigateToSearch = navActions::navigateToSearch,
-					navigateUp = navController::navigateUp
+					menuAction = mediaViewModel::menuAction,
+					closeSelectionMode = { selectionModeClosed = it },
+					navigate = navController::navigate
 				)
 			}
 			composableI(AppRoute.PlaylistsScreen.route) {
 				PlaylistsScreen(
-					playlists = mediaViewModel.mediaScreenUiState.playlists,
+					playlists = playlistViewModel.playlists,
 					playlistAction = playlistViewModel::playlistActions,
-					prepareAndViewSongs = navActions::navigateToMediaItemScreen,
-					navigateUp = navController::navigateUp
+					navigate = navController::navigate
 				)
 			}
 			composableI(AppRoute.SettingsScreen.route) {
 				SettingsScreen(
-					uiState = settingsViewModel.settingsScreenUiState,
+					uiState = settingsViewModel.settingsUiState,
 					settingsAction = settingsViewModel::settingsAction,
-					navigateToAboutUsScreen = navActions::navigateToAboutUsScreen,
-					navigateUp = navController::navigateUp
+					navigate = navController::navigate
 				)
 			}
 			composableI(AppRoute.AboutUsScreen.route) { backStackEntry ->
 				val screenToShow = backStackEntry.arguments?.getString("screenToShow") ?: ""
 
-				AboutUsScreen(screenToShow = screenToShow, navigateUp = navController::navigateUp)
+				AboutUsScreen(screenToShow, navController::navigate)
 			}
 			composableI(AppRoute.SearchScreen.route) {
 				SearchScreen(
-					uiState = mediaViewModel.mediaItemsScreenUiState,
-					onSearch = mediaViewModel::onSearch,
-					playAudio = { uri, index, collectionType, collectionName ->
-						mediaViewModel.apply {
-							resetPlaylist(mediaItemsScreenUiState.songs)
-							playAudio(uri, index, collectionType, collectionName)
-						}
-						navActions.navigateToNowPlayingScreen()
-					},
-					menuAction = { mediaViewModel.menuAction(context, it) },
+					uiState = searchViewModel.searchUiState,
+					onSearch = searchViewModel::onSearch,
+					menuAction = searchViewModel::menuAction,
 					closeSelectionMode = { selectionModeClosed = it },
-					goToCollection = navActions::navigateToMediaItemScreen,
-					closeSearchScreen = navController::navigateUp
+					navigate = navController::navigate
 				)
 			}
 			composableI(
-				route = AppRoute.MediaItemsScreen.route,
+				route = AppRoute.ListScreen.route,
 				arguments = listOf(
 					navArgument("collectionName") { type = NavType.StringType },
 					navArgument("collectionType") { type = NavType.StringType }
@@ -137,44 +136,37 @@ fun AppRoute(
 				val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
 				val collectionType = backStackEntry.arguments?.getString("collectionType") ?: ""
 				val previousScreenIsNowPlayingScreen = navController.previousBackStackEntry?.destination?.route == AppRoute.NowPlayingScreen.route
-				mediaViewModel.prepareMediaItems(collectionType, collectionName)
+				listViewModel.getSongsFromCollection(collectionName, collectionType)
 
-				MediaItemsScreen(
-					uiState = mediaViewModel.mediaItemsScreenUiState,
+				ListScreen(
+					uiState = listViewModel.listUiState,
 					previousScreenIsNowPlayingScreen = previousScreenIsNowPlayingScreen,
-					playAudio = { uri, index, type, name ->
-						mediaViewModel.apply {
-							resetPlaylist(mediaItemsScreenUiState.songs)
-							playAudio(uri, index, type, name)
-						}
-						if (previousScreenIsNowPlayingScreen) return@MediaItemsScreen
-						navActions.navigateToNowPlayingScreen()
-					},
-					goToCollection = navActions::navigateToMediaItemScreen,
-					menuAction = { mediaViewModel.menuAction(context, it) },
+					menuAction = mediaViewModel::menuAction,
 					closeSelectionMode = { selectionModeClosed = it },
-					moveToAddSongsScreen = navActions::navigateToAddSongsScreen,
-					navigateUp = navController::navigateUp
+					navigate = navController::navigate
 				)
 			}
 			composableI(AppRoute.AddSongsScreen.route) { backStackEntry ->
 				val playlistName = backStackEntry.arguments?.getString("playlistToAddTo") ?: ""
-				mediaViewModel.prepareMediaItems(ADD_TO_PLAYLIST, playlistName)
+				listViewModel.getSongsFromCollection(ADD_TO_PLAYLIST, playlistName)
 
 				AddSongsScreen(
-					uiState = mediaViewModel.mediaItemsScreenUiState,
-					menuAction = { mediaViewModel.menuAction(context, it) }
-				) { if (it) navController.navigateUp(); selectionModeClosed = it }
+					uiState = listViewModel.listUiState,
+					menuAction = mediaViewModel::menuAction,
+					closeSelectionMode = {
+						if (it) navController.navigateUp()
+						selectionModeClosed = it
+					}
+				)
 			}
 			composableII(AppRoute.NowPlayingScreen.route) {
 				NowPlayingScreen(
-					uiState = nowPlayingViewModel.nowPlayingScreenUiState,
+					uiState = nowPlayingViewModel.nowPlayingUiState,
 					isDarkTheme = settingsViewModel.isDarkTheme ?: isSystemInDarkTheme(),
-					mediaControl = { nowPlayingViewModel.mediaControl(context, it) },
-					menuAction = { mediaViewModel.menuAction(context, it) },
-					queueAction = nowPlayingViewModel::queueAction,
-					goToCollection = navActions::navigateToMediaItemScreen,
-					navigateUp = navController::navigateUp
+					mediaControl = nowPlayingViewModel::mediaControl,
+					menuAction = mediaViewModel::menuAction,
+					queueAction = nowPlayingViewModel::queueActions,
+					navigate = navController::navigate
 				)
 			}
 		}

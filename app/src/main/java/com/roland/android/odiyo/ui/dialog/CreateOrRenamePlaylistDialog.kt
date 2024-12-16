@@ -6,8 +6,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -15,14 +23,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.roland.android.domain.model.Playlist
 import com.roland.android.odiyo.R
-import com.roland.android.odiyo.mediaSource.previewPlaylist
-import com.roland.android.odiyo.model.Playlist
+import com.roland.android.odiyo.data.previewPlaylist
 import com.roland.android.odiyo.ui.components.CustomInputText
 import com.roland.android.odiyo.ui.components.DialogButtonText
 import com.roland.android.odiyo.ui.navigation.PLAYLISTS
+import com.roland.android.odiyo.ui.screens.playlists.PlaylistMenuActions
 import com.roland.android.odiyo.ui.theme.OdiyoTheme
-import com.roland.android.odiyo.util.PlaylistMenuActions
 
 @Composable
 fun CreateOrRenamePlaylistDialog(
@@ -68,7 +76,6 @@ fun CreateOrRenamePlaylistDialog(
 						dialogAction(PlaylistMenuActions.CreatePlaylist(createdPlaylist), createdPlaylist.name)
 						openPlaylist(createdPlaylist.name, PLAYLISTS)
 					} else {
-						playlist.name = playlistName
 						dialogAction(PlaylistMenuActions.RenamePlaylist(playlist), playlistName)
 					}
 					openDialog(false)
